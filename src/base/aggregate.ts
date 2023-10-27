@@ -55,7 +55,7 @@ export class Aggregate<P extends object>
 
   static newAggregate<T extends AnyAggregate>(
     this: AggregateClass<T>,
-    props: PropsOf<T>,
+    props?: PropsOf<T>,
     metadata?: NewAggregateMetadataOptions
   ) {
     return new this(

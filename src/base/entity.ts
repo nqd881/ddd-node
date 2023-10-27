@@ -28,7 +28,7 @@ export class Entity<P extends object>
 
   static newEntity<T extends AnyEntity>(
     this: EntityClass<T>,
-    props: PropsOf<T>,
+    props?: PropsOf<T>,
     metadata?: NewEntityMetadataOptions
   ) {
     return new this(
