@@ -26,8 +26,12 @@ export class PropsEnvelope<P extends object> {
   }
 }
 
-export type PropsOf<T extends PropsEnvelope<object>> = T extends PropsEnvelope<
+export type AnyPropsEnvelope = PropsEnvelope<any>;
+
+export type PropsOf<T extends AnyPropsEnvelope> = T extends PropsEnvelope<
   infer P
 >
   ? P
   : never;
+
+export type EmptyProps = {};
