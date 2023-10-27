@@ -39,9 +39,9 @@ export class Aggregate<P extends object>
 {
   private readonly _version: number;
 
-  protected handledCommands: AnyCommand[] = [];
-  protected pastEvents: AnyEvent[] = [];
-  protected events: AnyEvent[] = [];
+  private handledCommands: AnyCommand[] = [];
+  private pastEvents: AnyEvent[] = [];
+  private events: AnyEvent[] = [];
 
   constructor(metadata: IAggregateMetadata, props?: P) {
     super({ id: metadata.id }, props);
