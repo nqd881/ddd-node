@@ -1,7 +1,7 @@
 import { getCommandType } from "#metadata/command";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { generatePrefixedUUID } from "#utils/id";
+import { v4 } from "uuid";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface ICommandMetadata {
@@ -44,7 +44,7 @@ export class Command<P extends object>
   ) {
     return new this(
       {
-        id: generatePrefixedUUID(this.commandType()),
+        id: v4(),
         timestamp: Date.now(),
         ...metadata,
       },

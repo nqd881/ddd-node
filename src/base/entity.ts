@@ -1,7 +1,7 @@
 import { getEntityType } from "#metadata/entity";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { generatePrefixedUUID } from "#utils/id";
+import { v4 } from "uuid";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface IEntityMetadata {
@@ -33,7 +33,7 @@ export class Entity<P extends object>
   ) {
     return new this(
       {
-        id: generatePrefixedUUID(this.entityType()),
+        id: v4(),
         ...metadata,
       },
       props

@@ -5,8 +5,8 @@ import {
 } from "#metadata/aggregate";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { generatePrefixedUUID } from "#utils/id";
-import { toArray } from "../utils/to-array";
+import { v4 } from "uuid";
+import { toArray } from "#utils/to-array";
 import { AnyCommand } from "./command";
 import { Entity, IEntityMetadata } from "./entity";
 import {
@@ -60,7 +60,7 @@ export class Aggregate<P extends object>
   ) {
     return new this(
       {
-        id: generatePrefixedUUID(this.agggregateType()),
+        id: v4(),
         version: 0,
         ...metadata,
       },

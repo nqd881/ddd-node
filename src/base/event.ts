@@ -1,7 +1,7 @@
 import { getEventType } from "#metadata/event";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { generatePrefixedUUID } from "#utils/id";
+import { v4 } from "uuid";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface IEventAggregate {
@@ -54,7 +54,7 @@ export class Event<P extends object>
   ) {
     return new this(
       {
-        id: generatePrefixedUUID(this.eventType()),
+        id: v4(),
         timestamp: Date.now(),
         aggregate,
         ...metadata,
