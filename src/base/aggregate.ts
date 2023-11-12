@@ -73,11 +73,11 @@ export class Aggregate<P extends object>
     id: string,
     version: number,
     props: PropsOf<T>,
-    pastEvents: AnyEvent[]
+    pastEvents?: AnyEvent[]
   ) {
     const aggregate = new this({ id, version }, props);
 
-    aggregate.applyEvents(pastEvents, true);
+    if (pastEvents) aggregate.applyEvents(pastEvents, true);
 
     return aggregate;
   }
