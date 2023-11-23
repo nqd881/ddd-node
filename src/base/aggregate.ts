@@ -16,12 +16,7 @@ import {
   InvalidEventAggregateVersionError,
   PastEventCannotBeAddedError,
 } from "./errors/aggregate.error";
-import {
-  AnyEvent,
-  EventClass,
-  IEventAggregate,
-  NewEventMetadataOptions,
-} from "./event";
+import { AnyEvent, EventClass, NewEventMetadataOptions } from "./event";
 import { Id } from "./id";
 import { PropsOf } from "./props-envelope";
 
@@ -98,20 +93,20 @@ export class Aggregate<P extends object>
     return this.version + 1;
   }
 
-  nextEventAggregate(): IEventAggregate {
-    return {
-      type: this.aggregateType(),
-      id: this.id,
-      version: this.nextVersion(),
-    };
-  }
-
   protected newEvent<E extends AnyEvent>(
     eventClass: EventClass<E>,
     props: PropsOf<E>,
     metadata?: NewEventMetadataOptions
   ) {
-    return eventClass.newEvent(this.nextEventAggregate(), props, metadata);
+    return eventClass.newEvent(
+      {
+        id: this.id,
+        type: this.aggregateType(),
+        version: this.nextVersion(),
+      },
+      props,
+      metadata
+    );
   }
 
   protected addEvent<E extends AnyEvent>(event: E) {
@@ -149,7 +144,7 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     return this.hasEvents() ? this.events.at(-1) : this.pastEvents.at(-1);
   }
 
-  lastEventVersion() {
+  currentVersion() {
     const lastEvent = this.lastEvent();
 
     if (lastEvent) return lastEvent.aggregate.version;
@@ -157,16 +152,8 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     return this.version;
   }
 
-  nextEventVersion() {
-    return this.lastEventVersion() + 1;
-  }
-
-  override nextEventAggregate(): IEventAggregate {
-    return {
-      type: this.aggregateType(),
-      id: this.id,
-      version: this.nextEventVersion(),
-    };
+  override nextVersion() {
+    return this.currentVersion() + 1;
   }
 
   private addPastEvent<E extends AnyEvent>(event: E) {
@@ -183,7 +170,7 @@ export class AggregateES<P extends object> extends Aggregate<P> {
 
     if (id !== this.id) throw new InvalidEventAggregateIdError();
 
-    if (version !== this.nextEventVersion())
+    if (version !== this.nextVersion())
       throw new InvalidEventAggregateVersionError();
   }
 
@@ -292,5 +279,8 @@ export type AggregateESClass<T extends AnyAggregateES> = Class<
   AggregateConstructorParams<T>
 > &
   ClassStatic<typeof AggregateES<PropsOf<T>>>;
+
+export type InferAggregateClass<T extends AnyAggregate> =
+  T extends AnyAggregateES ? AggregateESClass<T> : AggregateClass<T>;
 
 export type AnyAggregateClass = AggregateClass<AnyAggregate>;
