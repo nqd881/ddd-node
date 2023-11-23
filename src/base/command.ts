@@ -1,11 +1,11 @@
 import { getCommandType } from "#metadata/command";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { v4 } from "uuid";
+import { Id } from "./id";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface ICommandMetadata {
-  readonly id: string;
+  readonly id: Id;
   readonly timestamp: number;
   correlationId?: string;
   causationId?: string;
@@ -19,7 +19,7 @@ export class Command<P extends object>
   extends PropsEnvelope<P>
   implements ICommandMetadata
 {
-  private readonly _id: string;
+  private readonly _id: Id;
   private readonly _timestamp: number;
   private _correlationId?: string;
   private _causationId?: string;
@@ -44,7 +44,7 @@ export class Command<P extends object>
   ) {
     return new this(
       {
-        id: v4(),
+        id: Id.unique(),
         timestamp: Date.now(),
         ...metadata,
       },

@@ -25,4 +25,4 @@ console.log(userA.credentials);
 userA.changeName(nameA.with({ lastName: "Huy" }));
 
 console.log(userA);
-console.log(userA.name);
+console.log(userA.getEvents());

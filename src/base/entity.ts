@@ -1,11 +1,11 @@
 import { getEntityType } from "#metadata/entity";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { v4 } from "uuid";
+import { Id } from "./id";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface IEntityMetadata {
-  readonly id: string;
+  readonly id: Id;
 }
 
 export type NewEntityMetadataOptions = Partial<IEntityMetadata>;
@@ -14,7 +14,7 @@ export class Entity<P extends object>
   extends PropsEnvelope<P>
   implements IEntityMetadata
 {
-  private readonly _id: string;
+  private readonly _id: Id;
 
   constructor(metadata: IEntityMetadata, props?: P) {
     super(props);
@@ -33,7 +33,7 @@ export class Entity<P extends object>
   ) {
     return new this(
       {
-        id: v4(),
+        id: Id.unique(),
         ...metadata,
       },
       props
@@ -52,7 +52,7 @@ export class Entity<P extends object>
 
   equals<E extends AnyEntity>(entity: E) {
     const equalsType = entity instanceof this.constructor;
-    const equalsId = entity.id === this.id;
+    const equalsId = entity.id.equals(entity.id);
 
     return equalsType && equalsId;
   }

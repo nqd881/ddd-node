@@ -5,7 +5,6 @@ import {
 } from "#metadata/aggregate";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { v4 } from "uuid";
 import { toArray } from "#utils/to-array";
 import { AnyCommand } from "./command";
 import { Entity, IEntityMetadata } from "./entity";
@@ -23,6 +22,7 @@ import {
   IEventAggregate,
   NewEventMetadataOptions,
 } from "./event";
+import { Id } from "./id";
 import { PropsOf } from "./props-envelope";
 
 export interface IAggregateMetadata extends IEntityMetadata {
@@ -37,11 +37,8 @@ export class Aggregate<P extends object>
   extends Entity<P>
   implements IAggregateMetadata
 {
-  private readonly _version: number;
-
-  private handledCommands: AnyCommand[] = [];
-  private pastEvents: AnyEvent[] = [];
-  private events: AnyEvent[] = [];
+  protected readonly _version: number;
+  protected events: AnyEvent[] = [];
 
   constructor(metadata: IAggregateMetadata, props?: P) {
     super({ id: metadata.id }, props);
@@ -60,7 +57,7 @@ export class Aggregate<P extends object>
   ) {
     return new this(
       {
-        id: v4(),
+        id: Id.unique(),
         version: 0,
         ...metadata,
       },
@@ -70,14 +67,11 @@ export class Aggregate<P extends object>
 
   static loadAggregate<T extends AnyAggregate>(
     this: AggregateClass<T>,
-    id: string,
+    id: Id,
     version: number,
-    props: PropsOf<T>,
-    pastEvents?: AnyEvent[]
+    props: PropsOf<T>
   ) {
     const aggregate = new this({ id, version }, props);
-
-    if (pastEvents) aggregate.applyEvents(pastEvents, true);
 
     return aggregate;
   }
@@ -92,20 +86,63 @@ export class Aggregate<P extends object>
     return getAggregateType(prototype);
   }
 
-  getHandledCommands() {
-    return this.handledCommands;
-  }
-
-  getPastEvents() {
-    return this.pastEvents;
-  }
-
   getEvents() {
     return this.events;
   }
 
   hasEvents() {
     return Boolean(this.events.length);
+  }
+
+  nextVersion() {
+    return this.version + 1;
+  }
+
+  nextEventAggregate(): IEventAggregate {
+    return {
+      type: this.aggregateType(),
+      id: this.id,
+      version: this.nextVersion(),
+    };
+  }
+
+  protected newEvent<E extends AnyEvent>(
+    eventClass: EventClass<E>,
+    props: PropsOf<E>,
+    metadata?: NewEventMetadataOptions
+  ) {
+    return eventClass.newEvent(this.nextEventAggregate(), props, metadata);
+  }
+
+  protected addEvent<E extends AnyEvent>(event: E) {
+    this.events.push(event);
+  }
+}
+
+export class AggregateES<P extends object> extends Aggregate<P> {
+  protected handledCommands: AnyCommand[] = [];
+  protected pastEvents: AnyEvent[] = [];
+
+  static override loadAggregate<T extends AnyAggregateES>(
+    this: AggregateESClass<T>,
+    id: Id,
+    version: number,
+    props: PropsOf<T>,
+    pastEvents?: AnyEvent[]
+  ) {
+    const aggregate = new this({ id, version }, props);
+
+    if (pastEvents) aggregate.applyEvents(pastEvents, true);
+
+    return aggregate;
+  }
+
+  getHandledCommands() {
+    return this.handledCommands;
+  }
+
+  getPastEvents() {
+    return this.pastEvents;
   }
 
   lastEvent() {
@@ -124,7 +161,7 @@ export class Aggregate<P extends object>
     return this.lastEventVersion() + 1;
   }
 
-  nextEventAggregate(): IEventAggregate {
+  override nextEventAggregate(): IEventAggregate {
     return {
       type: this.aggregateType(),
       id: this.id,
@@ -132,32 +169,10 @@ export class Aggregate<P extends object>
     };
   }
 
-  protected newEvent<E extends AnyEvent>(
-    eventClass: EventClass<E>,
-    props: PropsOf<E>,
-    metadata?: NewEventMetadataOptions
-  ) {
-    return eventClass.newEvent(this.nextEventAggregate(), props, metadata);
-  }
-
-  protected addEvent<E extends AnyEvent>(event: E) {
-    this.events.push(event);
-  }
-
-  protected addPastEvent<E extends AnyEvent>(event: E) {
+  private addPastEvent<E extends AnyEvent>(event: E) {
     if (this.hasEvents()) throw new PastEventCannotBeAddedError();
 
     this.pastEvents.push(event);
-  }
-
-  getEventApplier(eventType: string) {
-    const prototype = Object.getPrototypeOf(this);
-
-    const eventApplier = getAggregateEventApplier(prototype, eventType);
-
-    if (eventApplier) return eventApplier.bind(this);
-
-    return null;
   }
 
   private validateEventBeforeApply<E extends AnyEvent>(event: E) {
@@ -170,6 +185,16 @@ export class Aggregate<P extends object>
 
     if (version !== this.nextEventVersion())
       throw new InvalidEventAggregateVersionError();
+  }
+
+  getEventApplier(eventType: string) {
+    const prototype = Object.getPrototypeOf(this);
+
+    const eventApplier = getAggregateEventApplier(prototype, eventType);
+
+    if (eventApplier) return eventApplier.bind(this);
+
+    return null;
   }
 
   applyEvent<E extends AnyEvent>(event: E, fromHistory = false) {
@@ -225,21 +250,11 @@ export class Aggregate<P extends object>
 
     return events;
   }
-
-  processCommands(commands: AnyCommand[]) {
-    const result: Record<string, AnyEvent[]> = {};
-
-    commands.forEach((command) => {
-      const events = this.processCommand(command);
-
-      result[command.id] = events;
-    });
-
-    return result;
-  }
 }
 
 export type AnyAggregate = Aggregate<any>;
+
+export type AnyAggregateES = AggregateES<any>;
 
 export type AggregateEventApplier<E extends AnyEvent> = (event: E) => void;
 
@@ -257,6 +272,12 @@ export type AggregateClassWithProps<P extends object> = Class<
 > &
   ClassStatic<typeof Aggregate<P>>;
 
+export type AggregateESClassWithProps<P extends object> = Class<
+  AggregateES<P>,
+  AggregateConstructorParamsWithProps<P>
+> &
+  ClassStatic<typeof AggregateES<P>>;
+
 export type AggregateConstructorParams<T extends AnyAggregate> =
   AggregateConstructorParamsWithProps<PropsOf<T>>;
 
@@ -265,5 +286,11 @@ export type AggregateClass<T extends AnyAggregate> = Class<
   AggregateConstructorParams<T>
 > &
   ClassStatic<typeof Aggregate<PropsOf<T>>>;
+
+export type AggregateESClass<T extends AnyAggregateES> = Class<
+  T,
+  AggregateConstructorParams<T>
+> &
+  ClassStatic<typeof AggregateES<PropsOf<T>>>;
 
 export type AnyAggregateClass = AggregateClass<AnyAggregate>;

@@ -1,17 +1,17 @@
 import { getEventType } from "#metadata/event";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { v4 } from "uuid";
+import { Id } from "./id";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface IEventAggregate {
+  readonly id: Id;
   readonly type: string;
-  readonly id: string;
   readonly version: number;
 }
 
 export interface IEventMetadata {
-  readonly id: string;
+  readonly id: Id;
   readonly timestamp: number;
   readonly aggregate: IEventAggregate;
   correlationId?: string;
@@ -26,7 +26,7 @@ export class Event<P extends object>
   extends PropsEnvelope<P>
   implements IEventMetadata
 {
-  private readonly _id: string;
+  private readonly _id: Id;
   private readonly _timestamp: number;
   private readonly _aggregate: IEventAggregate;
   private _correlationId?: string;
@@ -54,7 +54,7 @@ export class Event<P extends object>
   ) {
     return new this(
       {
-        id: v4(),
+        id: Id.unique(),
         timestamp: Date.now(),
         aggregate,
         ...metadata,
