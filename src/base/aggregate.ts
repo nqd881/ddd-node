@@ -113,10 +113,10 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     this: AggregateESClass<T>,
     id: Id,
     events: AnyEvent[]
-  ): T {
+  ) {
     const aggregate = new this({ id, version: 0 });
 
-    aggregate.applyEvents(events);
+    aggregate.applyEvents(events, true);
 
     return aggregate;
   }
@@ -125,12 +125,12 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     this: AggregateESClass<T>,
     snapshot: Snapshot<T>,
     eventsAfterSnapshot: AnyEvent[]
-  ): T {
+  ) {
     const { metadata, props } = snapshot;
 
     const aggregate = new this(metadata, props);
 
-    aggregate.applyEvents(eventsAfterSnapshot);
+    aggregate.applyEvents(eventsAfterSnapshot, true);
 
     return aggregate;
   }
