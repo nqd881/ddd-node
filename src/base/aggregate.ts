@@ -24,10 +24,6 @@ export interface IAggregateMetadata extends IEntityMetadata {
   readonly version: number;
 }
 
-export type NewAggregateMetadataOptions = Partial<
-  Omit<IAggregateMetadata, "version">
->;
-
 export class Aggregate<P extends object>
   extends Entity<P>
   implements IAggregateMetadata
@@ -47,28 +43,15 @@ export class Aggregate<P extends object>
 
   static newAggregate<T extends AnyAggregate>(
     this: AggregateClass<T>,
-    props?: PropsOf<T>,
-    metadata?: NewAggregateMetadataOptions
+    props?: PropsOf<T>
   ) {
     return new this(
       {
         id: Id.unique(),
         version: 0,
-        ...metadata,
       },
       props
     );
-  }
-
-  static loadAggregate<T extends AnyAggregate>(
-    this: AggregateClass<T>,
-    id: Id,
-    version: number,
-    props: PropsOf<T>
-  ) {
-    const aggregate = new this({ id, version }, props);
-
-    return aggregate;
   }
 
   get version() {
@@ -114,20 +97,40 @@ export class Aggregate<P extends object>
   }
 }
 
+export interface SnapshotWithProps<P extends object> {
+  metadata: IAggregateMetadata;
+  props: P;
+}
+
+export interface Snapshot<T extends AnyAggregateES>
+  extends SnapshotWithProps<PropsOf<T>> {}
+
 export class AggregateES<P extends object> extends Aggregate<P> {
   protected handledCommands: AnyCommand[] = [];
   protected pastEvents: AnyEvent[] = [];
 
-  static override loadAggregate<T extends AnyAggregateES>(
+  static stream<T extends AnyAggregateES>(
     this: AggregateESClass<T>,
     id: Id,
-    version: number,
-    props: PropsOf<T>,
-    pastEvents?: AnyEvent[]
-  ) {
-    const aggregate = new this({ id, version }, props);
+    events: AnyEvent[]
+  ): T {
+    const aggregate = new this({ id, version: 0 });
 
-    if (pastEvents) aggregate.applyEvents(pastEvents, true);
+    aggregate.applyEvents(events);
+
+    return aggregate;
+  }
+
+  static snapshot<T extends AnyAggregateES>(
+    this: AggregateESClass<T>,
+    snapshot: Snapshot<T>,
+    eventsAfterSnapshot: AnyEvent[]
+  ): T {
+    const { metadata, props } = snapshot;
+
+    const aggregate = new this(metadata, props);
+
+    aggregate.applyEvents(eventsAfterSnapshot);
 
     return aggregate;
   }
@@ -236,6 +239,16 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     this.handledCommands.push(command);
 
     return events;
+  }
+
+  snap(): SnapshotWithProps<P> {
+    return {
+      metadata: {
+        id: this.id,
+        version: this.version,
+      },
+      props: this.getProps(),
+    };
   }
 }
 
