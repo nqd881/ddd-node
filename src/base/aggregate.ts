@@ -37,7 +37,7 @@ export class Aggregate<P extends object>
     this._version = metadata.version;
   }
 
-  static agggregateType() {
+  static aggregateType() {
     return getAggregateType(this.prototype);
   }
 
