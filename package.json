@@ -1,6 +1,6 @@
 {
   "name": "ddd-node",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "Domain Driven Design base for NodeJs",
   "main": "dist/index.js",
   "scripts": {
