@@ -2,35 +2,28 @@ import { getCommandType } from "#metadata/command";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
 import { Id } from "./id";
-import { PropsEnvelope, PropsOf } from "./props-envelope";
+import { IMessageMetadata, Message } from "./message";
+import { PropsOf } from "./props-envelope";
 
-export interface ICommandMetadata {
-  readonly id: Id;
-  readonly timestamp: number;
-  correlationId?: string;
-  causationId?: string;
+export interface ICommandMetadata extends IMessageMetadata {
+  readonly commandType: string;
 }
 
-export type NewCommandMetadataOptions = Partial<
-  Omit<ICommandMetadata, "timestamp">
+export type NewCommandMetadataOptions = Omit<
+  ICommandMetadata,
+  "aggregateType" | "timestamp"
 >;
 
 export class Command<P extends object>
-  extends PropsEnvelope<P>
+  extends Message<P>
   implements ICommandMetadata
 {
-  private readonly _id: Id;
-  private readonly _timestamp: number;
-  private _correlationId?: string;
-  private _causationId?: string;
+  private readonly _commandType: string;
 
   constructor(metadata: ICommandMetadata, props: P) {
-    super(props);
+    super(metadata, props);
 
-    this._id = metadata.id;
-    this._timestamp = metadata.timestamp;
-    this._correlationId = metadata?.correlationId;
-    this._causationId = metadata?.causationId;
+    this._commandType = metadata.commandType;
   }
 
   static commandType() {
@@ -44,42 +37,18 @@ export class Command<P extends object>
   ) {
     return new this(
       {
+        commandType: this.commandType(),
         id: Id.unique(),
         timestamp: Date.now(),
+        aggregateType: this.aggregateType(),
         ...metadata,
       },
       props
     );
   }
 
-  get id() {
-    return this._id;
-  }
-
-  get timestamp() {
-    return this._timestamp;
-  }
-
-  get correlationId() {
-    return this._correlationId;
-  }
-
-  get causationId() {
-    return this._causationId;
-  }
-
-  setCorrelationId(correlationId: string) {
-    if (!this.correlationId) this._correlationId = correlationId;
-  }
-
-  setCausationId(causationId: string) {
-    if (!this.causationId) this._causationId = causationId;
-  }
-
-  commandType() {
-    const prototype = Object.getPrototypeOf(this);
-
-    return getCommandType(prototype);
+  get commandType() {
+    return this._commandType;
   }
 }
 
@@ -103,4 +72,4 @@ export type CommandClass<T extends AnyCommand> = Class<
 > &
   ClassStatic<typeof Command<PropsOf<T>>>;
 
-export type AnyCommandClass = CommandClass<AnyCommand>;
+export type AnyCommandClass = Class<AnyCommand>;

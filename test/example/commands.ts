@@ -1,13 +1,14 @@
 import { Command } from "#base/command";
 import { TypeCommand } from "src/decorators";
-import { Name } from "./name";
+import { Name } from ".";
+import { AggregateTypes } from "./type";
 
 export interface ChangePasswordCommandProps {
   oldPassword: string;
   newPassword: string;
 }
 
-@TypeCommand()
+@TypeCommand(AggregateTypes.User, "change_password")
 export class ChangePasswordCommand extends Command<ChangePasswordCommandProps> {}
 
 //
@@ -15,5 +16,5 @@ export interface ChangeNameCommandProps {
   newName: Name;
 }
 
-@TypeCommand()
+@TypeCommand(AggregateTypes.User, "change_name")
 export class ChangeNameCommand extends Command<ChangeNameCommandProps> {}

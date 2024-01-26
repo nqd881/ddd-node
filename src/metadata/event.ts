@@ -1,8 +1,8 @@
 import { AnyEventClass } from "#base/event";
 import "reflect-metadata";
 import { EVENT_TYPE } from "./constants";
-import { Registry } from "./registry";
 import { EventTypeHasNotBeenSetError } from "./errors";
+import { Registry } from "./registry";
 
 export const EventRegistry = new Registry<AnyEventClass>();
 

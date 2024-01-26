@@ -55,4 +55,4 @@ export type ValueObjectClass<T extends AnyValueObject> = Class<
 > &
   ClassStatic<typeof ValueObject<PropsOf<T>>>;
 
-export type AnyValueObjectClass = ValueObjectClass<AnyValueObject>;
+export type AnyValueObjectClass = Class<AnyValueObject>;

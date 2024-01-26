@@ -11,6 +11,7 @@ import { Entity, IEntityMetadata } from "./entity";
 import {
   CommandHandlerNotFoundError,
   EventApplierNotFoundError,
+  InvalidCommandAggregateTypeError,
   InvalidEventAggregateIdError,
   InvalidEventAggregateTypeError,
   InvalidEventAggregateVersionError,
@@ -21,19 +22,26 @@ import { Id } from "./id";
 import { PropsOf } from "./props-envelope";
 
 export interface IAggregateMetadata extends IEntityMetadata {
+  readonly aggregateType: string;
   readonly version: number;
 }
+
+export type NewAggregateMetadata = Partial<
+  Omit<IAggregateMetadata, "aggregateType">
+>;
 
 export class Aggregate<P extends object>
   extends Entity<P>
   implements IAggregateMetadata
 {
+  private readonly _aggregateType: string;
   protected readonly _version: number;
   protected events: AnyEvent[] = [];
 
   constructor(metadata: IAggregateMetadata, props?: P) {
     super({ id: metadata.id }, props);
 
+    this._aggregateType = metadata.aggregateType;
     this._version = metadata.version;
   }
 
@@ -43,12 +51,15 @@ export class Aggregate<P extends object>
 
   static newAggregate<T extends AnyAggregate>(
     this: AggregateClass<T>,
-    props?: PropsOf<T>
+    props?: PropsOf<T>,
+    metadata?: NewAggregateMetadata
   ) {
     return new this(
       {
+        aggregateType: this.aggregateType(),
         id: Id.unique(),
         version: 0,
+        ...metadata,
       },
       props
     );
@@ -58,10 +69,8 @@ export class Aggregate<P extends object>
     return this._version;
   }
 
-  aggregateType() {
-    const prototype = Object.getPrototypeOf(this);
-
-    return getAggregateType(prototype);
+  get aggregateType() {
+    return this._aggregateType;
   }
 
   getEvents() {
@@ -84,7 +93,6 @@ export class Aggregate<P extends object>
     return eventClass.newEvent(
       {
         id: this.id,
-        type: this.aggregateType(),
         version: this.nextVersion(),
       },
       props,
@@ -94,6 +102,16 @@ export class Aggregate<P extends object>
 
   protected addEvent<E extends AnyEvent>(event: E) {
     this.events.push(event);
+  }
+
+  protected addNewEvent<E extends AnyEvent>(
+    eventClass: EventClass<E>,
+    props: PropsOf<E>,
+    metadata?: NewEventMetadataOptions
+  ) {
+    const event = this.newEvent(eventClass, props, metadata);
+
+    this.addEvent(event);
   }
 }
 
@@ -114,7 +132,7 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     id: Id,
     events: AnyEvent[]
   ) {
-    const aggregate = new this({ id, version: 0 });
+    const aggregate = this.newAggregate(undefined, { id });
 
     aggregate.applyEvents(events, true);
 
@@ -166,18 +184,19 @@ export class AggregateES<P extends object> extends Aggregate<P> {
   }
 
   private validateEventBeforeApply<E extends AnyEvent>(event: E) {
-    const { type, id, version } = event.aggregate;
+    const { aggregateType } = event;
+    const { id, version } = event.aggregate;
 
-    if (type !== this.aggregateType())
+    if (aggregateType !== this.aggregateType)
       throw new InvalidEventAggregateTypeError();
 
-    if (id !== this.id) throw new InvalidEventAggregateIdError();
+    if (!id.equals(this.id)) throw new InvalidEventAggregateIdError();
 
     if (version !== this.nextVersion())
       throw new InvalidEventAggregateVersionError();
   }
 
-  getEventApplier(eventType: string) {
+  getEventApplierSafe(eventType: string) {
     const prototype = Object.getPrototypeOf(this);
 
     const eventApplier = getAggregateEventApplier(prototype, eventType);
@@ -187,12 +206,18 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     return null;
   }
 
-  applyEvent<E extends AnyEvent>(event: E, fromHistory = false) {
-    const eventType = event.eventType();
-
-    const applier = this.getEventApplier(eventType);
+  getEventApplier(eventType: string) {
+    const applier = this.getEventApplierSafe(eventType);
 
     if (!applier) throw new EventApplierNotFoundError(eventType);
+
+    return applier;
+  }
+
+  applyEvent<E extends AnyEvent>(event: E, fromHistory = false) {
+    const { eventType } = event;
+
+    const applier = this.getEventApplier(eventType);
 
     this.validateEventBeforeApply(event);
 
@@ -208,7 +233,7 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     });
   }
 
-  getCommandHandler(commandType: string) {
+  getCommandHandlerSafe(commandType: string) {
     const prototype = Object.getPrototypeOf(this);
 
     const commandHandler = getAggregateCommandHandler(prototype, commandType);
@@ -218,12 +243,27 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     return null;
   }
 
+  getCommandHandler(commandType: string) {
+    const handler = this.getCommandHandlerSafe(commandType);
+
+    if (!handler) throw new CommandHandlerNotFoundError(commandType);
+
+    return handler;
+  }
+
+  private validateCommandBeforeProcess<C extends AnyCommand>(command: C) {
+    const { aggregateType } = command;
+
+    if (aggregateType !== this.aggregateType)
+      throw new InvalidCommandAggregateTypeError();
+  }
+
   processCommand<C extends AnyCommand>(command: C) {
-    const commandType = command.commandType();
+    const { commandType } = command;
 
     const handler = this.getCommandHandler(commandType);
 
-    if (!handler) throw new CommandHandlerNotFoundError(commandType);
+    this.validateCommandBeforeProcess(command);
 
     const events = toArray(handler(command));
 
@@ -245,6 +285,7 @@ export class AggregateES<P extends object> extends Aggregate<P> {
     return {
       metadata: {
         id: this.id,
+        aggregateType: this.aggregateType,
         version: this.version,
       },
       props: this.getProps(),
@@ -296,4 +337,4 @@ export type AggregateESClass<T extends AnyAggregateES> = Class<
 export type InferAggregateClass<T extends AnyAggregate> =
   T extends AnyAggregateES ? AggregateESClass<T> : AggregateClass<T>;
 
-export type AnyAggregateClass = AggregateClass<AnyAggregate>;
+export type AnyAggregateClass = Class<AnyAggregate>;

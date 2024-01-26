@@ -78,4 +78,4 @@ export type EntityClass<T extends AnyEntity> = Class<
 > &
   ClassStatic<typeof Entity<PropsOf<T>>>;
 
-export type AnyEntityClass = EntityClass<AnyEntity>;
+export type AnyEntityClass = Class<AnyEntity>;

@@ -1,16 +1,21 @@
 import { AggregateES } from "#base/aggregate";
 import { ApplyEvent, ProcessCommand, TypeAggregate } from "src/decorators";
-import { ChangeNameCommand, ChangePasswordCommand } from "./commands";
-import { Credentials } from "./credentials";
-import { NameChangedEvent, PasswordChangedEvent } from "./events";
-import { Name } from "./name";
+import {
+  ChangeNameCommand,
+  ChangePasswordCommand,
+  Credentials,
+  Name,
+  NameChangedEvent,
+  PasswordChangedEvent,
+} from ".";
+import { AggregateTypes } from "./type";
 
 export interface UserProps {
   name: Name;
   credentials: Credentials;
 }
 
-@TypeAggregate()
+@TypeAggregate(AggregateTypes.User)
 export class User extends AggregateES<UserProps> {
   get name() {
     return this.props.name;

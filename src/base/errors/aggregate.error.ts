@@ -19,7 +19,7 @@ export class CommandHandlerNotFoundError extends Error {
 export class InvalidEventAggregateTypeError extends Error {
   constructor() {
     super(
-      "The event must have the aggregateType is equal to the type of the aggregate that applied that event"
+      "The event must have the aggregate type equal to the type of the aggregate instance"
     );
   }
 }
@@ -27,7 +27,7 @@ export class InvalidEventAggregateTypeError extends Error {
 export class InvalidEventAggregateIdError extends Error {
   constructor() {
     super(
-      "The event must have the aggregateId is equal to the id of the aggregate that applied that event"
+      "The event must have the aggregate id equal to the id of the aggregate instance"
     );
   }
 }
@@ -35,7 +35,15 @@ export class InvalidEventAggregateIdError extends Error {
 export class InvalidEventAggregateVersionError extends Error {
   constructor() {
     super(
-      "The event must have the aggregateVersion is equal to the next version of the aggregate that applied that event"
+      "The event must have the aggregate version equal to the next version of the aggregate instance"
+    );
+  }
+}
+
+export class InvalidCommandAggregateTypeError extends Error {
+  constructor() {
+    super(
+      "The command must have the aggregate type equal to the type of the aggregate instance"
     );
   }
 }

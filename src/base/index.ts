@@ -1,4 +1,5 @@
 export * from "./aggregate";
+export * from "./message";
 export * from "./command";
 export * from "./entity";
 export * from "./event";

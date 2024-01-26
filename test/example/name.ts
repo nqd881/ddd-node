@@ -1,4 +1,4 @@
-import { ValueObject } from "#base/value-object";
+import { ValueObject, ValueObjectClass } from "#base/value-object";
 import { TypeValueObject } from "src/decorators";
 
 export interface NameProps {

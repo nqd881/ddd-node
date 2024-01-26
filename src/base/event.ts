@@ -2,44 +2,35 @@ import { getEventType } from "#metadata/event";
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
 import { Id } from "./id";
-import { PropsEnvelope, PropsOf } from "./props-envelope";
+import { IMessageMetadata, Message } from "./message";
+import { PropsOf } from "./props-envelope";
 
 export interface IEventAggregate {
   readonly id: Id;
-  readonly type: string;
   readonly version: number;
 }
-
-export interface IEventMetadata {
-  readonly id: Id;
-  readonly timestamp: number;
+export interface IEventMetadata extends IMessageMetadata {
+  readonly eventType: string;
   readonly aggregate: IEventAggregate;
-  correlationId?: string;
-  causationId?: string;
 }
 
-export type NewEventMetadataOptions = Partial<
-  Omit<IEventMetadata, "aggregate" | "timestamp">
+export type NewEventMetadataOptions = Omit<
+  IEventMetadata,
+  "aggregateType" | "aggregate" | "timestamp"
 >;
 
 export class Event<P extends object>
-  extends PropsEnvelope<P>
+  extends Message<P>
   implements IEventMetadata
 {
-  private readonly _id: Id;
-  private readonly _timestamp: number;
+  private readonly _eventType: string;
   private readonly _aggregate: IEventAggregate;
-  private _correlationId?: string;
-  private _causationId?: string;
 
   constructor(metadata: IEventMetadata, props: P) {
-    super(props);
+    super(metadata, props);
 
-    this._id = metadata.id;
-    this._timestamp = metadata.timestamp;
+    this._eventType = metadata.eventType;
     this._aggregate = metadata.aggregate;
-    this._correlationId = metadata?.correlationId;
-    this._causationId = metadata?.causationId;
   }
 
   static eventType() {
@@ -54,8 +45,10 @@ export class Event<P extends object>
   ) {
     return new this(
       {
+        eventType: this.eventType(),
         id: Id.unique(),
         timestamp: Date.now(),
+        aggregateType: this.aggregateType(),
         aggregate,
         ...metadata,
       },
@@ -63,38 +56,12 @@ export class Event<P extends object>
     );
   }
 
-  get id() {
-    return this._id;
-  }
-
-  get timestamp() {
-    return this._timestamp;
+  get eventType() {
+    return this._eventType;
   }
 
   get aggregate() {
     return this._aggregate;
-  }
-
-  get correlationId() {
-    return this._correlationId;
-  }
-
-  get causationId() {
-    return this._causationId;
-  }
-
-  setCorrelationId(correlationId: string) {
-    if (!this.correlationId) this._correlationId = correlationId;
-  }
-
-  setCausationId(causationId: string) {
-    if (!this.causationId) this._causationId = causationId;
-  }
-
-  eventType() {
-    const prototype = Object.getPrototypeOf(this);
-
-    return getEventType(prototype);
   }
 }
 
@@ -118,4 +85,4 @@ export type EventClass<T extends AnyEvent> = Class<
 > &
   ClassStatic<typeof Event<PropsOf<T>>>;
 
-export type AnyEventClass = EventClass<AnyEvent>;
+export type AnyEventClass = Class<AnyEvent>;
