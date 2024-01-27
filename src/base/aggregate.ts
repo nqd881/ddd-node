@@ -26,6 +26,11 @@ export interface IAggregateMetadata extends IEntityMetadata {
   readonly version: number;
 }
 
+export type AggregateMetadataWithoutEntityType = Omit<
+  IAggregateMetadata,
+  "entityType"
+>;
+
 export type NewAggregateMetadata = Partial<
   Omit<IAggregateMetadata, "aggregateType">
 >;
@@ -38,8 +43,8 @@ export class Aggregate<P extends object>
   protected readonly _version: number;
   protected events: AnyEvent[] = [];
 
-  constructor(metadata: IAggregateMetadata, props?: P) {
-    super({ id: metadata.id }, props);
+  constructor(metadata: AggregateMetadataWithoutEntityType, props?: P) {
+    super({ id: metadata.id, entityType: "" }, props);
 
     this._aggregateType = metadata.aggregateType;
     this._version = metadata.version;
@@ -115,8 +120,10 @@ export class Aggregate<P extends object>
   }
 }
 
+export type SnapshotAggregateMetadata = AggregateMetadataWithoutEntityType;
+
 export interface SnapshotWithProps<P extends object> {
-  metadata: IAggregateMetadata;
+  metadata: SnapshotAggregateMetadata;
   props: P;
 }
 

@@ -5,6 +5,7 @@ import { Id } from "./id";
 import { PropsEnvelope, PropsOf } from "./props-envelope";
 
 export interface IEntityMetadata {
+  readonly entityType: string;
   readonly id: Id;
 }
 
@@ -14,11 +15,13 @@ export class Entity<P extends object>
   extends PropsEnvelope<P>
   implements IEntityMetadata
 {
+  private readonly _entityType: string;
   private readonly _id: Id;
 
   constructor(metadata: IEntityMetadata, props?: P) {
     super(props);
 
+    this._entityType = metadata.entityType;
     this._id = metadata.id;
   }
 
@@ -33,6 +36,7 @@ export class Entity<P extends object>
   ) {
     return new this(
       {
+        entityType: this.entityType(),
         id: Id.unique(),
         ...metadata,
       },
@@ -44,10 +48,8 @@ export class Entity<P extends object>
     return this._id;
   }
 
-  entityType() {
-    const prototype = Object.getPrototypeOf(this);
-
-    return getEntityType(prototype);
+  get entityType() {
+    return this._entityType;
   }
 
   equals<E extends AnyEntity>(entity: E) {
