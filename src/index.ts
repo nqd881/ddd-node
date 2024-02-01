@@ -1,5 +1,3 @@
-export * from "./base";
-export * from "./decorators";
-export * from "./metadata";
+export * from "./core";
 export * from "./types";
 export * from "./utils";

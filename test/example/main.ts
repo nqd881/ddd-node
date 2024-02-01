@@ -1,26 +1,96 @@
-import { Credentials, Name, User } from ".";
+import { AggregateES } from "#core/aggregate";
+import { Command } from "#core/command";
+import { Event } from "#core/event";
+import { Id } from "#core/id";
+import { aggregate, applyEvent, handleCommand } from "src/decorators/aggregate";
+import { command } from "src/decorators/command";
+import { event } from "src/decorators/event";
 
-const nameA = new Name({
-  firstName: "Quoc",
-  lastName: "Dai",
-});
+interface PersonCreatedEventProps {
+  name: string;
+}
 
-const userA = User.newAggregate({
-  name: nameA,
-  credentials: Credentials.newEntity({
-    username: "quocdaitinls",
-    password: "123123",
-  }),
-});
+@event()
+class PersonCreatedEvent extends Event<PersonCreatedEventProps> {}
 
-console.log(userA);
+interface PersonNameChangedEventProps {
+  name: string;
+}
 
-userA.changePassword("123123", "456456");
+@event("PersonNameChanged")
+class PersonNameChangedEvent extends Event<PersonNameChangedEventProps> {}
+interface PersonProps {
+  name: string;
+}
 
-console.log(userA);
-console.log(userA.credentials);
+interface ChangeNameCommandProps {
+  newName: string;
+}
 
-userA.changeName(nameA.with({ lastName: "Huy" }));
+@command()
+class ChangeNameCommand extends Command<ChangeNameCommandProps> {}
 
-console.log(userA);
-console.log(userA.getEvents());
+@aggregate()
+class Person extends AggregateES<PersonProps> {
+  static create(props: PersonProps) {
+    const newPerson = this.newStream();
+
+    newPerson.applyEvent(newPerson.newEvent(PersonCreatedEvent, props));
+
+    return newPerson;
+  }
+
+  get name() {
+    return this._props?.name;
+  }
+
+  @handleCommand(ChangeNameCommand)
+  changeName(command: ChangeNameCommand) {
+    const { newName } = command.props()!;
+
+    return this.newEvent(PersonNameChangedEvent, { name: newName });
+  }
+
+  @applyEvent(PersonCreatedEvent)
+  applyPersonCreated(event: PersonCreatedEvent) {
+    const { name } = event.props()!;
+
+    this.setProps({ name });
+  }
+
+  @applyEvent(PersonNameChangedEvent)
+  applyNameChanged(event: PersonNameChangedEvent) {
+    const { name } = event.props()!;
+
+    this._props!.name = name;
+  }
+}
+
+const personA = Person.create({ name: "Dai" });
+
+console.log(personA);
+
+const event1 = personA.handleCommand(
+  ChangeNameCommand.newCommand(
+    { newName: "Tuan Anh" },
+    { correlationId: Id.unique().value }
+  )
+);
+
+const snapshot = personA.snap();
+
+console.log(snapshot);
+
+const event2 = personA.handleCommand(
+  ChangeNameCommand.newCommand({ newName: "Vu" })
+);
+
+console.log(personA);
+
+const personB = Person.fromStream(personA.id, personA.events);
+
+console.log(personB);
+
+const personC = Person.fromSnapshot(snapshot, event2);
+
+console.log(personC);

@@ -1,17 +1,11 @@
-import { AnyValueObject, ValueObjectClass } from "#base/value-object";
-import {
-  ValueObjectRegistry,
-  defineValueObjectType,
-} from "#metadata/value-object";
+import { ValueObjectType } from "#core/model-type";
+import { ValueObjectClass } from "#core/value-object";
+import { model } from "./model";
 
-export const TypeValueObject = <T extends AnyValueObject>(
-  valueObjectType?: string
-) => {
-  return <U extends ValueObjectClass<T>>(target: U) => {
-    valueObjectType = valueObjectType ?? target.name;
+export const valueObject =
+  (name?: string) =>
+  <T extends ValueObjectClass>(target: T) => {
+    const valueObjectType = new ValueObjectType(name ?? target.name);
 
-    defineValueObjectType(target.prototype, valueObjectType);
-
-    ValueObjectRegistry.register(valueObjectType, target);
+    model(valueObjectType.value)(target);
   };
-};

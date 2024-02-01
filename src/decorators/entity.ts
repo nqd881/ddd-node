@@ -1,12 +1,11 @@
-import { AnyEntity, EntityClass } from "#base/entity";
-import { EntityRegistry, defineEntityType } from "#metadata/entity";
+import { EntityClass } from "#core/entity";
+import { EntityType } from "#core/model-type";
+import { model } from "./model";
 
-export const TypeEntity = <T extends AnyEntity>(entityType?: string) => {
-  return <U extends EntityClass<T>>(target: U) => {
-    entityType = entityType ?? target.name;
+export const entity =
+  (name?: string) =>
+  <T extends EntityClass>(target: T) => {
+    const entityType = new EntityType(name ?? target.name);
 
-    defineEntityType(target.prototype, entityType);
-
-    EntityRegistry.register(entityType, target);
+    model(entityType.value)(target);
   };
-};

@@ -1,59 +1,53 @@
 import {
   AggregateClass,
-  AggregateCommandHandler,
-  AggregateEventApplier,
-  AnyAggregate,
-} from "#base/aggregate";
-import { AnyCommand } from "#base/command";
-import { AnyEvent } from "#base/event";
+  AggregateESClass,
+  CommandHandler,
+  EventApplier,
+} from "#core/aggregate";
+import { AnyCommand, CommandClass } from "#core/command";
+import { AnyEvent, EventClass } from "#core/event";
 import {
-  AggregateRegistry,
-  defineAggregateCommandHandler,
-  defineAggregateEventApplier,
-  defineAggregateType,
-} from "#metadata/aggregate";
-import { getCommandType } from "#metadata/command";
-import { getEventType } from "#metadata/event";
-import { Class } from "#types/class";
+  defineCommandHandler,
+  defineEventApplier,
+  getModelType,
+} from "#core/metadata";
+import { AggregateType } from "#core/model-type";
+import { model } from "./model";
 
-export const TypeAggregate = <T extends AnyAggregate>(
-  aggregateType?: string
-) => {
-  return <U extends AggregateClass<T>>(target: U) => {
-    aggregateType = aggregateType ?? target.name;
+export const aggregate =
+  (name?: string) =>
+  <T extends AggregateClass | AggregateESClass>(target: T) => {
+    const aggregateType = new AggregateType(name ?? target.name);
 
-    defineAggregateType(target.prototype, aggregateType);
-
-    AggregateRegistry.register(aggregateType, target);
+    model(aggregateType.value)(target);
   };
-};
 
-export const ApplyEvent = <E extends AnyEvent>(eventClass: Class<E>) => {
-  return <T extends AggregateEventApplier<E>>(
+export const applyEvent = <T extends AnyEvent>(eventClass: EventClass<T>) => {
+  return <U extends EventApplier<T>>(
     target: object,
     propertyKey: string,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<U>
   ) => {
     if (typeof descriptor.value === "function") {
-      const eventType = getEventType(eventClass.prototype);
+      const type = getModelType(eventClass.prototype);
 
-      defineAggregateEventApplier(target, eventType, descriptor.value);
+      defineEventApplier(target, type, descriptor.value);
     }
   };
 };
 
-export const ProcessCommand = <C extends AnyCommand>(
-  commandClass: Class<C>
+export const handleCommand = <T extends AnyCommand>(
+  commandClass: CommandClass<T>
 ) => {
-  return <T extends AggregateCommandHandler<C>>(
+  return <U extends CommandHandler<T>>(
     target: object,
     propertyKey: string,
-    descriptor: TypedPropertyDescriptor<T>
+    descriptor: TypedPropertyDescriptor<U>
   ) => {
     if (typeof descriptor.value === "function") {
-      const commandType = getCommandType(commandClass.prototype);
+      const type = getModelType(commandClass.prototype);
 
-      defineAggregateCommandHandler(target, commandType, descriptor.value);
+      defineCommandHandler(target, type, descriptor.value);
     }
   };
 };

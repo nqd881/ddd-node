@@ -1,18 +1,11 @@
-import { AnyCommand, CommandClass } from "#base/command";
-import { CommandRegistry, defineCommandType } from "#metadata/command";
-import { TypeMessage } from "./message";
+import { CommandClass } from "#core/command";
+import { CommandType } from "#core/model-type";
+import { model } from "./model";
 
-export const TypeCommand = <T extends AnyCommand>(
-  aggregateType: string,
-  commandType?: string
-) => {
-  return <U extends CommandClass<T>>(target: U) => {
-    TypeMessage(aggregateType)(target);
+export const command =
+  (name?: string) =>
+  <T extends CommandClass>(target: T) => {
+    const commandType = new CommandType(name ?? target.name);
 
-    commandType = commandType ?? target.name;
-
-    defineCommandType(target.prototype, commandType);
-
-    CommandRegistry.register(commandType, target);
+    model(commandType.value)(target);
   };
-};

@@ -1,18 +1,11 @@
-import { AnyEvent, EventClass } from "#base/event";
-import { EventRegistry, defineEventType } from "#metadata/event";
-import { TypeMessage } from "./message";
+import { EventClass } from "#core/event";
+import { EventType } from "#core/model-type";
+import { model } from "./model";
 
-export const TypeEvent = <T extends AnyEvent>(
-  aggregateType: string,
-  eventType?: string
-) => {
-  return <U extends EventClass<T>>(target: U) => {
-    TypeMessage(aggregateType)(target);
+export const event =
+  (name?: string) =>
+  <T extends EventClass>(target: T) => {
+    const eventType = new EventType(name ?? target.name);
 
-    eventType = eventType ?? target.name;
-
-    defineEventType(target.prototype, eventType ?? target.name);
-
-    EventRegistry.register(eventType, target);
+    model(eventType.value)(target);
   };
-};
