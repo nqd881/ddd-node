@@ -3,22 +3,8 @@ import { v4, validate, version } from "uuid";
 export class Id {
   private _value: string;
 
-  private constructor(value: string) {
+  constructor(value: string) {
     this._value = value;
-  }
-
-  static unique() {
-    const value = v4();
-
-    return new Id(value);
-  }
-
-  static from(value: string) {
-    const isUUID4 = validate(value) && version(value) === 4;
-
-    if (!isUUID4) throw new Error("Invalid uuid version 4 value");
-
-    return new Id(value);
   }
 
   get value() {
@@ -27,5 +13,30 @@ export class Id {
 
   equals(id: Id) {
     return this._value === id._value;
+  }
+}
+
+export class Uuid4 extends Id {
+  private constructor(value: string) {
+    super(value);
+  }
+
+  static new() {
+    const newValue = v4();
+
+    return this.from(newValue);
+  }
+
+  static from(value: string) {
+    this.validate(value);
+
+    return new Uuid4(value);
+  }
+
+  static validate(value: string) {
+    const isUuid = validate(value);
+    const isV4 = version(value) === 4;
+
+    return isUuid && isV4;
   }
 }

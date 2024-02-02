@@ -1,6 +1,6 @@
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { Id } from "./id";
+import { Id, Uuid4 } from "./id";
 import { Model, PropsOf } from "./model";
 
 export interface EntityMetadata {
@@ -22,7 +22,7 @@ export class Entity<Props extends object> extends Model<Props> {
   ) {
     return new this(
       {
-        id: Id.unique(),
+        id: Uuid4.new(),
       },
       props
     );

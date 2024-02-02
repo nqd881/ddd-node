@@ -9,7 +9,7 @@ import {
   EventClassWithTypedConstructor,
   EventSource,
 } from "./event";
-import { Id } from "./id";
+import { Id, Uuid4 } from "./id";
 import { getCommandHandlersMap, getEventAppliersMap } from "./metadata";
 import { PropsOf } from "./model";
 
@@ -60,7 +60,7 @@ export class Aggregate<Props extends object> extends AggregateBase<Props> {
   ) {
     return new this(
       {
-        id: id ?? Id.unique(),
+        id: id ?? Uuid4.new(),
         version: 0,
       },
       props
@@ -125,7 +125,7 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
     id?: Id
   ) {
     return new this({
-      id: id ?? Id.unique(),
+      id: id ?? Uuid4.new(),
       version: 0,
     });
   }
