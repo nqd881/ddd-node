@@ -11,19 +11,17 @@ export const ModelTypePatternRegex = new RegExp(".+" + seperator + ".+");
 export class ModelType<Prefix extends string = string> {
   constructor(readonly prefix: Prefix, readonly name: string) {}
 
-  static fromPattern<Prefix extends string = string>(
-    template: ModelTypePattern<Prefix>
-  ) {
-    if (!this.isModelTypePattern(template)) throw new Error("Invalid template");
+  static from<Prefix extends string = string>(value: ModelTypePattern<Prefix>) {
+    if (!this.isPattern(value)) throw new Error("Invalid value");
 
-    const [prefix, ...names] = template.split(seperator);
+    const [prefix, ...names] = value.split(seperator);
 
     const name = names.join(seperator);
 
     return new ModelType<Prefix>(prefix as Prefix, name);
   }
 
-  static isModelTypePattern(type: string): type is ModelTypePattern {
+  static isPattern(type: string): type is ModelTypePattern {
     return ModelTypePatternRegex.test(type);
   }
 
