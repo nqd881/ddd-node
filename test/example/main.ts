@@ -41,28 +41,28 @@ class Person extends AggregateES<PersonProps> {
   }
 
   get name() {
-    return this._props?.name;
+    return this._props.name;
   }
 
   @handleCommand(ChangeNameCommand)
   changeName(command: ChangeNameCommand) {
-    const { newName } = command.props()!;
+    const { newName } = command.props();
 
     return this.newEvent(PersonNameChangedEvent, { name: newName });
   }
 
   @applyEvent(PersonCreatedEvent)
   applyPersonCreated(event: PersonCreatedEvent) {
-    const { name } = event.props()!;
+    const { name } = event.props();
 
-    this.setProps({ name });
+    this.initializeProps({ name });
   }
 
   @applyEvent(PersonNameChangedEvent)
   applyNameChanged(event: PersonNameChangedEvent) {
-    const { name } = event.props()!;
+    const { name } = event.props();
 
-    this._props!.name = name;
+    this._props.name = name;
   }
 }
 

@@ -3,17 +3,17 @@ import _ from "lodash";
 import { getModelType } from "./metadata";
 
 export class Model<Props extends object> {
-  protected _props?: Props;
+  protected _props: Props;
 
   constructor(props?: Props) {
-    this._props = props;
+    if (props) this.initializeProps(props);
   }
 
-  static isModel(obj: object) {
+  static isModel(obj: object): obj is AnyModel {
     return obj instanceof Model;
   }
 
-  protected setProps(props: Props) {
+  protected initializeProps(props: Props) {
     if (!this._props) {
       this._props = props;
 
