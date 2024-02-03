@@ -75,12 +75,12 @@ export class Aggregate<Props extends object> extends AggregateBase<Props> {
     return this._events;
   }
 
-  recordEvent<E extends AnyEvent>(event: E): void;
-  recordEvent<E extends AnyEvent>(
+  protected recordEvent<E extends AnyEvent>(event: E): void;
+  protected recordEvent<E extends AnyEvent>(
     eventClass: EventClass<E>,
     props: PropsOf<E>
   ): void;
-  recordEvent<E extends AnyEvent>(
+  protected recordEvent<E extends AnyEvent>(
     param1: E | EventClass<E>,
     param2?: PropsOf<E>
   ): void {
