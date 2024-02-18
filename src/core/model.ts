@@ -13,6 +13,10 @@ export class Model<Props extends object> {
     return obj instanceof Model;
   }
 
+  static type() {
+    return getModelType(this.prototype);
+  }
+
   protected initializeProps(props: Props) {
     if (!this._props) {
       this._props = props;

@@ -1,6 +1,7 @@
 export * from "./aggregate";
 export * from "./command";
 export * from "./entity";
+export * from "./error";
 export * from "./event";
 export * from "./id";
 export * from "./message";
@@ -8,4 +9,5 @@ export * from "./metadata";
 export * from "./model";
 export * from "./model-type";
 export * from "./registry";
+export * from "./repository";
 export * from "./value-object";

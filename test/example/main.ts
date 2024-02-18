@@ -1,7 +1,7 @@
 import { AggregateES } from "#core/aggregate";
 import { Command } from "#core/command";
 import { Event } from "#core/event";
-import { Id } from "#core/id";
+import { Id, Uuid4 } from "#core/id";
 import { aggregate, applyEvent, handleCommand } from "src/decorators/aggregate";
 import { command } from "src/decorators/command";
 import { event } from "src/decorators/event";
@@ -73,7 +73,7 @@ console.log(personA);
 const event1 = personA.handleCommand(
   ChangeNameCommand.newCommand(
     { newName: "Tuan Anh" },
-    { correlationId: Id.unique().value }
+    { correlationId: Uuid4.new().value }
   )
 );
 
