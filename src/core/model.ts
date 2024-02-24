@@ -27,7 +27,7 @@ export class Model<Props extends object> {
 
   validate(): void {}
 
-  get type() {
+  getType() {
     return getModelType(Object.getPrototypeOf(this));
   }
 

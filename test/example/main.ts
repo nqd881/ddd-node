@@ -85,12 +85,16 @@ const event2 = personA.handleCommand(
   ChangeNameCommand.newCommand({ newName: "Vu" })
 );
 
-console.log(personA);
+console.log(personA, personA.getVersion());
 
-const personB = Person.fromStream(personA.id, personA.events);
+const personB = Person.fromStream(personA.getId(), personA.getEvents());
 
-console.log(personB);
+console.log(personB, personB.getVersion());
 
 const personC = Person.fromSnapshot(snapshot, event2);
 
-console.log(personC);
+console.log(personC, personC.getVersion());
+
+personC.handleCommand(ChangeNameCommand.newCommand({ newName: "Huy" }));
+
+console.log(personC, personC.getVersion());

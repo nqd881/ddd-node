@@ -41,7 +41,7 @@ export class Event<Props extends object> extends Message<Props> {
     );
   }
 
-  get source() {
+  getSource() {
     return this._source;
   }
 }

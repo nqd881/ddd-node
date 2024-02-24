@@ -28,16 +28,16 @@ export abstract class AggregateBase<
     this._version = metadata.version;
   }
 
-  abstract version: number;
+  abstract getVersion(): number;
 
   protected newEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
     props: PropsOf<E>
   ) {
     const eventSource: EventSource = {
-      type: this.type,
-      id: this.id,
-      version: this.version,
+      type: this.getType(),
+      id: this.getId(),
+      version: this.getVersion(),
     };
 
     return eventClass.newEvent(eventSource, props);
@@ -67,11 +67,11 @@ export class Aggregate<Props extends object> extends AggregateBase<Props> {
     );
   }
 
-  get version() {
+  getVersion() {
     return this._version;
   }
 
-  get events() {
+  getEvents() {
     return this._events;
   }
 
@@ -166,18 +166,19 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
     return getCommandHandlersMap(this.prototype);
   }
 
-  get version() {
-    return (
-      this._version +
-      (this.hasEvent() ? this._events.length : this._pastEvents.length)
-    );
+  getVersion() {
+    return this._version + this._pastEvents.length + this._events.length;
   }
 
-  get events() {
+  getPastEvents() {
+    return this._pastEvents;
+  }
+
+  getEvents() {
     return this._events;
   }
 
-  get handledCommands() {
+  getHandledCommands() {
     return this._handledCommands;
   }
 
@@ -190,9 +191,9 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
   }
 
   getApplierForEvent<E extends AnyEvent>(event: E) {
-    const { type } = event;
+    const eventType = event.getType();
 
-    const applier = this.eventAppliersMap().get(type);
+    const applier = this.eventAppliersMap().get(eventType);
 
     if (!applier) throw new Error("Event applier not found");
 
@@ -200,13 +201,14 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
   }
 
   private validateEventBeforeApply(event: AnyEvent) {
-    const { source } = event;
+    const eventSource = event.getSource();
 
-    if (source.type !== this.type) throw new Error("Invalid source type");
+    if (eventSource.type !== this.getType())
+      throw new Error("Invalid source type");
 
-    if (!source.id.equals(this.id)) throw new Error("Invalid source id");
+    if (!eventSource.id.equals(this._id)) throw new Error("Invalid source id");
 
-    if (source.version !== this.version)
+    if (eventSource.version !== this.getVersion())
       throw new Error("Invalid source version");
   }
 
@@ -249,9 +251,9 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
   }
 
   getHandlerForCommand<C extends AnyCommand>(command: C) {
-    const { type } = command;
+    const commandType = command.getType();
 
-    const handler = this.commandHandlersMap().get(type);
+    const handler = this.commandHandlersMap().get(commandType);
 
     if (!handler) throw new Error("Command handler not found");
 
@@ -265,8 +267,8 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
 
     events.forEach((event) => {
       event.setContext({
-        correlationId: command.context?.correlationId,
-        causationId: command.id.value,
+        correlationId: command.getContext()?.correlationId,
+        causationId: command.getId().value,
       });
     });
 
@@ -282,8 +284,8 @@ export class AggregateES<Props extends object> extends AggregateBase<Props> {
 
     return {
       metadata: {
-        id: this.id,
-        version: this.version,
+        id: this.getId(),
+        version: this.getVersion(),
       },
       props: this.props(),
     } as Snapshot<typeof this>;

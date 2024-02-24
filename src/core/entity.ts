@@ -8,7 +8,7 @@ export interface EntityMetadata {
 }
 
 export class Entity<Props extends object> extends Model<Props> {
-  private readonly _id: Id;
+  protected readonly _id: Id;
 
   constructor(metadata: EntityMetadata, props?: Props) {
     super(props);
@@ -28,12 +28,12 @@ export class Entity<Props extends object> extends Model<Props> {
     );
   }
 
-  get id() {
+  getId() {
     return this._id;
   }
 
   hasId(id: Id) {
-    return this.id.equals(id);
+    return this._id.equals(id);
   }
 }
 

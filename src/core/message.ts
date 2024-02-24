@@ -26,19 +26,19 @@ export class Message<Props extends object> extends Model<Props> {
     this._context = metadata?.context ?? {};
   }
 
-  get id() {
+  getId() {
     return this._id;
   }
 
-  get timestamp() {
+  getTimestamp() {
     return this._timestamp;
   }
 
-  get context() {
+  getContext() {
     return this._context;
   }
 
   setContext(context: Partial<MessageContext>) {
-    this._context = _.merge(this.context, context);
+    this._context = _.merge(this._context, context);
   }
 }
