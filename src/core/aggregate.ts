@@ -1,17 +1,17 @@
-import { Class } from "#types/class";
-import { ClassStatic } from "#types/class-static";
-import { toArray } from "#utils/to-array";
-import { AnyCommand } from "./command";
+import { Class, ClassStatic } from "#types";
+import { toArray } from "#utils";
 import { Entity, EntityMetadata } from "./entity";
+
+import { Id } from "./id";
 import {
+  AnyCommand,
   AnyEvent,
   EventClass,
   EventClassWithTypedConstructor,
   EventSource,
-} from "./event";
-import { Id } from "./id";
+} from "./message";
 import { getCommandHandlersMap, getEventAppliersMap } from "./metadata";
-import { PropsOf } from "./model";
+import { PropsOf } from "./model/model";
 
 export interface AggregateBaseMetadata extends EntityMetadata {
   version: number;

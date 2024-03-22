@@ -1,6 +1,6 @@
 import _ from "lodash";
-import { Id } from "./id";
-import { ModelWithId } from "./model-with-id";
+import { Id } from "../id";
+import { ModelWithId } from "..";
 
 export interface MessageContext {
   correlationId?: string;

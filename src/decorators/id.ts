@@ -1,5 +1,4 @@
-import { IdGenerator } from "#core/id";
-import { defineIdGenerator } from "#core/metadata";
+import { IdGenerator, defineIdGenerator } from "#core";
 
 export const id = <T extends IdGenerator>(idGenerator: T) => {
   return (target: object) => {

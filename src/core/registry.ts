@@ -1,5 +1,4 @@
-import { ModelClass } from "./model";
-import { ModelTypePattern } from "./model-type";
+import { ModelClass, ModelTypePattern } from "./model";
 
 export class ModelRegistry {
   private static _instance: ModelRegistry;

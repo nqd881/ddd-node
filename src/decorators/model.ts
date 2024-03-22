@@ -1,7 +1,9 @@
-import { defineModelType } from "#core/metadata";
-import { ModelClass } from "#core/model";
-import { ModelTypePattern } from "#core/model-type";
-import { ModelRegistry } from "#core/registry";
+import {
+  ModelClass,
+  ModelRegistry,
+  ModelTypePattern,
+  defineModelType,
+} from "#core";
 
 export const model = (type: ModelTypePattern) => {
   return <T extends ModelClass>(target: T) => {

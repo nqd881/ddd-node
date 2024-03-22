@@ -1,5 +1,4 @@
-import { CommandClass } from "#core/command";
-import { CommandType } from "#core/model-type";
+import { CommandClass, CommandType } from "#core";
 import { model } from "./model";
 
 export const command =

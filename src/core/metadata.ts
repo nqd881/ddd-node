@@ -1,9 +1,8 @@
 import "reflect-metadata";
 import { CommandHandler, EventApplier } from "./aggregate";
-import { AnyCommand } from "./command";
-import { AnyEvent } from "./event";
-import { ModelTypePattern } from "./model-type";
 import { IdGenerator } from "./id";
+import { ModelTypePattern } from "./model";
+import { AnyCommand, AnyEvent } from "./message";
 
 // Model type
 

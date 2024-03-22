@@ -1,17 +1,17 @@
 import {
   AggregateClass,
   AggregateESClass,
+  AggregateType,
+  AnyCommand,
+  AnyEvent,
+  CommandClass,
   CommandHandler,
   EventApplier,
-} from "#core/aggregate";
-import { AnyCommand, CommandClass } from "#core/command";
-import { AnyEvent, EventClass } from "#core/event";
-import {
+  EventClass,
   defineCommandHandler,
   defineEventApplier,
   getModelType,
-} from "#core/metadata";
-import { AggregateType } from "#core/model-type";
+} from "#core";
 import { model } from "./model";
 
 export const aggregate =

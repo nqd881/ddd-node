@@ -1,7 +1,6 @@
-import { Class } from "#types/class";
-import { ClassStatic } from "#types/class-static";
+import { Class, ClassStatic } from "#types";
+import { PropsOf } from "../model";
 import { Message, MessageContext, MessageMetadata } from "./message";
-import { PropsOf } from "./model";
 
 export interface CommandMetadata extends MessageMetadata {}
 

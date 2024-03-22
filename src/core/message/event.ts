@@ -1,9 +1,7 @@
-import { Class } from "#types/class";
-import { ClassStatic } from "#types/class-static";
-import { Id } from "./id";
+import { Class, ClassStatic } from "#types";
+import { Id } from "../id";
+import { ModelTypePattern, PropsOf } from "../model";
 import { Message, MessageContext, MessageMetadata } from "./message";
-import { PropsOf } from "./model";
-import { ModelTypePattern } from "./model-type";
 
 export type EventSource = Readonly<{
   type: ModelTypePattern;

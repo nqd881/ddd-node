@@ -1,5 +1,4 @@
-import { EntityClass } from "#core/entity";
-import { EntityType } from "#core/model-type";
+import { EntityClass, EntityType } from "#core";
 import { model } from "./model";
 
 export const entity =

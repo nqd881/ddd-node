@@ -1,5 +1,4 @@
-import { Class } from "#types/class";
-import { ClassStatic } from "#types/class-static";
+import { Class, ClassStatic } from "#types";
 
 export const seperator = "#" as const;
 

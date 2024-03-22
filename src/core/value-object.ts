@@ -1,4 +1,4 @@
-import { Class } from "#types/class";
+import { Class } from "#types";
 import _ from "lodash";
 import { Model, PropsOf } from "./model";
 

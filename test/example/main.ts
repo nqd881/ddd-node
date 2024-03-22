@@ -1,12 +1,16 @@
-import { AggregateES } from "#core/aggregate";
-import { Command } from "#core/command";
-import { Event } from "#core/event";
-import { IdGenerator } from "#core/id";
 import { random } from "lodash";
-import { aggregate, applyEvent, handleCommand } from "src/decorators/aggregate";
-import { command } from "src/decorators/command";
-import { event } from "src/decorators/event";
-import { id } from "src/decorators/id";
+import {
+  AggregateES,
+  Command,
+  Event,
+  IdGenerator,
+  aggregate,
+  applyEvent,
+  command,
+  event,
+  handleCommand,
+  id,
+} from "src";
 
 export class Random10IdGenerator extends IdGenerator {
   generateValue() {
@@ -82,10 +86,7 @@ const personA = Person.create({ name: "Dai" });
 console.log(personA);
 
 const event1 = personA.handleCommand(
-  ChangeNameCommand.newCommand(
-    { newName: "Tuan Anh" }
-    // { correlationId: Uuid4.new().value }
-  )
+  ChangeNameCommand.newCommand({ newName: "Tuan Anh" })
 );
 
 const snapshot = personA.snap();

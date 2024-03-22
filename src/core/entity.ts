@@ -1,8 +1,6 @@
-import { Class } from "#types/class";
-import { ClassStatic } from "#types/class-static";
+import { Class, ClassStatic } from "#types";
 import { Id } from "./id";
-import { PropsOf } from "./model";
-import { ModelWithId } from "./model-with-id";
+import { ModelWithId, PropsOf } from "./model";
 
 export interface EntityMetadata {
   readonly id: Id;

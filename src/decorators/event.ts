@@ -1,5 +1,4 @@
-import { EventClass } from "#core/event";
-import { EventType } from "#core/model-type";
+import { EventClass, EventType } from "#core";
 import { model } from "./model";
 
 export const event =

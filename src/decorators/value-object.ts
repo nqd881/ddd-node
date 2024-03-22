@@ -1,5 +1,4 @@
-import { ValueObjectType } from "#core/model-type";
-import { ValueObjectClass } from "#core/value-object";
+import { ValueObjectClass, ValueObjectType } from "#core";
 import { model } from "./model";
 
 export const valueObject =

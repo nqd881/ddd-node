@@ -1,6 +1,6 @@
-import { Class } from "#types/class";
 import _ from "lodash";
-import { getModelType } from "./metadata";
+import { getModelType } from "../metadata";
+import { Class } from "#types";
 
 export class Model<Props extends object> {
   protected _props: Props;
