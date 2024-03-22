@@ -3,6 +3,7 @@ import { CommandHandler, EventApplier } from "./aggregate";
 import { AnyCommand } from "./command";
 import { AnyEvent } from "./event";
 import { ModelTypePattern } from "./model-type";
+import { IdGenerator } from "./id";
 
 // Model type
 
@@ -18,6 +19,17 @@ export const getModelType = (target: object): ModelTypePattern => {
   if (!type) throw new Error("The type has not been defined");
 
   return type;
+};
+
+// Id generator
+export const ID_GENERATOR = "ID_GENERATOR";
+
+export const defineIdGenerator = (target: object, idGenerator: IdGenerator) => {
+  Reflect.defineMetadata(ID_GENERATOR, idGenerator, target);
+};
+
+export const getIdGenerator = (target: object) => {
+  return Reflect.getMetadata(ID_GENERATOR, target);
 };
 
 // Event applier map

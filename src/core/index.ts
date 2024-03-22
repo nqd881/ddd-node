@@ -8,6 +8,7 @@ export * from "./message";
 export * from "./metadata";
 export * from "./model";
 export * from "./model-type";
+export * from "./model-with-id";
 export * from "./registry";
 export * from "./repository";
 export * from "./value-object";

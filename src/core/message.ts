@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Id } from "./id";
-import { Model } from "./model";
+import { ModelWithId } from "./model-with-id";
 
 export interface MessageContext {
   correlationId?: string;
@@ -13,7 +13,7 @@ export interface MessageMetadata {
   context?: MessageContext;
 }
 
-export class Message<Props extends object> extends Model<Props> {
+export class Message<Props extends object> extends ModelWithId<Props> {
   private readonly _id: Id;
   private readonly _timestamp: number;
   private _context?: MessageContext;

@@ -16,24 +16,32 @@ export class Id {
   }
 }
 
-export class Uuid4 extends Id {
-  private constructor(value: string) {
-    super(value);
+export abstract class IdGenerator {
+  abstract generateValue(): string;
+
+  abstract validateValue(value: string): void;
+
+  fromValue(value: string) {
+    this.validateValue(value);
+
+    return new Id(value);
   }
 
-  static new() {
-    const newValue = v4();
-
-    return this.from(newValue);
+  fromId(id: Id) {
+    return this.fromValue(id.value);
   }
 
-  static from(value: string) {
-    this.validate(value);
+  newId(): Id {
+    return this.fromValue(this.generateValue());
+  }
+}
 
-    return new Uuid4(value);
+export class Uuid4Generator extends IdGenerator {
+  generateValue() {
+    return v4();
   }
 
-  static validate(value: string) {
+  validateValue(value: string) {
     const isUuid = validate(value);
     const isV4 = version(value) === 4;
 

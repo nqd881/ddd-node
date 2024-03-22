@@ -1,13 +1,14 @@
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { Id, Uuid4 } from "./id";
-import { Model, PropsOf } from "./model";
+import { Id } from "./id";
+import { PropsOf } from "./model";
+import { ModelWithId } from "./model-with-id";
 
 export interface EntityMetadata {
   readonly id: Id;
 }
 
-export class Entity<Props extends object> extends Model<Props> {
+export class Entity<Props extends object> extends ModelWithId<Props> {
   protected readonly _id: Id;
 
   constructor(metadata: EntityMetadata, props?: Props) {
@@ -18,11 +19,12 @@ export class Entity<Props extends object> extends Model<Props> {
 
   static newEntity<T extends AnyEntity>(
     this: EntityClassWithTypedConstructor<T>,
-    props: PropsOf<T>
+    props: PropsOf<T>,
+    id?: Id
   ) {
     return new this(
       {
-        id: Uuid4.new(),
+        id: this.id(id),
       },
       props
     );

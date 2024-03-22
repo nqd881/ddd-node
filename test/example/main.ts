@@ -1,10 +1,20 @@
 import { AggregateES } from "#core/aggregate";
 import { Command } from "#core/command";
 import { Event } from "#core/event";
-import { Id, Uuid4 } from "#core/id";
+import { IdGenerator } from "#core/id";
+import { random } from "lodash";
 import { aggregate, applyEvent, handleCommand } from "src/decorators/aggregate";
 import { command } from "src/decorators/command";
 import { event } from "src/decorators/event";
+import { id } from "src/decorators/id";
+
+export class Random10IdGenerator extends IdGenerator {
+  generateValue() {
+    return random(10).toString();
+  }
+
+  validateValue(value: string) {}
+}
 
 interface PersonCreatedEventProps {
   name: string;
@@ -30,6 +40,7 @@ interface ChangeNameCommandProps {
 @command()
 class ChangeNameCommand extends Command<ChangeNameCommandProps> {}
 
+@id(new Random10IdGenerator())
 @aggregate()
 class Person extends AggregateES<PersonProps> {
   static create(props: PersonProps) {
@@ -72,8 +83,8 @@ console.log(personA);
 
 const event1 = personA.handleCommand(
   ChangeNameCommand.newCommand(
-    { newName: "Tuan Anh" },
-    { correlationId: Uuid4.new().value }
+    { newName: "Tuan Anh" }
+    // { correlationId: Uuid4.new().value }
   )
 );
 

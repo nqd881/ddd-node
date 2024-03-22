@@ -1,6 +1,5 @@
 import { Class } from "#types/class";
 import { ClassStatic } from "#types/class-static";
-import { Uuid4 } from "./id";
 import { Message, MessageContext, MessageMetadata } from "./message";
 import { PropsOf } from "./model";
 
@@ -18,7 +17,7 @@ export class Command<Props extends object> extends Message<Props> {
   ) {
     return new this(
       {
-        id: Uuid4.new(),
+        id: this.id(),
         timestamp: Date.now(),
         context,
       },
