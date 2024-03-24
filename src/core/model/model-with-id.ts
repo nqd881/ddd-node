@@ -1,4 +1,5 @@
-import { Id, IdGenerator, Uuid4Generator, getIdGenerator } from "..";
+import { Id, IdGenerator, Uuid4Generator } from "../id";
+import { getIdGenerator } from "../metadata";
 import { Model } from "./model";
 
 export class ModelWithId<Props extends object> extends Model<Props> {
