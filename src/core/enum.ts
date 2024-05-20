@@ -15,7 +15,7 @@ export class EnumBase extends ModelBase<EnumProps> {
     );
   }
 
-  static parse<T extends EnumBase>(
+  static parseSafe<T extends EnumBase>(
     this: EnumClass<T>,
     providedValue: EnumValue
   ): T | undefined {
@@ -34,6 +34,18 @@ export class EnumBase extends ModelBase<EnumProps> {
     if (key) return this.ownStaticValues().get(key)?.value;
 
     return undefined;
+  }
+
+  static parse<T extends EnumBase>(
+    this: EnumClass<T>,
+    providedValue: EnumValue
+  ): T {
+    const parsedEnum = this.parseSafe(providedValue);
+
+    if (!parsedEnum)
+      throw new Error(`Invalid provided value for enum ${this.modelName()}`);
+
+    return parsedEnum;
   }
 
   constructor(value: EnumValue) {
