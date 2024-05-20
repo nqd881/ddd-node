@@ -1,8 +1,13 @@
 {
-  "ts-node": {
-    // Do not forget to `npm i -D tsconfig-paths`
-    "require": ["tsconfig-paths/register"]
-  },
+  // "ts-node": {
+  //   // Do not forget to `npm i -D tsconfig-paths`
+  //   "require": ["tsconfig-paths/register"],
+  //   "compilerOptions": {
+  //     "module": "ES6",
+  //     "moduleResolution": "Bundler",
+  //     "esModuleInterop": true
+  //   }
+  // },
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
