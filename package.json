@@ -29,13 +29,11 @@
     "@types/chai": "^4.3.16",
     "@types/lodash": "^4.14.200",
     "@types/mocha": "^10.0.6",
-    "@types/source-map-support": "^0.5.10",
     "@types/uuid": "^9.0.6",
     "chai": "^5.1.1",
     "chai-deep-match": "^1.2.1",
     "ddd-node": "file:dist",
     "mocha": "^10.4.0",
-    "source-map-support": "^0.5.21",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
