@@ -8,7 +8,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc -p src/tsconfig.build.json && tsc-alias -p src/tsconfig.build.json && node setup-package.js",
     "test": "mocha",
-    "publish": "cd dist && npm publish"
+    "publish": "sudo chmod o+x dist && cd dist && npm publish"
   },
   "repository": {
     "type": "git",
