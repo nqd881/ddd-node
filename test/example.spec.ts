@@ -9,6 +9,26 @@ import {
   ValueObjectBase,
 } from "../src";
 
+interface NameProps {
+  firstName: string;
+  lastName: string;
+}
+
+export class Name extends ValueObjectBase<NameProps> {
+  @Prop()
+  firstName: string;
+
+  @Prop()
+  lastName: string;
+
+  constructor(firstName: string, lastName: string) {
+    super({ firstName, lastName });
+  }
+
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
 interface BatteryLevelProps {
   percentage: number;
 }
@@ -48,10 +68,14 @@ class Phone extends EntityBase<PhoneProps> {
 }
 
 interface PersonProps {
+  name: Name;
   phones: Phone[];
 }
 
 class Person extends StateAggregateBase<PersonProps> {
+  @Prop()
+  name: Name;
+
   @Prop()
   phones: Phone[];
 
@@ -83,6 +107,7 @@ describe("Deep model", function () {
       }));
 
     person = Person.newAggregate({
+      name: new Name("Dai", "Nguyen Quoc"),
       phones: [applePhone, samsungPhone],
     });
   });
@@ -104,5 +129,10 @@ describe("Deep model", function () {
 
     expect(person.phones[0].batteryLevel.percentage).to.equal(63);
     expect(applePhone.batteryLevel.percentage).to.equal(63);
+  });
+
+  it("person correct", () => {
+    expect(person.name).instanceof(Name);
+    expect(person.name.firstName).equal("Dai");
   });
 });
