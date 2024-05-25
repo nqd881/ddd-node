@@ -15,7 +15,7 @@ interface PersonProps {
 
 class Person extends StateAggregateBase<PersonProps> {
   @Prop()
-  name: string;
+  declare name: string;
 
   changeName(name: string) {
     const oldName = this.name;

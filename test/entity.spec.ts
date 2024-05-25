@@ -8,7 +8,7 @@ interface UserProps {
 
 class User extends EntityBase<UserProps> {
   @Prop()
-  name: string;
+  declare name: string;
 }
 
 describe("Entity", function () {

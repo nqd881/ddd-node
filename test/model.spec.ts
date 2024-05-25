@@ -4,32 +4,59 @@ import * as chai from "chai";
 import { expect } from "chai";
 import { beforeEach, describe, it } from "mocha";
 import chaiDeepMatch from "chai-deep-match";
-import { ModelBase, ModelName, Prop, PropsValidator, Validator } from "../src";
+import {
+  ModelBase,
+  ModelName,
+  Prop,
+  PropsValidator,
+  Validator,
+  ValueObjectBase,
+} from "../src";
 
 chai.use(chaiDeepMatch);
 
+interface NameProps {
+  firstName: string;
+  lastName: string;
+}
+
+export class Name extends ValueObjectBase<NameProps> {
+  @Prop()
+  declare firstName: string;
+
+  @Prop()
+  declare lastName: string;
+
+  constructor(firstName: string, lastName: string = "") {
+    super({ firstName, lastName });
+  }
+
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
 interface PersonProps {
-  name: string;
+  name: Name;
 }
 
 class Person<P extends PersonProps = PersonProps> extends ModelBase<P> {
   @Prop()
-  name: string;
+  declare name: Name;
 
   @Prop("name")
-  nameAlias: string;
+  declare nameAlias: Name;
 
   @Prop()
-  unknownProp: string;
+  declare unknownProp: string;
 
   get uppercaseName() {
-    return this.name.toUpperCase();
+    return this.name.fullName.toUpperCase();
   }
 
   // public method initializeProps
   initializeProps = super.initializeProps;
 
-  changeName(name: string) {
+  changeName(name: Name) {
     this._props.name = name;
   }
 }
@@ -65,7 +92,7 @@ class Student extends Person<StudentProps> {
   }
 
   @Prop()
-  school: string;
+  declare school: string;
 
   constructor(props: StudentProps) {
     super();
@@ -125,7 +152,7 @@ describe("Model", function () {
     });
 
     it("with initialized props", () => {
-      const props = { name: "Dai" };
+      const props = { name: new Name("Dai") };
 
       person.initializeProps(props);
 
@@ -136,16 +163,18 @@ describe("Model", function () {
   });
 
   describe("Getter", function () {
-    const name = "Dai";
+    const name = new Name("Dai");
     const person = new Person();
     person.initializeProps({ name });
 
     it("getter has same name with prop", () => {
-      expect(person.name).to.equal(name);
+      // expect(person.name).to.equal(name);
+      expect(person.name.equals(name)).to.be.true;
     });
 
     it("getter with another name with prop", () => {
-      expect(person.nameAlias).to.equal(name);
+      // expect(person.nameAlias).to.equal(name);
+      expect(person.nameAlias.equals(name)).to.be.true;
     });
 
     it("getter with unknown prop target", () => {
@@ -153,15 +182,29 @@ describe("Model", function () {
     });
 
     it("manual getter", () => {
-      expect(person.uppercaseName).to.equal(name.toUpperCase());
+      expect(person.uppercaseName).to.equal(name.fullName.toUpperCase());
+    });
+  });
+
+  describe("prop()", function () {
+    it("getter working", () => {
+      const student = new Student({
+        name: new Name("Dai"),
+        school: "NEU",
+      });
+
+      const props = student.props()!;
+
+      expect(props.name.firstName).to.equal("Dai");
+      expect(props.school).to.equal("NEU");
     });
   });
 
   describe("Update", function () {
     it("on immutable model", () => {
       const person = new Person();
-      const name = "Dai";
-      const newName = "Vu";
+      const name = new Name("Dai");
+      const newName = new Name("Vu");
 
       person.initializeProps({
         name,
@@ -171,7 +214,7 @@ describe("Model", function () {
 
       expect(updateName).to.throw;
 
-      expect(person.name).to.equal(name);
+      expect(person.name.firstName).to.equal(name.firstName);
     });
 
     it("on mutable model", () => {
@@ -179,7 +222,7 @@ describe("Model", function () {
       const newSchool = "UET";
 
       const student = new Student({
-        name: "Dai",
+        name: new Name("Dai"),
         school,
       });
 
@@ -194,8 +237,10 @@ describe("Model", function () {
   });
 
   describe("Validator", function () {
-    const invalidStudent = () => new Student({ name: "Huy", school: "HUST" });
-    const validStudent = () => new Student({ name: "Dai", school: "NEU" });
+    const invalidStudent = () =>
+      new Student({ name: new Name("Huy"), school: "HUST" });
+    const validStudent = () =>
+      new Student({ name: new Name("Dai"), school: "NEU" });
 
     it("validator set", () => {
       expect(Student.propsValidator()).to.equal(StudentValidator);

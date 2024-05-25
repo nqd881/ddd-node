@@ -58,14 +58,19 @@ export class ModelBase<P extends Props> {
   }
 
   protected redefineModel() {
-    this.propsMap().forEach((propKeyTarget, key) => {
-      Object.defineProperty(this, key, {
-        configurable: true,
-        enumerable: true,
-        get() {
-          return this._props?.[propKeyTarget as keyof P];
-        },
-      });
+    this.propsMap().forEach((propTargetKey, key) => {
+      this.redefineProp(key as keyof this, propTargetKey);
+    });
+  }
+
+  protected redefineProp(key: keyof this, propTargetKey: keyof P) {
+    Object.defineProperty(this, key, {
+      // must be true because the props() method need to recall redefineModel(-> redefineProp)
+      configurable: true,
+      enumerable: true,
+      get() {
+        return this._props?.[propTargetKey];
+      },
     });
   }
 

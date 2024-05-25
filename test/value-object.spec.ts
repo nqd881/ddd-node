@@ -9,10 +9,10 @@ interface NameProps {
 
 export class Name extends ValueObjectBase<NameProps> {
   @Prop()
-  firstName: string;
+  declare firstName: string;
 
   @Prop()
-  lastName: string;
+  declare lastName: string;
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`;

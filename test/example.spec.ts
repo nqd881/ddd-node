@@ -16,10 +16,10 @@ interface NameProps {
 
 export class Name extends ValueObjectBase<NameProps> {
   @Prop()
-  firstName: string;
+  declare firstName: string;
 
   @Prop()
-  lastName: string;
+  declare lastName: string;
 
   constructor(firstName: string, lastName: string) {
     super({ firstName, lastName });
@@ -41,7 +41,7 @@ interface BatteryLevelProps {
 })
 class BatteryLevel extends ValueObjectBase<BatteryLevelProps> {
   @Prop()
-  percentage: number;
+  declare percentage: number;
 
   constructor(value: number) {
     super({ percentage: value });
@@ -55,10 +55,10 @@ interface PhoneProps {
 
 class Phone extends EntityBase<PhoneProps> {
   @Prop()
-  brand: string;
+  declare brand: string;
 
   @Prop()
-  batteryLevel: BatteryLevel;
+  declare batteryLevel: BatteryLevel;
 
   chargeTo(batteryLevel: BatteryLevel) {
     if (this.batteryLevel.percentage >= batteryLevel.percentage) return;
@@ -74,10 +74,10 @@ interface PersonProps {
 
 class Person extends StateAggregateBase<PersonProps> {
   @Prop()
-  name: Name;
+  declare name: Name;
 
   @Prop()
-  phones: Phone[];
+  declare phones: Phone[];
 
   getPhone(id: Id) {
     return this._props.phones.find((phone) => phone.hasId(id));
@@ -92,19 +92,20 @@ class Person extends StateAggregateBase<PersonProps> {
   }
 }
 
-describe("Deep model", function () {
+describe("Example", function () {
   let person: Person;
   let applePhone: Phone, samsungPhone: Phone;
 
   beforeEach(() => {
-    (applePhone = Phone.newEntity({
+    applePhone = Phone.newEntity({
       brand: "Apple",
       batteryLevel: new BatteryLevel(50),
-    })),
-      (samsungPhone = Phone.newEntity({
-        brand: "Samsung",
-        batteryLevel: new BatteryLevel(75),
-      }));
+    });
+
+    samsungPhone = Phone.newEntity({
+      brand: "Samsung",
+      batteryLevel: new BatteryLevel(75),
+    });
 
     person = Person.newAggregate({
       name: new Name("Dai", "Nguyen Quoc"),

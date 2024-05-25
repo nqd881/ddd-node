@@ -25,11 +25,11 @@ export const getOwnPropsMap = <T extends AnyModel = AnyModel>(
 export const setProp = <T extends AnyModel = AnyModel>(
   target: T,
   key: PropKey,
-  targetPropKey?: keyof PropsOf<T>
+  propTargetKey?: keyof PropsOf<T>
 ) => {
   const ownPropsMap = getOwnPropsMap<T>(target);
 
-  if (targetPropKey) ownPropsMap.set(key, targetPropKey);
+  if (propTargetKey) ownPropsMap.set(key, propTargetKey);
 };
 
 const PropsMapMetaKey = Symbol.for("PROPS_MAP");

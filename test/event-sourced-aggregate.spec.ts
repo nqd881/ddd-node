@@ -47,7 +47,7 @@ class Person extends EventSourcedAggregateBase<PersonProps> {
   }
 
   @Prop()
-  name: string;
+  declare name: string;
 
   @When(PersonCreatedEvent)
   whenPersonCreated(event: PersonCreatedEvent) {
