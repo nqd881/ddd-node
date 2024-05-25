@@ -57,7 +57,7 @@ export class ModelBase<P extends Props> {
     this.redefineModel();
   }
 
-  private redefineModel() {
+  protected redefineModel() {
     this.propsMap().forEach((propKeyTarget, key) => {
       Object.defineProperty(this, key, {
         configurable: true,
