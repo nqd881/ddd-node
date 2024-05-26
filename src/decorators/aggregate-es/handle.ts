@@ -1,9 +1,14 @@
-import { AnyCommand, CommandClass, CommandHandler } from "../../core";
+import {
+  AnyCommand,
+  AnyEventSourcedAggregate,
+  CommandClass,
+  CommandHandler,
+} from "../../core";
 import { defineCommandHandler, getModelName } from "../../meta";
 
 export const Handle = <T extends AnyCommand>(commandClass: CommandClass<T>) => {
   return <U extends CommandHandler<T>>(
-    target: object,
+    target: AnyEventSourcedAggregate,
     propertyKey: string,
     descriptor: TypedPropertyDescriptor<U>
   ) => {

@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import { describe } from "mocha";
 import {
   CommandBase,
@@ -7,7 +8,6 @@ import {
   Prop,
   When,
 } from "../src";
-import { expect } from "chai";
 
 interface PersonCreatedEventProps {
   name: string;
