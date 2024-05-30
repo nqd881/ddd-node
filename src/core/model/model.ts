@@ -3,9 +3,10 @@ import { Class } from "type-fest";
 import {
   getModelName,
   getOwnPropsMap,
+  getOwnPropsValidator,
   getOwnStaticValues,
   getPropsMap,
-  getPropsValidator,
+  getPropsValidators,
 } from "../../meta";
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
@@ -37,8 +38,12 @@ export class ModelBase<P extends Props> {
     return getModelName(this);
   }
 
-  static propsValidator<T extends AnyModel>(this: ModelClass<T>) {
-    return getPropsValidator<T>(this);
+  static ownPropsValidator<T extends AnyModel>(this: ModelClass<T>) {
+    return getOwnPropsValidator<T>(this);
+  }
+
+  static propsValidators<T extends AnyModel>(this: ModelClass<T>) {
+    return getPropsValidators(this);
   }
 
   static ownStaticValues<T extends AnyModel>(this: ModelClass<T>) {
@@ -74,24 +79,28 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  protected get currentModelType() {
+  protected get _modelClass() {
     return this.constructor as ModelClass<this>;
   }
 
   isMutable() {
-    return this.currentModelType.mutable();
+    return this._modelClass.mutable();
   }
 
   modelName() {
-    return this.currentModelType.modelName();
+    return this._modelClass.modelName();
   }
 
-  propsValidator() {
-    return this.currentModelType.propsValidator();
+  ownPropsValidator() {
+    return this._modelClass.ownPropsValidator();
+  }
+
+  propsValidators() {
+    return this._modelClass.propsValidators();
   }
 
   ownPropsMap() {
-    return this.currentModelType.ownPropsMap();
+    return this._modelClass.ownPropsMap();
   }
 
   propsMap() {
@@ -99,9 +108,9 @@ export class ModelBase<P extends Props> {
   }
 
   validateProps(props: P): void {
-    const propsValidator = this.propsValidator();
+    const propsValidators = this.propsValidators();
 
-    if (propsValidator) propsValidator(props as PropsOf<this>);
+    propsValidators.forEach((propsValidator) => propsValidator(props));
   }
 
   validate() {

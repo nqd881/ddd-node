@@ -37,14 +37,30 @@ export class Name extends ValueObjectBase<NameProps> {
 }
 interface PersonProps {
   name: Name;
+  age?: number;
 }
 
+class InvalidPersonAgeError extends Error {
+  constructor() {
+    super("Invalid person age");
+  }
+}
+
+const PersonValidator: PropsValidator<Person> = (props) => {
+  if (props?.age && (props.age < 0 || props.age > 200))
+    throw new InvalidPersonAgeError();
+};
+
+@Validator(PersonValidator)
 class Person<P extends PersonProps = PersonProps> extends ModelBase<P> {
   @Prop()
   declare name: Name;
 
   @Prop("name")
   declare nameAlias: Name;
+
+  @Prop()
+  declare age?: number;
 
   @Prop()
   declare unknownProp: string;
@@ -243,7 +259,7 @@ describe("Model", function () {
       new Student({ name: new Name("Dai"), school: "NEU" });
 
     it("validator set", () => {
-      expect(Student.propsValidator()).to.equal(StudentValidator);
+      expect(Student.ownPropsValidator()).to.equal(StudentValidator);
     });
 
     it("validate after initialize props", () => {
@@ -256,6 +272,16 @@ describe("Model", function () {
       const updateToInvalidSchool = () => student.changeSchool("HUST");
 
       expect(updateToInvalidSchool).to.throw(InvalidStudentSchoolError);
+    });
+
+    it("validator chain", () => {
+      const student = () =>
+        new Student({ name: new Name("Dai"), age: 201, school: "NEU" });
+
+      expect(Person.propsValidators().length).to.equal(1);
+      expect(Student.propsValidators().length).to.equal(2);
+
+      expect(student).to.throw(InvalidPersonAgeError);
     });
   });
 });

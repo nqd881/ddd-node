@@ -3,8 +3,6 @@ import { StaticValue, StaticValueBuilder } from "./helpers/static-value";
 
 const OwnPropsMapMetaKey = Symbol.for("OWN_PROPS_MAP");
 
-// Prop keys map is a Map<Key, TargetPropKey>;
-
 export class PropsMap<T extends AnyModel = AnyModel> extends Map<
   PropKey,
   keyof PropsOf<T>
@@ -99,19 +97,45 @@ export type PropsValidator<T extends AnyModel = AnyModel> = (
   props: PropsOf<T>
 ) => void;
 
-const PropsValidatorMetaKey = Symbol.for("PROPS_VALIDATOR");
+const OwnPropsValidatorMetaKey = Symbol.for("OWN_PROPS_VALIDATOR");
 
 export const setPropsValidator = <T extends AnyModel>(
   target: object,
   validator: PropsValidator<T>
 ) => {
-  Reflect.defineMetadata(PropsValidatorMetaKey, validator, target);
+  Reflect.defineMetadata(OwnPropsValidatorMetaKey, validator, target);
 };
 
-export const getPropsValidator = <T extends AnyModel>(
+export const getOwnPropsValidator = <T extends AnyModel>(
   target: object
 ): PropsValidator<T> | undefined => {
-  return Reflect.getMetadata(PropsValidatorMetaKey, target);
+  return Reflect.getOwnMetadata(OwnPropsValidatorMetaKey, target);
+};
+
+export const PropsValidatorsMetaKey = Symbol.for("PROPS_VALIDATORS");
+
+export const getPropsValidators = (
+  target: object
+): PropsValidator<AnyModel>[] => {
+  const validators = () =>
+    Reflect.getOwnMetadata(PropsValidatorsMetaKey, target);
+
+  if (validators()) return validators();
+
+  const result = [];
+  let _target: object | null = target;
+
+  do {
+    const ownValidator = getOwnPropsValidator(_target);
+
+    if (ownValidator) result.push(ownValidator);
+
+    _target = Reflect.getPrototypeOf(_target);
+  } while (_target !== null);
+
+  Reflect.defineMetadata(PropsValidatorsMetaKey, result, target);
+
+  return validators();
 };
 
 //
