@@ -33,15 +33,15 @@ export class MessageBase<P extends Props> extends ModelWithId<P> {
     return super.props()!;
   }
 
-  getMessageType() {
+  messageType() {
     return this._messageType;
   }
 
-  getTimestamp() {
+  timestamp() {
     return this._timestamp;
   }
 
-  getContext() {
+  context() {
     return this._context;
   }
 

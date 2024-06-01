@@ -20,7 +20,7 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
     this._version = metadata.version;
   }
 
-  abstract getVersion(): number;
+  abstract version(): number;
 
   protected newEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
@@ -29,7 +29,7 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
     const eventSource: EventSource = {
       aggregate: this.modelName(),
       id: this.id(),
-      version: this.getVersion(),
+      version: this.version(),
     };
 
     return eventClass.newEvent(eventSource, props);

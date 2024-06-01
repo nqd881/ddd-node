@@ -41,12 +41,12 @@ describe("State aggregate", function () {
 
       person.changeName("Nam");
 
-      expect(person.getEvents()).to.be.not.empty;
-      expect(person.getEvents()[0]).instanceOf(PersonNameChangedEvent);
+      expect(person.events()).to.be.not.empty;
+      expect(person.events()[0]).instanceOf(PersonNameChangedEvent);
 
       person.clearEvents();
 
-      expect(person.getEvents()).to.be.empty;
+      expect(person.events()).to.be.empty;
     });
   });
 });

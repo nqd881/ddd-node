@@ -4,7 +4,7 @@ import {
   CommandClass,
   CommandHandler,
 } from "../../core";
-import { defineCommandHandler, getModelName } from "../../meta";
+import { defineCommandHandler } from "../../meta";
 
 export const Handle = <T extends AnyCommand>(commandClass: CommandClass<T>) => {
   return <U extends CommandHandler<T>>(
@@ -13,9 +13,9 @@ export const Handle = <T extends AnyCommand>(commandClass: CommandClass<T>) => {
     descriptor: TypedPropertyDescriptor<U>
   ) => {
     if (typeof descriptor.value === "function") {
-      const commandName = getModelName(commandClass);
+      const commandType = commandClass.commandType();
 
-      defineCommandHandler(target, commandName, descriptor.value);
+      defineCommandHandler(target, commandType, descriptor.value);
     }
   };
 };

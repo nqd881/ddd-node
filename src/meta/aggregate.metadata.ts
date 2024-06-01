@@ -20,12 +20,12 @@ export const getEventApplierMap = (
 
 export const defineEventApplier = <T extends AnyEvent>(
   target: object,
-  eventName: string,
+  eventType: string,
   applier: EventApplier<T>
 ) => {
   const eventAppliersMap = getEventApplierMap(target);
 
-  eventAppliersMap.set(eventName, applier as EventApplier);
+  eventAppliersMap.set(eventType, applier as EventApplier);
 };
 
 // Command handler map
@@ -47,10 +47,10 @@ export const getCommandHandlerMap = (
 
 export const defineCommandHandler = <T extends AnyCommand>(
   target: object,
-  commandName: string,
+  commandType: string,
   handler: CommandHandler<T>
 ) => {
   const commandHandlersMap = getCommandHandlerMap(target);
 
-  commandHandlersMap.set(commandName, handler as CommandHandler);
+  commandHandlersMap.set(commandType, handler as CommandHandler);
 };

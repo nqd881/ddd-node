@@ -2,21 +2,22 @@ import { ClassStatic } from "../../types";
 import { Class } from "type-fest";
 import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
+import { getCommandType } from "../../meta";
 
 export interface CommandMetadata extends Omit<MessageMetadata, "messageType"> {}
 
 export class CommandBase<P extends Props> extends MessageBase<P> {
   static readonly COMMAND_MESSAGE_TYPE = "command";
 
-  private _commandType: string;
-
   constructor(metadata: CommandMetadata, props: P) {
     super(
       { ...metadata, messageType: CommandBase.COMMAND_MESSAGE_TYPE },
       props
     );
+  }
 
-    this._commandType = this.modelName();
+  static commandType(): string {
+    return getCommandType(this) || this.modelName();
   }
 
   static newCommand<T extends AnyCommand>(
@@ -35,8 +36,8 @@ export class CommandBase<P extends Props> extends MessageBase<P> {
     );
   }
 
-  getCommandType() {
-    this._commandType;
+  commandType() {
+    return (this.constructor as CommandClass).commandType();
   }
 }
 

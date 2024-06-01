@@ -32,11 +32,11 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     return super.props()!;
   }
 
-  getVersion() {
+  version() {
     return this._version;
   }
 
-  getEvents() {
+  events() {
     return this._events;
   }
 

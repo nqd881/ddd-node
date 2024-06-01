@@ -3,6 +3,7 @@ import { Class } from "type-fest";
 import { Id } from "../id";
 import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
+import { getEventType } from "../../meta";
 
 export type EventSource = Readonly<{
   aggregate: string;
@@ -18,13 +19,15 @@ export class EventBase<P extends Props> extends MessageBase<P> {
   static readonly EVENT_MESSAGE_TYPE = "event";
 
   private readonly _source: EventSource;
-  private readonly _eventType: string;
 
   constructor(metadata: EventMetadata, props: P) {
     super({ ...metadata, messageType: EventBase.EVENT_MESSAGE_TYPE }, props);
 
     this._source = metadata.source;
-    this._eventType = this.modelName();
+  }
+
+  static eventType(): string {
+    return getEventType(this) || this.modelName();
   }
 
   static newEvent<T extends AnyEvent>(
@@ -45,12 +48,12 @@ export class EventBase<P extends Props> extends MessageBase<P> {
     );
   }
 
-  getSource() {
+  source() {
     return this._source;
   }
 
-  getEventType() {
-    return this._eventType;
+  eventType() {
+    return (this.constructor as EventClass).eventType();
   }
 }
 

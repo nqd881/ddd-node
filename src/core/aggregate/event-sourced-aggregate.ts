@@ -82,19 +82,19 @@ export class EventSourcedAggregateBase<
     return getCommandHandlerMap(this.prototype);
   }
 
-  getVersion() {
+  version() {
     return this._version + this._pastEvents.length + this._events.length;
   }
 
-  getPastEvents() {
+  pastEvents() {
     return [...this._pastEvents];
   }
 
-  getEvents() {
+  events() {
     return [...this._events];
   }
 
-  getHandledCommands() {
+  handledCommands() {
     return [...this._handledCommands];
   }
 
@@ -107,9 +107,9 @@ export class EventSourcedAggregateBase<
   }
 
   getApplierForEvent<E extends AnyEvent>(event: E) {
-    const eventName = event.modelName();
+    const eventType = event.eventType();
 
-    const applier = this.eventApplierMap().get(eventName);
+    const applier = this.eventApplierMap().get(eventType);
 
     if (!applier) throw new Error("Event applier not found");
 
@@ -117,14 +117,14 @@ export class EventSourcedAggregateBase<
   }
 
   private validateEventBeforeApply(event: AnyEvent) {
-    const eventSource = event.getSource();
+    const eventSource = event.source();
 
     if (eventSource.aggregate !== this.modelName())
       throw new Error("Invalid source type");
 
     if (!eventSource.id.equals(this._id)) throw new Error("Invalid source id");
 
-    if (eventSource.version !== this.getVersion())
+    if (eventSource.version !== this.version())
       throw new Error("Invalid source version");
   }
 
@@ -174,9 +174,9 @@ export class EventSourcedAggregateBase<
   }
 
   getHandlerForCommand<C extends AnyCommand>(command: C) {
-    const commandName = command.modelName();
+    const commandType = command.commandType();
 
-    const handler = this.commandHandlerMap().get(commandName);
+    const handler = this.commandHandlerMap().get(commandType);
 
     if (!handler) throw new Error("Command handler not found");
 
@@ -190,7 +190,7 @@ export class EventSourcedAggregateBase<
 
     events.forEach((event) => {
       event.setContext({
-        correlationId: command.getContext()?.correlationId,
+        correlationId: command.context()?.correlationId,
         causationId: command.id().value,
       });
     });
@@ -208,7 +208,7 @@ export class EventSourcedAggregateBase<
     return {
       metadata: {
         id: this.id(),
-        version: this.getVersion(),
+        version: this.version(),
       },
       props: this.props(),
     } as Snapshot<typeof this>;

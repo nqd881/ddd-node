@@ -1,7 +1,9 @@
 import { expect } from "chai";
 import { describe } from "mocha";
 import {
+  Command,
   CommandBase,
+  Event,
   EventBase,
   EventSourcedAggregateBase,
   Handle,
@@ -13,13 +15,15 @@ interface PersonCreatedEventProps {
   name: string;
 }
 
+@Event("PERSON_CREATED")
 class PersonCreatedEvent extends EventBase<PersonCreatedEventProps> {}
 
 interface ChangeNameCommandProps {
   name: string;
 }
 
-class ChangeNameCommand extends CommandBase<ChangeNameCommandProps> {}
+@Command("CHANGE_PERSON_NAME")
+class ChangePersonNameCommand extends CommandBase<ChangeNameCommandProps> {}
 
 interface PersonNameChangedEventProps {
   name: string;
@@ -56,8 +60,8 @@ class Person extends EventSourcedAggregateBase<PersonProps> {
     this.initializeProps({ name });
   }
 
-  @Handle(ChangeNameCommand)
-  handleChangeName(command: ChangeNameCommand) {
+  @Handle(ChangePersonNameCommand)
+  handleChangeName(command: ChangePersonNameCommand) {
     const { name } = command.props();
 
     const isNameStartWithUnderscore = name.at(0) === "_";
@@ -86,40 +90,44 @@ describe("Event sourced aggregate", function () {
     it("create instance with fromStream", () => {
       const personA = Person.createPerson({ name: "Dai" });
 
-      personA.handleCommand(ChangeNameCommand.newCommand({ name: "Duong" }));
+      personA.handleCommand(
+        ChangePersonNameCommand.newCommand({ name: "Duong" })
+      );
 
-      const pastEvents = personA.getEvents();
+      const pastEvents = personA.events();
 
-      personA.handleCommand(ChangeNameCommand.newCommand({ name: "Vu" }));
+      personA.handleCommand(ChangePersonNameCommand.newCommand({ name: "Vu" }));
 
       const personB = Person.fromStream(personA.id(), pastEvents);
 
       expect(personB.name).to.equal("Duong");
-      expect(personB.getVersion()).to.equal(2);
+      expect(personB.version()).to.equal(2);
     });
 
     it("create instance with fromSnapshot", () => {
       const personA = Person.createPerson({ name: "Dai" });
 
-      personA.handleCommand(ChangeNameCommand.newCommand({ name: "Duong" }));
+      personA.handleCommand(
+        ChangePersonNameCommand.newCommand({ name: "Duong" })
+      );
 
       const snapshot = personA.snap();
 
       const events = personA.handleCommand(
-        ChangeNameCommand.newCommand({ name: "Vu" })
+        ChangePersonNameCommand.newCommand({ name: "Vu" })
       );
 
       const personB = Person.fromSnapshot(snapshot);
 
       expect(personB.name).to.equal("Duong");
-      expect(personB.getPastEvents().length).to.equal(0);
-      expect(personB.getVersion()).to.equal(2);
+      expect(personB.pastEvents().length).to.equal(0);
+      expect(personB.version()).to.equal(2);
 
       const personC = Person.fromSnapshot(snapshot, events);
 
       expect(personC.name).to.equal("Vu");
-      expect(personC.getPastEvents().length).to.equal(1);
-      expect(personC.getVersion()).to.equal(3);
+      expect(personC.pastEvents().length).to.equal(1);
+      expect(personC.version()).to.equal(3);
     });
   });
 
@@ -133,7 +141,9 @@ describe("Event sourced aggregate", function () {
     it("change person name", () => {
       const person = Person.createPerson({ name: "Dai" });
 
-      person.handleCommand(ChangeNameCommand.newCommand({ name: "Duong" }));
+      person.handleCommand(
+        ChangePersonNameCommand.newCommand({ name: "Duong" })
+      );
 
       expect(person.name).to.equal("Duong");
     });
