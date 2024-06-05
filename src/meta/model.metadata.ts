@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { AnyModel, ModelBase, ModelClass, PropKey, PropsOf } from "../core";
 import { StaticValue, StaticValueBuilder } from "./helpers/static-value";
 
@@ -122,7 +123,7 @@ export const getPropsValidators = (
 
   if (validators()) return validators();
 
-  const result = [];
+  let result = [];
   let _target: object | null = target;
 
   do {
@@ -132,6 +133,8 @@ export const getPropsValidators = (
 
     _target = Reflect.getPrototypeOf(_target);
   } while (_target !== null);
+
+  result = _.uniq(result);
 
   Reflect.defineMetadata(PropsValidatorsMetaKey, result, target);
 
