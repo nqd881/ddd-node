@@ -1,13 +1,6 @@
-import { describe } from "mocha";
-import {
-  Domain,
-  EntityBase,
-  Model,
-  Prop,
-  StateAggregateBase,
-  Version,
-} from "../src";
 import { expect } from "chai";
+import { describe } from "mocha";
+import { Domain, Model, Prop, StateAggregateBase, Version } from "../src";
 
 const PERSON_MODEL_NAME = "PERSON";
 
@@ -44,7 +37,7 @@ describe("Domain", function () {
 
     expect(domain.getModelVersionRegistry(PERSON_MODEL_NAME).size).to.equal(1);
 
-    expect(domain.getRegisteredModel(PERSON_MODEL_NAME, 0)).to.equal(Person);
+    expect(domain.getModel(PERSON_MODEL_NAME, 0)).to.equal(Person);
 
     expect(() => domain.registerModel(Person)).to.throw();
 
@@ -52,8 +45,8 @@ describe("Domain", function () {
 
     expect(domain.getModelVersionRegistry(PERSON_MODEL_NAME).size).to.equal(2);
 
-    expect(domain.getRegisteredModel(PERSON_MODEL_NAME, 1)).to.equal(Person1);
+    expect(domain.getModel(PERSON_MODEL_NAME, 1)).to.equal(Person1);
 
-    expect(domain.getRegisteredModel(PERSON_MODEL_NAME)).to.equal(Person);
+    expect(domain.getModel(PERSON_MODEL_NAME)).to.equal(Person);
   });
 });

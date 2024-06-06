@@ -4,6 +4,7 @@ import { Id } from "../id";
 import { AnyEvent, EventClass } from "../message";
 import { Props, PropsOf } from "../model";
 import { AggregateBase, AggregateMetadata } from "./base";
+import { IEventPublisher } from "../abstraction/event-publisher";
 
 export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
   private _events: AnyEvent[];
@@ -37,7 +38,7 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
   }
 
   events() {
-    return this._events;
+    return [...this._events];
   }
 
   protected recordEvent<E extends AnyEvent>(event: E): void;
@@ -58,6 +59,12 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     }
 
     this._events.push(event);
+  }
+
+  publishEvents(eventPublisher: IEventPublisher) {
+    eventPublisher.publishAll(this.events());
+
+    this.clearEvents();
   }
 
   clearEvents() {

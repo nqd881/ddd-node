@@ -6,7 +6,6 @@ import { Id } from "../id";
 import {
   AnyCommand,
   AnyEvent,
-  EventClass,
   EventClassWithTypedConstructor,
 } from "../message";
 import { Props, PropsOf } from "../model";
@@ -202,14 +201,21 @@ export class EventSourcedAggregateBase<
     return events;
   }
 
+  snapMetadata(): SnapshotMetadata {
+    return {
+      id: this.id(),
+      version: this.version(),
+    };
+  }
+
   snap() {
-    if (!this._props) throw new Error();
+    if (this.propsIsEmpty())
+      throw new Error(
+        "Cannot create snapshot when the props is not initialized"
+      );
 
     return {
-      metadata: {
-        id: this.id(),
-        version: this.version(),
-      },
+      metadata: this.snapMetadata(),
       props: this.props(),
     } as Snapshot<typeof this>;
   }

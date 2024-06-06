@@ -13,13 +13,14 @@ export class ModelRegistry<T extends AnyModel = AnyModel> extends Map<
   ModelVersionRegistry<T>
 > {}
 
-export class Domain {
-  private modelRegistry: ModelRegistry = new ModelRegistry();
+export type DomainName = string;
 
-  constructor(models?: ModelClass[]) {
-    if (models) {
-      models.forEach((model) => this.registerModel(model));
-    }
+export class Domain {
+  readonly name?: DomainName;
+  private readonly modelRegistry: ModelRegistry = new ModelRegistry();
+
+  constructor(name?: DomainName) {
+    this.name = name;
   }
 
   getModelVersionRegistry(modelName: ModelName) {
@@ -31,7 +32,7 @@ export class Domain {
     return modelVersionRegistry()!;
   }
 
-  getRegisteredModel(modelName: ModelName, modelVersion: ModelVersion = 0) {
+  getModel(modelName: ModelName, modelVersion: ModelVersion = 0) {
     const modelVersionRegistry = this.getModelVersionRegistry(modelName);
 
     return modelVersionRegistry.get(modelVersion);
@@ -50,7 +51,7 @@ export class Domain {
       modelVersion = p1.modelVersion();
     }
 
-    return Boolean(this.getRegisteredModel(modelName, modelVersion));
+    return Boolean(this.getModel(modelName, modelVersion));
   }
 
   registerModel(modelClass: ModelClass) {
@@ -62,9 +63,9 @@ export class Domain {
         `Model ${modelName} with version ${modelVersion} has been registered`
       );
 
-    const versionRegistry = this.getModelVersionRegistry(modelName);
+    const modelVersionRegistry = this.getModelVersionRegistry(modelName);
 
-    versionRegistry.set(modelVersion, modelClass);
+    modelVersionRegistry.set(modelVersion, modelClass);
 
     return this;
   }
