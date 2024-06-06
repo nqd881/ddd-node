@@ -77,21 +77,42 @@ const ModelNameMetaKey = Symbol.for("MODEL_NAME");
 
 export const setModelName = <T extends AnyModel>(
   target: ModelClass<T>,
-  name?: string
+  name: string
 ) => {
-  Reflect.defineMetadata(ModelNameMetaKey, name ?? target.name, target);
+  Reflect.defineMetadata(ModelNameMetaKey, name, target);
 };
 
 export const getModelName = <T extends AnyModel>(
   target: ModelClass<T>
 ): string => {
-  const modelName = () => Reflect.getMetadata(ModelNameMetaKey, target);
+  const modelName = () => Reflect.getOwnMetadata(ModelNameMetaKey, target);
 
-  if (!modelName()) setModelName(target);
+  if (!modelName()) setModelName(target, target.name);
 
   return modelName();
 };
 
+//
+
+const ModelVersionMetaKey = Symbol.for("MODEL_VERSION");
+
+export const setModelVersion = <T extends AnyModel>(
+  target: ModelClass<T>,
+  version: number
+) => {
+  Reflect.defineMetadata(ModelVersionMetaKey, version, target);
+};
+
+export const getModelVersion = <T extends AnyModel>(
+  target: ModelClass<T>
+): number => {
+  const modelVersion = () =>
+    Reflect.getOwnMetadata(ModelVersionMetaKey, target);
+
+  if (!modelVersion()) setModelVersion(target, 0);
+
+  return modelVersion();
+};
 //
 
 export type PropsValidator<T extends AnyModel = AnyModel> = (

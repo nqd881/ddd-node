@@ -6,3 +6,4 @@ export * from "./enum";
 export * from "./message";
 export * from "./value-object";
 export * from "./repository";
+export * from "./domain";

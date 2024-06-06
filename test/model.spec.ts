@@ -6,7 +6,7 @@ import { beforeEach, describe, it } from "mocha";
 import chaiDeepMatch from "chai-deep-match";
 import {
   ModelBase,
-  ModelName,
+  Model,
   Prop,
   PropsValidator,
   Validator,
@@ -89,7 +89,7 @@ interface StudentProps extends PersonProps {
   school: string;
 }
 
-@ModelName(STUDENT_MODEL_NAME)
+@Model(STUDENT_MODEL_NAME)
 @Validator(Student.Validator)
 class Student extends Person<StudentProps> {
   static readonly Validator: PropsValidator<Student> = (props) => {
