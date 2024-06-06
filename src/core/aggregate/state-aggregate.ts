@@ -61,8 +61,8 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     this._events.push(event);
   }
 
-  publishEvents(eventPublisher: IEventPublisher) {
-    eventPublisher.publishAll(this.events());
+  async publishEvents(eventPublisher: IEventPublisher) {
+    await eventPublisher.publishAll(this.events());
 
     this.clearEvents();
   }
