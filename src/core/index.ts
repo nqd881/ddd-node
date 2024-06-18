@@ -5,5 +5,6 @@ export * from "./entity";
 export * from "./enum";
 export * from "./message";
 export * from "./value-object";
-export * from "./abstraction";
+export * from "./repository";
 export * from "./domain";
+export * from "./event-pubsub";

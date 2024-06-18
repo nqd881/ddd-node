@@ -5,6 +5,8 @@ import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
 import { getEventType } from "../../meta";
 
+export type EventType = string;
+
 export type EventSource = Readonly<{
   aggregate: string;
   id: Id;
@@ -26,7 +28,7 @@ export class EventBase<P extends Props> extends MessageBase<P> {
     this._source = metadata.source;
   }
 
-  static eventType(): string {
+  static eventType(): EventType {
     return getEventType(this) || this.modelName();
   }
 

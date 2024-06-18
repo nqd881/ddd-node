@@ -4,6 +4,8 @@ import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
 import { getCommandType } from "../../meta";
 
+export type CommandType = string;
+
 export interface CommandMetadata extends Omit<MessageMetadata, "messageType"> {}
 
 export class CommandBase<P extends Props> extends MessageBase<P> {
@@ -16,7 +18,7 @@ export class CommandBase<P extends Props> extends MessageBase<P> {
     );
   }
 
-  static commandType(): string {
+  static commandType(): CommandType {
     return getCommandType(this) || this.modelName();
   }
 

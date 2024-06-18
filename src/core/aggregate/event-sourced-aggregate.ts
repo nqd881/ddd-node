@@ -86,15 +86,15 @@ export class EventSourcedAggregateBase<
   }
 
   pastEvents() {
-    return [...this._pastEvents];
+    return Array.from(this._pastEvents);
   }
 
   events() {
-    return [...this._events];
+    return Array.from(this._events);
   }
 
   handledCommands() {
-    return [...this._handledCommands];
+    return Array.from(this._handledCommands);
   }
 
   eventApplierMap() {
