@@ -73,18 +73,20 @@ export const getPropsMap = <T extends AnyModel = AnyModel>(
 
 //
 
+export type ModelName = string;
+
 const ModelNameMetaKey = Symbol.for("MODEL_NAME");
 
 export const setModelName = <T extends AnyModel>(
   target: ModelClass<T>,
-  name: string
+  name: ModelName
 ) => {
   Reflect.defineMetadata(ModelNameMetaKey, name, target);
 };
 
 export const getModelName = <T extends AnyModel>(
   target: ModelClass<T>
-): string => {
+): ModelName => {
   const modelName = () => Reflect.getOwnMetadata(ModelNameMetaKey, target);
 
   if (!modelName()) setModelName(target, target.name);
@@ -94,18 +96,20 @@ export const getModelName = <T extends AnyModel>(
 
 //
 
+export type ModelVersion = number;
+
 const ModelVersionMetaKey = Symbol.for("MODEL_VERSION");
 
 export const setModelVersion = <T extends AnyModel>(
   target: ModelClass<T>,
-  version: number
+  version: ModelVersion
 ) => {
   Reflect.defineMetadata(ModelVersionMetaKey, version, target);
 };
 
 export const getModelVersion = <T extends AnyModel>(
   target: ModelClass<T>
-): number => {
+): ModelVersion => {
   const modelVersion = () =>
     Reflect.getOwnMetadata(ModelVersionMetaKey, target);
 
@@ -136,9 +140,7 @@ export const getOwnPropsValidator = <T extends AnyModel>(
 
 export const PropsValidatorsMetaKey = Symbol.for("PROPS_VALIDATORS");
 
-export const getPropsValidators = (
-  target: object
-): PropsValidator<AnyModel>[] => {
+export const getPropsValidators = (target: object): PropsValidator[] => {
   const validators = () =>
     Reflect.getOwnMetadata(PropsValidatorsMetaKey, target);
 
@@ -167,19 +169,21 @@ const OwnStaticValuesMetaKey = Symbol.for("OWN_STATIC_VALUES");
 
 export const getOwnStaticValues = <T extends AnyModel>(
   target: object
-): Map<string | symbol, StaticValue<T>> => {
+): Map<PropertyKey, StaticValue<T>> => {
   const ownStaticValues = () =>
-    Reflect.getOwnMetadata(OwnStaticValuesMetaKey, target);
+    Reflect.getOwnMetadata(OwnStaticValuesMetaKey, target) as
+      | Map<PropertyKey, StaticValue<T>>
+      | undefined;
 
   if (!ownStaticValues())
     Reflect.defineMetadata(OwnStaticValuesMetaKey, new Map(), target);
 
-  return ownStaticValues();
+  return ownStaticValues()!;
 };
 
 export const setStaticValue = <T extends AnyModel>(
   target: object,
-  key: string,
+  key: PropertyKey,
   value: T | StaticValueBuilder<T>
 ) => {
   const staticValues = getOwnStaticValues(target);

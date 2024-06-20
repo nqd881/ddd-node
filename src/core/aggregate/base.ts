@@ -27,9 +27,9 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
     props: PropsOf<E>
   ) {
     const eventSource: EventSource = {
-      aggregate: this.modelName(),
-      id: this.id(),
-      version: this.version(),
+      aggregateModel: this.modelName(),
+      aggregateId: this.id(),
+      aggregateVersion: this.version(),
     };
 
     return eventClass.newEvent(eventSource, props);

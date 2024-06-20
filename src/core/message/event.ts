@@ -3,14 +3,12 @@ import { Class } from "type-fest";
 import { Id } from "../id";
 import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
-import { getEventType } from "../../meta";
-
-export type EventType = string;
+import { EventType, getEventType } from "../../meta";
 
 export type EventSource = Readonly<{
-  aggregate: string;
-  id: Id;
-  version: number;
+  aggregateModel: string;
+  aggregateId: Id;
+  aggregateVersion: number;
 }>;
 
 export interface EventMetadata extends Omit<MessageMetadata, "messageType"> {

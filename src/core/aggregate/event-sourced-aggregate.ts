@@ -118,12 +118,13 @@ export class EventSourcedAggregateBase<
   private validateEventBeforeApply(event: AnyEvent) {
     const eventSource = event.source();
 
-    if (eventSource.aggregate !== this.modelName())
+    if (eventSource.aggregateModel !== this.modelName())
       throw new Error("Invalid source type");
 
-    if (!eventSource.id.equals(this._id)) throw new Error("Invalid source id");
+    if (!eventSource.aggregateId.equals(this._id))
+      throw new Error("Invalid source id");
 
-    if (eventSource.version !== this.version())
+    if (eventSource.aggregateVersion !== this.version())
       throw new Error("Invalid source version");
   }
 

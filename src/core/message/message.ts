@@ -29,7 +29,7 @@ export class MessageBase<P extends Props> extends ModelWithId<P> {
     this.initializeProps(props);
   }
 
-  override props(): P {
+  override props() {
     return super.props()!;
   }
 

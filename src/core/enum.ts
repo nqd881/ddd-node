@@ -19,7 +19,7 @@ export class EnumBase extends ModelBase<EnumProps> {
     this: EnumClass<T>,
     providedValue: EnumValue
   ): T | undefined {
-    let key: string | symbol | undefined;
+    let key: PropertyKey | undefined = undefined;
 
     this.ownStaticValues().forEach((staticValue, staticValueKey) => {
       if (staticValue.value instanceof this) {
@@ -54,7 +54,7 @@ export class EnumBase extends ModelBase<EnumProps> {
     this.initializeProps({ value });
   }
 
-  override props(): EnumProps {
+  override props() {
     return super.props()!;
   }
 

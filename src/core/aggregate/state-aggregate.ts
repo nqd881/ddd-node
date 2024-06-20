@@ -32,7 +32,7 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     );
   }
 
-  override props(): P {
+  override props() {
     return super.props()!;
   }
 

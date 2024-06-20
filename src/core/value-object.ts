@@ -10,7 +10,7 @@ export class ValueObjectBase<P extends Props> extends ModelBase<P> {
     this.initializeProps(props);
   }
 
-  override props(): P {
+  override props() {
     return super.props()!;
   }
 

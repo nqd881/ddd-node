@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { EventType } from "../core";
+
+export type EventType = string;
 
 const EventTypeMetaKey = Symbol.for("EVENT_TYPE");
 

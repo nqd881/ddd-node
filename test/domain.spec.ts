@@ -30,7 +30,7 @@ class Person1 extends StateAggregateBase<Person1Props> {
 }
 
 describe("Domain", function () {
-  let domain: Domain = new Domain();
+  let domain: Domain = new Domain("Test");
 
   it("Register success", () => {
     domain.registerModel(Person);

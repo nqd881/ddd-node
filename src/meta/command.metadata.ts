@@ -1,5 +1,6 @@
 import "reflect-metadata";
-import { CommandType } from "../core";
+
+export type CommandType = string;
 
 const CommandTypeMetaKey = Symbol.for("COMMAND_TYPE");
 

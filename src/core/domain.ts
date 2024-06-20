@@ -1,7 +1,5 @@
+import { ModelName, ModelVersion } from "../meta";
 import { AnyModel, ModelClass } from "./model";
-
-type ModelName = string;
-type ModelVersion = number;
 
 export class ModelVersionRegistry<T extends AnyModel = AnyModel> extends Map<
   ModelVersion,
@@ -16,10 +14,10 @@ export class ModelRegistry<T extends AnyModel = AnyModel> extends Map<
 export type DomainName = string;
 
 export class Domain {
-  readonly name?: DomainName;
+  readonly name: DomainName;
   private readonly modelRegistry: ModelRegistry = new ModelRegistry();
 
-  constructor(name?: DomainName) {
+  constructor(name: DomainName) {
     this.name = name;
   }
 

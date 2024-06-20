@@ -2,9 +2,7 @@ import { ClassStatic } from "../../types";
 import { Class } from "type-fest";
 import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
-import { getCommandType } from "../../meta";
-
-export type CommandType = string;
+import { CommandType, getCommandType } from "../../meta";
 
 export interface CommandMetadata extends Omit<MessageMetadata, "messageType"> {}
 
