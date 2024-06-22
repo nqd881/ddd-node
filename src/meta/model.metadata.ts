@@ -228,7 +228,8 @@ export const getPropsValidators = (target: object): PropsValidator[] => {
   return validators();
 };
 
-//
+// OWN STATIC VALUES
+
 const OwnStaticValuesMetaKey = Symbol.for("OWN_STATIC_VALUES");
 
 export const getOwnStaticValues = <T extends AnyModel>(
