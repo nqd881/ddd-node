@@ -2,7 +2,6 @@ import _ from "lodash";
 import { Class } from "type-fest";
 import {
   ModelId,
-  ModelIdValue,
   getModelId,
   getModelName,
   getModelVersion,
@@ -51,7 +50,7 @@ export class ModelBase<P extends Props> {
   }
 
   static hasModelId<T extends AnyModel>(this: ModelClass<T>, modelId: ModelId) {
-    return this.modelId().equals(modelId);
+    return this.modelId() === modelId;
   }
 
   static ownPropsValidator<T extends AnyModel>(this: ModelClass<T>) {

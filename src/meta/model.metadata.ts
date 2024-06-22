@@ -124,39 +124,7 @@ export const getModelVersion = <T extends AnyModel>(
 
 // MODEL ID
 
-export type ModelIdValue =
-  `${ModelName}${typeof ModelId.ValueDivider}${ModelVersion}`;
-
-export class ModelId {
-  static readonly ValueDivider = "|" as const;
-
-  static fromValue(value: ModelIdValue) {
-    const [modelName, modelVersion] = value.split(this.ValueDivider);
-
-    return new ModelId(String(modelName), Number(modelVersion));
-  }
-
-  static makeValue(modelId: ModelId): ModelIdValue {
-    return `${modelId.modelName}${this.ValueDivider}${modelId.modelVersion}`;
-  }
-
-  constructor(
-    public readonly modelName: ModelName,
-    public readonly modelVersion: ModelVersion
-  ) {}
-
-  get value(): ModelIdValue {
-    return ModelId.makeValue(this);
-  }
-
-  equalsValue(modelIdValue: ModelIdValue) {
-    return this.value === modelIdValue;
-  }
-
-  equals(modelId: ModelId) {
-    return this.equalsValue(modelId.value);
-  }
-}
+export type ModelId = `${ModelName}|${ModelVersion}`;
 
 const ModelIdMetaKey = Symbol.for("MODEL_ID");
 
@@ -175,7 +143,7 @@ export const getModelId = <T extends AnyModel>(target: ModelClass<T>) => {
     const modelName = getModelName(target);
     const modelVersion = getModelVersion(target);
 
-    setModelId(target, new ModelId(modelName, modelVersion));
+    setModelId(target, `${modelName}|${modelVersion}`);
   }
 
   return modelId()!;
