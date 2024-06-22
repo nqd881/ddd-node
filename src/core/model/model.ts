@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Class } from "type-fest";
 import {
+  getModelId,
   getModelName,
   getModelVersion,
   getOwnPropsMap,
@@ -41,6 +42,10 @@ export class ModelBase<P extends Props> {
 
   static modelVersion<T extends AnyModel>(this: ModelClass<T>) {
     return getModelVersion(this);
+  }
+
+  static modelId<T extends AnyModel>(this: ModelClass<T>) {
+    return getModelId(this);
   }
 
   static ownPropsValidator<T extends AnyModel>(this: ModelClass<T>) {
@@ -84,8 +89,8 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  protected get _modelClass() {
-    return this.constructor as ModelClass<this>;
+  protected get _modelClass(): ModelClass<typeof this> {
+    return this.constructor as ModelClass<typeof this>;
   }
 
   isMutable() {
@@ -98,6 +103,10 @@ export class ModelBase<P extends Props> {
 
   modelVersion() {
     return this._modelClass.modelVersion();
+  }
+
+  modelId() {
+    return this._modelClass.modelId();
   }
 
   ownPropsValidator() {

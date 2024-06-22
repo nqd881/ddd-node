@@ -11,6 +11,7 @@ import {
   PropsValidator,
   Validator,
   ValueObjectBase,
+  PropsOf,
 } from "../src";
 
 chai.use(chaiDeepMatch);
@@ -76,6 +77,10 @@ class Person<P extends PersonProps = PersonProps> extends ModelBase<P> {
     this._props.name = name;
   }
 }
+
+// type C = PropsOf<Person>;
+
+// type C1 = ReturnType<Person["props"]>;
 
 const STUDENT_MODEL_NAME = "student";
 

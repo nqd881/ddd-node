@@ -2,6 +2,8 @@ import _ from "lodash";
 import { AnyModel, ModelBase, ModelClass, PropKey, PropsOf } from "../core";
 import { StaticValue, StaticValueBuilder } from "./helpers/static-value";
 
+// OWN PROPS MAP
+
 const OwnPropsMapMetaKey = Symbol.for("OWN_PROPS_MAP");
 
 export class PropsMap<T extends AnyModel = AnyModel> extends Map<
@@ -30,6 +32,8 @@ export const setProp = <T extends AnyModel = AnyModel>(
 
   if (propTargetKey) ownPropsMap.set(key, propTargetKey);
 };
+
+// PROPS MAP
 
 const PropsMapMetaKey = Symbol.for("PROPS_MAP");
 
@@ -71,7 +75,7 @@ export const getPropsMap = <T extends AnyModel = AnyModel>(
   return propsMap();
 };
 
-//
+// MODEL NAME
 
 export type ModelName = string;
 
@@ -94,7 +98,7 @@ export const getModelName = <T extends AnyModel>(
   return modelName();
 };
 
-//
+// MODEL VERSION
 
 export type ModelVersion = number;
 
@@ -117,7 +121,67 @@ export const getModelVersion = <T extends AnyModel>(
 
   return modelVersion();
 };
-//
+
+// MODEL ID
+
+export type ModelIdValue =
+  `${ModelName}${typeof ModelId.ValueDivider}${ModelVersion}`;
+
+export class ModelId {
+  static readonly ValueDivider = "|" as const;
+
+  static fromValue(value: ModelIdValue) {
+    const [modelName, modelVersion] = value.split(this.ValueDivider);
+
+    return new ModelId(String(modelName), Number(modelVersion));
+  }
+
+  static makeValue(modelId: ModelId): ModelIdValue {
+    return `${modelId.modelName}${this.ValueDivider}${modelId.modelVersion}`;
+  }
+
+  constructor(
+    public readonly modelName: ModelName,
+    public readonly modelVersion: ModelVersion
+  ) {}
+
+  get value(): ModelIdValue {
+    return ModelId.makeValue(this);
+  }
+
+  equalsValue(modelIdValue: ModelIdValue) {
+    return this.value === modelIdValue;
+  }
+
+  equals(modelId: ModelId) {
+    return this.equalsValue(modelId.value);
+  }
+}
+
+const ModelIdMetaKey = Symbol.for("MODEL_ID");
+
+export const setModelId = <T extends AnyModel>(
+  target: ModelClass<T>,
+  modelId: ModelId
+) => {
+  Reflect.defineMetadata(ModelIdMetaKey, modelId, target);
+};
+
+export const getModelId = <T extends AnyModel>(target: ModelClass<T>) => {
+  const modelId = () =>
+    Reflect.getOwnMetadata(ModelIdMetaKey, target) as ModelId | undefined;
+
+  if (!modelId()) {
+    const modelName = getModelName(target);
+    const modelVersion = getModelVersion(target);
+
+    setModelId(target, new ModelId(modelName, modelVersion));
+  }
+
+  return modelId()!;
+};
+
+// PROPS VALIDATOR
 
 export type PropsValidator<T extends AnyModel = AnyModel> = (
   props: PropsOf<T>
