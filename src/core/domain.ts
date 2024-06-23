@@ -1,70 +1,46 @@
-import { ModelName, ModelVersion } from "../meta";
-import { AnyModel, ModelClass } from "./model";
-
-export class ModelVersionRegistry<T extends AnyModel = AnyModel> extends Map<
-  ModelVersion,
-  ModelClass<T>
-> {}
-
-export class ModelRegistry<T extends AnyModel = AnyModel> extends Map<
-  ModelName,
-  ModelVersionRegistry<T>
-> {}
+import { ModelRegistry } from "./model-registry";
 
 export type DomainName = string;
 
 export class Domain {
-  readonly name: DomainName;
-  private readonly modelRegistry: ModelRegistry = new ModelRegistry();
+  public readonly modelRegistry: ModelRegistry = new ModelRegistry();
 
-  constructor(name: DomainName) {
-    this.name = name;
+  constructor(public readonly name: DomainName) {}
+}
+
+export class DomainMap extends Map<DomainName, Domain> {}
+
+export class DomainManager {
+  static _instance: DomainManager;
+
+  static instance() {
+    if (!this._instance) this._instance = new DomainManager();
+
+    return this._instance;
   }
 
-  getModelVersionRegistry(modelName: ModelName) {
-    const modelVersionRegistry = () => this.modelRegistry.get(modelName);
+  private constructor() {}
 
-    if (!modelVersionRegistry())
-      this.modelRegistry.set(modelName, new ModelVersionRegistry());
+  private _domains: DomainMap = new DomainMap();
 
-    return modelVersionRegistry()!;
+  hasDomain(domainName: DomainName) {
+    return this._domains.has(domainName);
   }
 
-  getModel(modelName: ModelName, modelVersion: ModelVersion = 0) {
-    const modelVersionRegistry = this.getModelVersionRegistry(modelName);
-
-    return modelVersionRegistry.get(modelVersion);
+  getDomain(domainName: DomainName) {
+    return this._domains.get(domainName);
   }
 
-  hasRegisteredModel(modelName: ModelName, modelVersion: ModelVersion): boolean;
-  hasRegisteredModel(model: ModelClass): boolean;
-  hasRegisteredModel(p1: ModelName | ModelClass, p2?: ModelVersion): boolean {
-    let modelName: ModelName, modelVersion: ModelVersion;
+  addDomain(domain: Domain) {
+    if (this.hasDomain(domain.name))
+      throw new Error(`Domain ${domain.name} has already exist`);
 
-    if (typeof p1 === "string") {
-      modelName = p1;
-      modelVersion = p2 as ModelVersion;
-    } else {
-      modelName = p1.modelName();
-      modelVersion = p1.modelVersion();
-    }
-
-    return Boolean(this.getModel(modelName, modelVersion));
+    this._domains.set(domain.name, domain);
   }
 
-  registerModel(modelClass: ModelClass) {
-    const modelName = modelClass.modelName();
-    const modelVersion = modelClass.modelVersion();
-
-    if (this.hasRegisteredModel(modelName, modelVersion))
-      throw new Error(
-        `Model ${modelName} with version ${modelVersion} has been registered`
-      );
-
-    const modelVersionRegistry = this.getModelVersionRegistry(modelName);
-
-    modelVersionRegistry.set(modelVersion, modelClass);
-
-    return this;
+  deleteDomain(domainName: DomainName) {
+    this._domains.delete(domainName);
   }
 }
+
+export const domainManager = DomainManager.instance();

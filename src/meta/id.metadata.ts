@@ -7,11 +7,10 @@ export const defineIdService = (target: object, idService: IIdService) => {
 };
 
 export const getIdService = (target: object): IIdService => {
-  const idService = () => Reflect.getMetadata(IdServiceMetaKey, target);
+  const idService = () =>
+    Reflect.getMetadata<IIdService>(IdServiceMetaKey, target);
 
-  if (idService()) return idService();
+  if (!idService()) defineIdService(target, new Uuid4Service());
 
-  Reflect.defineMetadata(IdServiceMetaKey, new Uuid4Service(), target);
-
-  return idService();
+  return idService()!;
 };

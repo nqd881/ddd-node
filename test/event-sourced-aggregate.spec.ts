@@ -29,6 +29,7 @@ interface PersonNameChangedEventProps {
   name: string;
 }
 
+@Event("PERSON_NAME_CHANGED")
 class PersonNameChangedEvent extends EventBase<PersonNameChangedEventProps> {}
 
 interface PersonProps {
@@ -76,6 +77,95 @@ class Person extends EventSourcedAggregateBase<PersonProps> {
     const { name } = event.props();
 
     this._props.name = name;
+  }
+}
+
+// The ExtendablePerson will almost like Person, but it must not to call initializeProps
+class ExtendablePerson<
+  P extends PersonProps
+> extends EventSourcedAggregateBase<P> {
+  @Prop()
+  declare name: string;
+
+  @Handle(ChangePersonNameCommand)
+  handleChangeName(command: ChangePersonNameCommand) {
+    const { name } = command.props();
+
+    const isNameStartWithUnderscore = name.at(0) === "_";
+
+    if (isNameStartWithUnderscore) throw new InvalidPersonNameError();
+
+    return this.newEvent(PersonNameChangedEvent, { name });
+  }
+
+  @When(PersonNameChangedEvent)
+  whenPersonNameChanged(event: PersonNameChangedEvent) {
+    const { name } = event.props();
+
+    this._props.name = name;
+  }
+}
+
+interface StudentCreatedEventProps {
+  name: string;
+  school: string;
+}
+
+@Event("STUDENT_CREATED")
+class StudentCreatedEvent extends EventBase<StudentCreatedEventProps> {}
+
+interface StudentProps extends PersonProps {
+  school: string;
+}
+
+interface ChangeStudentSchoolCommandProps {
+  school: string;
+}
+
+@Command("CHANGE_STUDENT_SCHOOL")
+class ChangeStudentSchoolCommand extends CommandBase<ChangeStudentSchoolCommandProps> {}
+
+interface StudentSchoolChangedEventProps {
+  school: string;
+}
+
+@Event("STUDENT_SCHOOL_CHANGED")
+class StudentSchoolChangedEvent extends EventBase<StudentSchoolChangedEventProps> {}
+
+class Student extends ExtendablePerson<StudentProps> {
+  static createStudent(props: StudentProps) {
+    const student = Student.newStream();
+
+    student.applyNewEvent(StudentCreatedEvent, {
+      name: props.name,
+      school: props.school,
+    });
+
+    return student;
+  }
+
+  @Prop()
+  declare school: string;
+
+  @When(StudentCreatedEvent)
+  whenStudentCreated(event: StudentCreatedEvent) {
+    const { name, school } = event.props();
+
+    this.initializeProps({ name, school });
+  }
+
+  @Handle(ChangeStudentSchoolCommand)
+  handleChangeStudentSchool(command: ChangeStudentSchoolCommand) {
+    const { school } = command.props();
+
+    return this.newEvent(StudentSchoolChangedEvent, { school });
+  }
+
+  @When(StudentSchoolChangedEvent)
+  whenSchoolChanged(event: StudentSchoolChangedEvent) {
+    const { school } = event.props();
+
+    this._props.school = school;
   }
 }
 
@@ -146,6 +236,33 @@ describe("Event sourced aggregate", function () {
       );
 
       expect(person.name).to.equal("Duong");
+    });
+  });
+
+  describe("Extendable aggregate", function () {
+    it("command handler map", () => {
+      expect(ExtendablePerson.commandHandlerMap().size).to.equal(1);
+      expect(Student.commandHandlerMap().size).to.equal(2);
+    });
+
+    it("event applier map", () => {
+      expect(ExtendablePerson.eventApplierMap().size).to.equal(1);
+      expect(Student.eventApplierMap().size).to.equal(3);
+    });
+
+    it("handle super command", () => {
+      const student = Student.createStudent({ name: "Dai", school: "NEU" });
+
+      const changeStudentName = () =>
+        student.handleCommand(
+          ChangePersonNameCommand.newCommand({ name: "Duong" })
+        );
+
+      expect(changeStudentName).not.throw();
+
+      changeStudentName();
+
+      expect(student.name).to.equals("Duong");
     });
   });
 });

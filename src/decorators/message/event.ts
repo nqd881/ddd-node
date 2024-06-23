@@ -1,8 +1,8 @@
 import { AnyEvent, EventClass } from "../../core";
-import { EventType, setEventType } from "../../meta";
+import { EventType, defineEventType } from "../../meta";
 
 export const Event = (eventType: EventType) => {
   return <T extends AnyEvent>(target: EventClass<T>) => {
-    setEventType(target, eventType);
+    defineEventType(target, eventType);
   };
 };

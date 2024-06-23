@@ -3,9 +3,9 @@ import { beforeEach, describe } from "mocha";
 import {
   EntityBase,
   Id,
+  Model,
   Prop,
   StateAggregateBase,
-  Validator,
   ValueObjectBase,
 } from "../src";
 
@@ -33,11 +33,13 @@ interface BatteryLevelProps {
   percentage: number;
 }
 
-@Validator((props) => {
-  if (props.percentage < 0)
-    throw new Error("Battery percentage cannot lower than 0");
-  if (props.percentage > 100)
-    throw new Error("Battery percentage cannot greater than 100");
+@Model({
+  propsValidator: (props) => {
+    if (props.percentage < 0)
+      throw new Error("Battery percentage cannot lower than 0");
+    if (props.percentage > 100)
+      throw new Error("Battery percentage cannot greater than 100");
+  },
 })
 class BatteryLevel extends ValueObjectBase<BatteryLevelProps> {
   @Prop()

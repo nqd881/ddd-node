@@ -8,3 +8,4 @@ export * from "./value-object";
 export * from "./repository";
 export * from "./domain";
 export * from "./event-pubsub";
+export * from "./model-registry";

@@ -1,6 +1,13 @@
 import { expect } from "chai";
 import { describe } from "mocha";
-import { Domain, Model, Prop, StateAggregateBase, Version } from "../src";
+import {
+  DEFAULT_MODEL_DOMAIN,
+  Model,
+  ModelRegistry,
+  Prop,
+  StateAggregateBase,
+  domainManager,
+} from "../src";
 
 const PERSON_MODEL_NAME = "PERSON";
 
@@ -19,8 +26,7 @@ interface Person1Props {
   age: number;
 }
 
-@Model(PERSON_MODEL_NAME)
-@Version(1)
+@Model(PERSON_MODEL_NAME, 1)
 class Person1 extends StateAggregateBase<Person1Props> {
   @Prop()
   declare name: string;
@@ -29,24 +35,54 @@ class Person1 extends StateAggregateBase<Person1Props> {
   declare age: number;
 }
 
+interface Person2Props {
+  name: string;
+  age: number;
+}
+
+@Model(PERSON_MODEL_NAME, 2)
+class Person2 extends StateAggregateBase<Person2Props> {
+  @Prop()
+  declare name: string;
+
+  @Prop()
+  declare age: number;
+}
+
 describe("Domain", function () {
-  let domain: Domain = new Domain("Test");
+  let modelRegistry = new ModelRegistry();
 
-  it("Register success", () => {
-    domain.registerModel(Person);
+  it("Model registry", () => {
+    modelRegistry.registerModel(Person);
 
-    expect(domain.getModelVersionRegistry(PERSON_MODEL_NAME).size).to.equal(1);
+    expect(modelRegistry.getModelVersionMap(PERSON_MODEL_NAME).size).to.equal(
+      1
+    );
 
-    expect(domain.getModel(PERSON_MODEL_NAME, 0)).to.equal(Person);
+    expect(modelRegistry.getModel(PERSON_MODEL_NAME, 0)).to.equal(Person);
 
-    expect(() => domain.registerModel(Person)).to.throw();
+    expect(() => modelRegistry.registerModel(Person)).to.throw();
 
-    domain.registerModel(Person1);
+    modelRegistry.registerModel(Person1);
 
-    expect(domain.getModelVersionRegistry(PERSON_MODEL_NAME).size).to.equal(2);
+    expect(modelRegistry.getModelVersionMap(PERSON_MODEL_NAME).size).to.equal(
+      2
+    );
 
-    expect(domain.getModel(PERSON_MODEL_NAME, 1)).to.equal(Person1);
+    expect(modelRegistry.getModel(PERSON_MODEL_NAME, 1)).to.equal(Person1);
 
-    expect(domain.getModel(PERSON_MODEL_NAME)).to.equal(Person);
+    expect(modelRegistry.getModel(PERSON_MODEL_NAME)).to.equal(Person);
+  });
+
+  it("Domain manager", () => {
+    const defaultDomain = domainManager.getDomain(DEFAULT_MODEL_DOMAIN)!;
+
+    expect(
+      defaultDomain?.modelRegistry?.getModelVersionMap(PERSON_MODEL_NAME).size
+    ).to.equal(3);
+
+    expect(defaultDomain.modelRegistry.getModel(PERSON_MODEL_NAME, 2)).to.equal(
+      Person2
+    );
   });
 });

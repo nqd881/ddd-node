@@ -2,16 +2,14 @@
 
 import * as chai from "chai";
 import { expect } from "chai";
-import { beforeEach, describe, it } from "mocha";
 import chaiDeepMatch from "chai-deep-match";
+import { beforeEach, describe, it } from "mocha";
 import {
-  ModelBase,
   Model,
+  ModelBase,
   Prop,
   PropsValidator,
-  Validator,
   ValueObjectBase,
-  PropsOf,
 } from "../src";
 
 chai.use(chaiDeepMatch);
@@ -47,7 +45,9 @@ class InvalidPersonAgeError extends Error {
   }
 }
 
-@Validator(Person.Validator)
+@Model({
+  propsValidator: Person.Validator,
+})
 class Person<P extends PersonProps = PersonProps> extends ModelBase<P> {
   static readonly Validator: PropsValidator<Person> = (props) => {
     if (props?.age && (props.age < 0 || props.age > 200))
@@ -78,10 +78,6 @@ class Person<P extends PersonProps = PersonProps> extends ModelBase<P> {
   }
 }
 
-// type C = PropsOf<Person>;
-
-// type C1 = ReturnType<Person["props"]>;
-
 const STUDENT_MODEL_NAME = "student";
 
 class InvalidStudentSchoolError extends Error {
@@ -94,8 +90,9 @@ interface StudentProps extends PersonProps {
   school: string;
 }
 
-@Model(STUDENT_MODEL_NAME)
-@Validator(Student.Validator)
+@Model(STUDENT_MODEL_NAME, {
+  propsValidator: Student.Validator,
+})
 class Student extends Person<StudentProps> {
   static readonly Validator: PropsValidator<Student> = (props) => {
     if (Student.isInvalidSchool(props.school))

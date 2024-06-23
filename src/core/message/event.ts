@@ -1,9 +1,9 @@
-import { ClassStatic } from "../../types";
 import { Class } from "type-fest";
+import { EventType, getEventType } from "../../meta";
+import { ClassStatic } from "../../types";
 import { Id } from "../id";
 import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
-import { EventType, getEventType } from "../../meta";
 
 export type EventSource = Readonly<{
   aggregateModel: string;
@@ -27,7 +27,7 @@ export class EventBase<P extends Props> extends MessageBase<P> {
   }
 
   static eventType(): EventType {
-    return getEventType(this) || this.modelName();
+    return getEventType(this);
   }
 
   static newEvent<T extends AnyEvent>(

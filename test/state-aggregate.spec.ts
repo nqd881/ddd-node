@@ -1,5 +1,5 @@
 import { describe } from "mocha";
-import { StateAggregateBase, EventBase, Prop } from "../src";
+import { StateAggregateBase, EventBase, Prop, Event } from "../src";
 import { expect } from "chai";
 
 interface PersonNameChangedEventProps {
@@ -7,6 +7,7 @@ interface PersonNameChangedEventProps {
   newName: string;
 }
 
+@Event("PERSON_NAME_CHANGED")
 class PersonNameChangedEvent extends EventBase<PersonNameChangedEventProps> {}
 
 interface PersonProps {

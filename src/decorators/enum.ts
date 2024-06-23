@@ -1,5 +1,5 @@
-import { EnumClass, EnumValue } from "../../core";
-import { Static } from "./static";
+import { EnumClass, EnumValue } from "../core";
+import { Static } from "./model/static";
 
 export const Enum = (value: EnumValue) => {
   return <T extends EnumClass>(target: T, key: string) => {

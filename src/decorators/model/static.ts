@@ -1,5 +1,9 @@
 import { ModelClass } from "../../core";
-import { StaticValueBuilder, getStaticValue, setStaticValue } from "../../meta";
+import {
+  StaticValueBuilder,
+  defineStaticValueProperty,
+  setStaticValue,
+} from "../../meta";
 
 export const Static = <
   T extends ModelClass,
@@ -7,18 +11,9 @@ export const Static = <
 >(
   builder: StaticValueBuilder<I>
 ) => {
-  return (target: T, key: string) => {
+  return (target: T, key: PropertyKey) => {
     setStaticValue(target, key, builder);
 
-    Object.defineProperty(target, key, {
-      configurable: false,
-      enumerable: true,
-      get() {
-        return getStaticValue(target, key);
-      },
-      set() {
-        throw new Error("Static value is readonly");
-      },
-    });
+    defineStaticValueProperty(target, key);
   };
 };

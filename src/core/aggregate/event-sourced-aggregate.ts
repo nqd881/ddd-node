@@ -1,5 +1,10 @@
 import { Class } from "type-fest";
-import { getCommandHandlerMap, getEventApplierMap } from "../../meta";
+import {
+  getCommandHandlerMap,
+  getEventApplierMap,
+  getOwnCommandHandlerMap,
+  getOwnEventApplierMap,
+} from "../../meta";
 import { ClassStatic } from "../../types";
 import { toArray } from "../../utils";
 import { Id } from "../id";
@@ -69,10 +74,18 @@ export class EventSourcedAggregateBase<
     return instance;
   }
 
+  static ownEventApplierMap() {
+    return getOwnEventApplierMap(this.prototype);
+  }
+
   static eventApplierMap<T extends AnyEventSourcedAggregate>(
     this: EventSourcedAggregateClass<T>
   ) {
     return getEventApplierMap(this.prototype);
+  }
+
+  static ownCommandHandlerMap() {
+    return getOwnCommandHandlerMap(this.prototype);
   }
 
   static commandHandlerMap<T extends AnyEventSourcedAggregate>(
@@ -95,6 +108,12 @@ export class EventSourcedAggregateBase<
 
   handledCommands() {
     return Array.from(this._handledCommands);
+  }
+
+  ownEventApplierMap() {
+    return (
+      this.constructor as EventSourcedAggregateClass
+    ).ownEventApplierMap();
   }
 
   eventApplierMap() {
@@ -167,6 +186,12 @@ export class EventSourcedAggregateBase<
     props: PropsOf<E>
   ) {
     this.applyEvent(this.newEvent(eventClass, props));
+  }
+
+  ownCommandHandlerMap() {
+    return (
+      this.constructor as EventSourcedAggregateClass
+    ).ownCommandHandlerMap();
   }
 
   commandHandlerMap() {

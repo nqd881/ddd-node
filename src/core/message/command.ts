@@ -17,7 +17,7 @@ export class CommandBase<P extends Props> extends MessageBase<P> {
   }
 
   static commandType(): CommandType {
-    return getCommandType(this) || this.modelName();
+    return getCommandType(this);
   }
 
   static newCommand<T extends AnyCommand>(

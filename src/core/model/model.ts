@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { Class } from "type-fest";
 import {
-  ModelId,
   getModelId,
   getModelName,
   getModelVersion,
@@ -14,14 +13,12 @@ import {
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
 
-export type PropKey = string | symbol;
-
 export interface Props {
-  [key: PropKey]: any;
+  [key: PropertyKey]: any;
 }
 
 export type EmptyProps = {
-  [key: PropKey]: never;
+  [key: PropertyKey]: never;
 };
 
 export class ModelBase<P extends Props> {
@@ -49,7 +46,7 @@ export class ModelBase<P extends Props> {
     return getModelId(this);
   }
 
-  static hasModelId<T extends AnyModel>(this: ModelClass<T>, modelId: ModelId) {
+  static hasModelId<T extends AnyModel>(this: ModelClass<T>, modelId: string) {
     return this.modelId() === modelId;
   }
 
@@ -114,7 +111,7 @@ export class ModelBase<P extends Props> {
     return this._modelClass.modelId();
   }
 
-  hasModelId(modelId: ModelId) {
+  hasModelId(modelId: string) {
     return this._modelClass.hasModelId(modelId);
   }
 
@@ -169,7 +166,11 @@ export class ModelBase<P extends Props> {
       Object.freeze(this._props);
     } else {
       this._props = new Proxy(props, {
-        set: (target: P, propKey: Extract<keyof P, PropKey>, value: any) => {
+        set: (
+          target: P,
+          propKey: Extract<keyof P, PropertyKey>,
+          value: any
+        ) => {
           let result = Reflect.set(target, propKey, value);
 
           this.validate();
