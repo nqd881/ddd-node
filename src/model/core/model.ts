@@ -1,6 +1,12 @@
 import _ from "lodash";
 import { Class } from "type-fest";
 import {
+  ModelId,
+  ModelName,
+  ModelVersion,
+  PropsMap,
+  PropsValidator,
+  StaticValuesMap,
   getModelId,
   getModelMutable,
   getModelName,
@@ -26,38 +32,38 @@ export class ModelMetadata<T extends AnyModel = AnyModel> {
   constructor(private modelClass: ModelClass<T>) {}
 
   modelMutable() {
-    return getModelMutable(this.modelClass);
+    return getModelMutable(this.modelClass) ?? false;
   }
 
-  modelName() {
+  modelName(): ModelName {
     return getModelName(this.modelClass);
   }
 
-  modelVersion() {
+  modelVersion(): ModelVersion {
     return getModelVersion(this.modelClass);
   }
 
-  modelId() {
+  modelId(): ModelId {
     return getModelId(this.modelClass);
   }
 
-  ownPropsValidator() {
+  ownPropsValidator(): PropsValidator<T> | undefined {
     return getOwnPropsValidator<T>(this.modelClass);
   }
 
-  propsValidators() {
+  propsValidators(): PropsValidator[] {
     return getPropsValidators(this.modelClass);
   }
 
-  ownStaticValues() {
+  ownStaticValues(): StaticValuesMap<T> {
     return getOwnStaticValues<T>(this.modelClass);
   }
 
-  ownPropsMap() {
+  ownPropsMap(): PropsMap<T> {
     return getOwnPropsMap<T>(this.modelClass.prototype);
   }
 
-  propsMap() {
+  propsMap(): PropsMap<T> {
     return getPropsMap<T>(this.modelClass.prototype);
   }
 }
@@ -71,7 +77,9 @@ export class ModelBase<P extends Props> {
     return model instanceof ModelBase;
   }
 
-  static modelMetadata<T extends AnyModel>(this: ModelClass<T>) {
+  static modelMetadata<T extends AnyModel>(
+    this: ModelClass<T>
+  ): ModelMetadata<T> {
     return new ModelMetadata(this);
   }
 
@@ -96,15 +104,13 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  protected get _modelClass(): ModelClass<typeof this> {
-    return this.constructor as unknown as ModelClass<typeof this>;
+  protected modelMetadata(): ModelMetadata<typeof this> {
+    return (
+      this.constructor as unknown as ModelClass<typeof this>
+    ).modelMetadata();
   }
 
-  protected modelMetadata() {
-    return this._modelClass.modelMetadata();
-  }
-
-  modelMutable() {
+  modelMutable(): boolean {
     return this.modelMetadata().modelMutable();
   }
 
