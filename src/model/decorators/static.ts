@@ -1,9 +1,9 @@
-import { ModelClass } from "../../core";
+import { ModelClass } from "../core";
 import {
   StaticValueBuilder,
   defineStaticValueProperty,
   setStaticValue,
-} from "../../meta";
+} from "../meta";
 
 export const Static = <
   T extends ModelClass,

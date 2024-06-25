@@ -5,7 +5,7 @@ import {
   EventClassWithTypedConstructor,
   EventSource,
 } from "../message";
-import { Props, PropsOf } from "../model";
+import { Props, PropsOf } from "../../model";
 
 export interface AggregateMetadata extends EntityMetadata {
   version: number;

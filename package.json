@@ -43,7 +43,7 @@
     "nodejs-snowflake": "^2.0.1",
     "reflect-metadata": "^0.1.13",
     "tsc-alias": "^1.8.8",
-    "type-fest": "^4.15.0",
+    "type-fest": "^4.20.1",
     "uuid": "^9.0.1"
   },
   "mocha": {

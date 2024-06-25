@@ -1,4 +1,3 @@
-export * from "./model";
 export * from "./aggregate-es";
 export * from "./id.metadata";
 export * from "./event.metadata";

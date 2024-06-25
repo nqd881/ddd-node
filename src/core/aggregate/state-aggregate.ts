@@ -2,7 +2,7 @@ import { Class } from "type-fest";
 import { ClassStatic } from "../../types";
 import { Id } from "../id";
 import { AnyEvent, EventClass } from "../message";
-import { Props, PropsOf } from "../model";
+import { Props, PropsOf } from "../../model";
 import { AggregateBase, AggregateMetadata } from "./base";
 
 export interface IEventDispatcher {

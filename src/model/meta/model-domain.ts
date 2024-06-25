@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "../../core";
+import { AnyModel, ModelClass } from "../core";
 
 export const ModelDomainMetaKey = Symbol.for("MODEL_DOMAIN");
 

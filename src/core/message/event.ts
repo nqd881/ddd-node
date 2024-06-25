@@ -1,8 +1,8 @@
 import { Class } from "type-fest";
 import { EventType, getEventType } from "../../meta";
+import { Props, PropsOf } from "../../model";
 import { ClassStatic } from "../../types";
 import { Id } from "../id";
-import { Props, PropsOf } from "../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
 
 export type EventSource = Readonly<{

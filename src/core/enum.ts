@@ -1,6 +1,6 @@
-import { ClassStatic } from "../types";
 import { Class } from "type-fest";
-import { ModelBase } from "./model";
+import { ModelBase, Mutable } from "../model";
+import { ClassStatic } from "../types";
 
 export type EnumValue = string | number;
 
@@ -8,9 +8,10 @@ export interface EnumProps {
   value: EnumValue;
 }
 
+@Mutable(false)
 export class EnumBase extends ModelBase<EnumProps> {
   static values() {
-    return Array.from(this.ownStaticValues().values()).map(
+    return Array.from(this.modelMetadata().ownStaticValues().values()).map(
       (staticValue) => staticValue.value
     );
   }
@@ -21,17 +22,19 @@ export class EnumBase extends ModelBase<EnumProps> {
   ): T | undefined {
     let key: PropertyKey | undefined = undefined;
 
-    this.ownStaticValues().forEach((staticValue, staticValueKey) => {
-      if (staticValue.value instanceof this) {
-        const staticEnum = staticValue.value as T;
+    this.modelMetadata()
+      .ownStaticValues()
+      .forEach((staticValue, staticValueKey) => {
+        if (staticValue.value instanceof this) {
+          const staticEnum = staticValue.value as T;
 
-        if (staticEnum.value === providedValue && !key) {
-          key = staticValueKey;
+          if (staticEnum.value === providedValue && !key) {
+            key = staticValueKey;
+          }
         }
-      }
-    });
+      });
 
-    if (key) return this.ownStaticValues().get(key)?.value;
+    if (key) return this.modelMetadata().ownStaticValues().get(key)?.value;
 
     return undefined;
   }
@@ -43,7 +46,9 @@ export class EnumBase extends ModelBase<EnumProps> {
     const parsedEnum = this.parseSafe(providedValue);
 
     if (!parsedEnum)
-      throw new Error(`Invalid provided value for enum ${this.modelName()}`);
+      throw new Error(
+        `Invalid provided value for enum ${this.modelMetadata().modelName()}`
+      );
 
     return parsedEnum;
   }

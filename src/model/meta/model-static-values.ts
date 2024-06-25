@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "../../core";
+import { AnyModel, ModelClass } from "../core";
 
 export type StaticValueBuilder<T extends AnyModel = AnyModel> = () => T;
 

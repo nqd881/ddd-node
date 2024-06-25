@@ -1,6 +1,6 @@
 import { ClassStatic } from "../../types";
 import { Class } from "type-fest";
-import { Props, PropsOf } from "../model";
+import { Props, PropsOf } from "../../model";
 import { MessageBase, MessageContext, MessageMetadata } from "./message";
 import { CommandType, getCommandType } from "../../meta";
 

@@ -1,5 +1,5 @@
-import { MId, ModelId, ModelName, ModelVersion } from "../meta";
-import { AnyModel, ModelClass } from "./model";
+import { AnyModel, ModelClass } from "./core";
+import { MId, ModelId, ModelName, ModelVersion } from "./meta";
 
 export class ModelVersionMap<T extends AnyModel = AnyModel> extends Map<
   ModelVersion,
@@ -18,8 +18,9 @@ export class ModelMap<T extends AnyModel = AnyModel> extends Map<
 export class ModelRegistry {
   private readonly modelMap: ModelMap = new ModelMap();
 
-  getModelVersionMap(modelName: ModelName) {
-    const modelVersionMap = () => this.modelMap.get(modelName);
+  getModelVersionMap<T extends AnyModel = AnyModel>(modelName: ModelName) {
+    const modelVersionMap = () =>
+      this.modelMap.get(modelName) as ModelVersionMap<T> | undefined;
 
     if (!modelVersionMap())
       this.modelMap.set(modelName, new ModelVersionMap(modelName));
@@ -27,16 +28,19 @@ export class ModelRegistry {
     return modelVersionMap()!;
   }
 
-  getModel(modelName: ModelName, modelVersion: ModelVersion = 0) {
-    const modelVersionMap = this.getModelVersionMap(modelName);
+  getModel<T extends AnyModel = AnyModel>(
+    modelName: ModelName,
+    modelVersion: ModelVersion = 0
+  ): ModelClass<T> | undefined {
+    const modelVersionMap = this.getModelVersionMap<T>(modelName);
 
     return modelVersionMap.get(modelVersion);
   }
 
-  getModelByModelId(modelId: ModelId) {
+  getModelByModelId<T extends AnyModel = AnyModel>(modelId: ModelId) {
     const { modelName, modelVersion } = MId.fromValue(modelId);
 
-    return this.getModel(modelName, modelVersion);
+    return this.getModel<T>(modelName, modelVersion);
   }
 
   hasRegisteredModel(modelName: ModelName, modelVersion: ModelVersion): boolean;
@@ -48,16 +52,16 @@ export class ModelRegistry {
       modelName = p1;
       modelVersion = p2 as ModelVersion;
     } else {
-      modelName = p1.modelName();
-      modelVersion = p1.modelVersion();
+      modelName = p1.modelMetadata().modelName();
+      modelVersion = p1.modelMetadata().modelVersion();
     }
 
     return Boolean(this.getModel(modelName, modelVersion));
   }
 
   registerModel(modelClass: ModelClass) {
-    const modelName = modelClass.modelName();
-    const modelVersion = modelClass.modelVersion();
+    const modelName = modelClass.modelMetadata().modelName();
+    const modelVersion = modelClass.modelMetadata().modelVersion();
 
     if (this.hasRegisteredModel(modelName, modelVersion))
       throw new Error(

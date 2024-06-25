@@ -1,13 +1,14 @@
 import _ from "lodash";
-import { AnyModel, Domain, ModelClass, domainManager } from "../../core";
+import { AnyModel, ModelClass } from "../core";
+import { Domain, domainManager } from "../domain";
 import {
+  PropsValidator,
+  defineModelDomain,
   defineModelName,
   defineModelVersion,
-  defineModelDomain,
-  getModelDomain,
-  PropsValidator,
   definePropsValidator,
-} from "../../meta";
+  getModelDomain,
+} from "../meta";
 
 export type ModelOptions<T extends AnyModel = AnyModel> = {
   name?: string;

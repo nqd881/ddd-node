@@ -7,6 +7,7 @@ import { beforeEach, describe, it } from "mocha";
 import {
   Model,
   ModelBase,
+  Mutable,
   Prop,
   PropsValidator,
   ValueObjectBase,
@@ -93,6 +94,7 @@ interface StudentProps extends PersonProps {
 @Model(STUDENT_MODEL_NAME, {
   propsValidator: Student.Validator,
 })
+@Mutable(true)
 class Student extends Person<StudentProps> {
   static readonly Validator: PropsValidator<Student> = (props) => {
     if (Student.isInvalidSchool(props.school))
@@ -105,9 +107,9 @@ class Student extends Person<StudentProps> {
     return this.INVALID_SCHOOLS.includes(school);
   }
 
-  static override mutable() {
-    return true;
-  }
+  // static override mutable() {
+  //   return true;
+  // }
 
   @Prop()
   declare school: string;
@@ -126,11 +128,11 @@ class Student extends Person<StudentProps> {
 describe("Model", function () {
   describe("Model name", function () {
     it("using default model name", () => {
-      expect(Person.modelName()).to.equals(Person.name);
+      expect(Person.modelMetadata().modelName()).to.equals(Person.name);
     });
 
     it("using decorated model name", () => {
-      expect(Student.modelName()).to.equal(STUDENT_MODEL_NAME);
+      expect(Student.modelMetadata().modelName()).to.equal(STUDENT_MODEL_NAME);
     });
   });
 
@@ -138,7 +140,9 @@ describe("Model", function () {
     it("get own props map", () => {
       const expectOwnPropsMap = { school: "school" };
 
-      const ownPropsMap = Object.fromEntries(Student.ownPropsMap());
+      const ownPropsMap = Object.fromEntries(
+        Student.modelMetadata().ownPropsMap()
+      );
 
       expect(ownPropsMap).to.deep.match(expectOwnPropsMap);
     });
@@ -150,7 +154,7 @@ describe("Model", function () {
         school: "school",
       };
 
-      const propsMap = Object.fromEntries(Student.propsMap());
+      const propsMap = Object.fromEntries(Student.modelMetadata().propsMap());
 
       expect(propsMap).to.deep.match(expectPropsMap);
     });
@@ -276,8 +280,8 @@ describe("Model", function () {
       const student = () =>
         new Student({ name: new Name("Dai"), age: 201, school: "NEU" });
 
-      expect(Person.propsValidators().length).to.equal(1);
-      expect(Student.propsValidators().length).to.equal(2);
+      expect(Person.modelMetadata().propsValidators().length).to.equal(1);
+      expect(Student.modelMetadata().propsValidators().length).to.equal(2);
 
       expect(student).to.throw(InvalidPersonAgeError);
     });

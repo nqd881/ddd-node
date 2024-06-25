@@ -1,4 +1,4 @@
 export * from "./prop";
 export * from "./model";
 export * from "./static";
-export * from "../enum";
+export * from "./mutable";

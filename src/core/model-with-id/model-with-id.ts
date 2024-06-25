@@ -1,6 +1,6 @@
 import { getIdService } from "../../meta";
 import { Id } from "../id";
-import { ModelBase, Props } from "./model";
+import { ModelBase, Props } from "../../model/core/model";
 
 export class ModelWithId<P extends Props> extends ModelBase<P> {
   protected readonly _id: Id;

@@ -1,6 +1,7 @@
 import _ from "lodash";
+import { Mutable, Props } from "../../model";
 import { Id } from "../id";
-import { ModelWithId, Props } from "../model";
+import { ModelWithId } from "../model-with-id";
 
 export interface MessageContext {
   correlationId?: string;
@@ -14,12 +15,13 @@ export interface MessageMetadata {
   context?: MessageContext;
 }
 
+@Mutable(false)
 export class MessageBase<P extends Props> extends ModelWithId<P> {
   private readonly _messageType: string;
   private readonly _timestamp: number;
   private _context?: MessageContext;
 
-  protected constructor(metadata: MessageMetadata, props: P) {
+  constructor(metadata: MessageMetadata, props: P) {
     super(metadata.id);
 
     this._messageType = metadata.messageType;

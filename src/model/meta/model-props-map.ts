@@ -1,4 +1,4 @@
-import { AnyModel, ModelBase, PropsOf } from "../../core";
+import { AnyModel, ModelBase, PropsOf } from "../core";
 
 const OwnPropsMapMetaKey = Symbol.for("OWN_PROPS_MAP");
 
@@ -9,7 +9,7 @@ export class PropsMap<T extends AnyModel = AnyModel> extends Map<
 
 // target is prototype
 export const getOwnPropsMap = <T extends AnyModel = AnyModel>(
-  target: T
+  target: object
 ): PropsMap<T> => {
   if (!Reflect.hasOwnMetadata(OwnPropsMapMetaKey, target))
     Reflect.defineMetadata(OwnPropsMapMetaKey, new PropsMap<T>(), target);
@@ -18,7 +18,7 @@ export const getOwnPropsMap = <T extends AnyModel = AnyModel>(
 };
 
 export const defineProp = <T extends AnyModel = AnyModel>(
-  target: T,
+  target: object,
   key: PropertyKey,
   propTargetKey?: keyof PropsOf<T>
 ) => {
@@ -30,7 +30,7 @@ export const defineProp = <T extends AnyModel = AnyModel>(
 const PropsMapMetaKey = Symbol.for("PROPS_MAP");
 
 export const getPropsMap = <T extends AnyModel = AnyModel>(
-  target: T
+  target: object
 ): PropsMap<T> => {
   if (!Reflect.hasOwnMetadata(PropsMapMetaKey, target)) {
     const buildPropsMap = (target: object) => {

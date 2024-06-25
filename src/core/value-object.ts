@@ -1,8 +1,9 @@
 import _ from "lodash";
 import { Class } from "type-fest";
-import { ModelBase, Props, PropsOf } from "./model";
 import { ClassStatic } from "../types";
+import { ModelBase, Mutable, Props, PropsOf } from "../model";
 
+@Mutable(false)
 export class ValueObjectBase<P extends Props> extends ModelBase<P> {
   constructor(props: P) {
     super();

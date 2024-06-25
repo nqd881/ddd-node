@@ -2,6 +2,7 @@ import _ from "lodash";
 import { Class } from "type-fest";
 import {
   getModelId,
+  getModelMutable,
   getModelName,
   getModelVersion,
   getOwnPropsMap,
@@ -9,7 +10,7 @@ import {
   getOwnStaticValues,
   getPropsMap,
   getPropsValidators,
-} from "../../meta";
+} from "../meta";
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
 
@@ -21,6 +22,46 @@ export type EmptyProps = {
   [key: PropertyKey]: never;
 };
 
+export class ModelMetadata<T extends AnyModel = AnyModel> {
+  constructor(private modelClass: ModelClass<T>) {}
+
+  modelMutable() {
+    return getModelMutable(this.modelClass);
+  }
+
+  modelName() {
+    return getModelName(this.modelClass);
+  }
+
+  modelVersion() {
+    return getModelVersion(this.modelClass);
+  }
+
+  modelId() {
+    return getModelId(this.modelClass);
+  }
+
+  ownPropsValidator() {
+    return getOwnPropsValidator<T>(this.modelClass);
+  }
+
+  propsValidators() {
+    return getPropsValidators(this.modelClass);
+  }
+
+  ownStaticValues() {
+    return getOwnStaticValues<T>(this.modelClass);
+  }
+
+  ownPropsMap() {
+    return getOwnPropsMap<T>(this.modelClass.prototype);
+  }
+
+  propsMap() {
+    return getPropsMap<T>(this.modelClass.prototype);
+  }
+}
+
 export class ModelBase<P extends Props> {
   public static readonly EMPTY_PROPS: EmptyProps = {};
 
@@ -30,44 +71,8 @@ export class ModelBase<P extends Props> {
     return model instanceof ModelBase;
   }
 
-  static mutable(): boolean {
-    return false;
-  }
-
-  static modelName<T extends AnyModel>(this: ModelClass<T>) {
-    return getModelName(this);
-  }
-
-  static modelVersion<T extends AnyModel>(this: ModelClass<T>) {
-    return getModelVersion(this);
-  }
-
-  static modelId<T extends AnyModel>(this: ModelClass<T>) {
-    return getModelId(this);
-  }
-
-  static hasModelId<T extends AnyModel>(this: ModelClass<T>, modelId: string) {
-    return this.modelId() === modelId;
-  }
-
-  static ownPropsValidator<T extends AnyModel>(this: ModelClass<T>) {
-    return getOwnPropsValidator<T>(this);
-  }
-
-  static propsValidators<T extends AnyModel>(this: ModelClass<T>) {
-    return getPropsValidators(this);
-  }
-
-  static ownStaticValues<T extends AnyModel>(this: ModelClass<T>) {
-    return getOwnStaticValues<T>(this);
-  }
-
-  static ownPropsMap() {
-    return getOwnPropsMap(this.prototype);
-  }
-
-  static propsMap() {
-    return getPropsMap(this.prototype);
+  static modelMetadata<T extends AnyModel>(this: ModelClass<T>) {
+    return new ModelMetadata(this);
   }
 
   constructor() {
@@ -92,43 +97,43 @@ export class ModelBase<P extends Props> {
   }
 
   protected get _modelClass(): ModelClass<typeof this> {
-    return this.constructor as ModelClass<typeof this>;
+    return this.constructor as unknown as ModelClass<typeof this>;
   }
 
-  isMutable() {
-    return this._modelClass.mutable();
+  protected modelMetadata() {
+    return this._modelClass.modelMetadata();
+  }
+
+  modelMutable() {
+    return this.modelMetadata().modelMutable();
   }
 
   modelName() {
-    return this._modelClass.modelName();
+    return this.modelMetadata().modelName();
   }
 
   modelVersion() {
-    return this._modelClass.modelVersion();
+    return this.modelMetadata().modelVersion();
   }
 
   modelId() {
-    return this._modelClass.modelId();
-  }
-
-  hasModelId(modelId: string) {
-    return this._modelClass.hasModelId(modelId);
+    return this.modelMetadata().modelId();
   }
 
   ownPropsValidator() {
-    return this._modelClass.ownPropsValidator();
+    return this.modelMetadata().ownPropsValidator();
   }
 
   propsValidators() {
-    return this._modelClass.propsValidators();
+    return this.modelMetadata().propsValidators();
   }
 
   ownPropsMap() {
-    return this._modelClass.ownPropsMap();
+    return this.modelMetadata().ownPropsMap();
   }
 
   propsMap() {
-    return getPropsMap(Reflect.getPrototypeOf(this) as any);
+    return this.modelMetadata().propsMap();
   }
 
   validateProps(props: P): void {
@@ -160,7 +165,7 @@ export class ModelBase<P extends Props> {
   protected initializeProps(props: P) {
     if (!this.propsIsEmpty()) throw new PropsInitializedError();
 
-    if (!this.isMutable()) {
+    if (!this.modelMutable()) {
       this._props = props;
 
       Object.freeze(this._props);

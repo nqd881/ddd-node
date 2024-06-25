@@ -13,7 +13,7 @@ import {
   AnyEvent,
   EventClassWithTypedConstructor,
 } from "../message";
-import { Props, PropsOf } from "../model";
+import { Props, PropsOf } from "../../model";
 import { AggregateBase, AggregateMetadata } from "./base";
 
 export interface SnapshotMetadata extends AggregateMetadata {}
