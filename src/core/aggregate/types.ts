@@ -1,11 +1,9 @@
 import {
   AnyEventSourcedAggregate,
   EventSourcedAggregateClass,
-} from "./event-sourced-aggregate";
+} from "./event-sourced-aggregate/event-sourced-aggregate";
 import { AnyStateAggregate, StateAggregateClass } from "./state-aggregate";
 
-export type AnyAggregate = AnyStateAggregate | AnyEventSourcedAggregate;
+export type Aggregate = AnyStateAggregate | AnyEventSourcedAggregate;
 
-export type AnyAggregateClass =
-  | StateAggregateClass
-  | EventSourcedAggregateClass;
+export type AggregateClass = StateAggregateClass | EventSourcedAggregateClass;

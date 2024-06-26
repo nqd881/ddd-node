@@ -1,6 +1,5 @@
-import { getIdService } from "../../meta";
+import { ModelBase, Props } from "../../model";
 import { Id } from "../id";
-import { ModelBase, Props } from "../../model/core/model";
 
 export class ModelWithId<P extends Props> extends ModelBase<P> {
   protected readonly _id: Id;
@@ -9,16 +8,6 @@ export class ModelWithId<P extends Props> extends ModelBase<P> {
     super();
 
     this._id = id;
-  }
-
-  static idService() {
-    return getIdService(this);
-  }
-
-  static id(id?: Id | string) {
-    const idService = this.idService();
-
-    return new Id(id ?? idService.generateValue());
   }
 
   id() {

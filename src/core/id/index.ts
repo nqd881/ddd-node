@@ -1,3 +1,3 @@
 export * from "./interface";
 export * from "./id";
-export * from "./common";
+export * from "./services";

@@ -13,7 +13,7 @@ export const Handle = <T extends AnyCommand>(commandClass: CommandClass<T>) => {
     descriptor: TypedPropertyDescriptor<U>
   ) => {
     if (typeof descriptor.value === "function") {
-      const commandType = commandClass.commandType();
+      const { commandType } = commandClass.commandModelMetadata();
 
       defineCommandHandler(target, commandType, descriptor.value);
     }

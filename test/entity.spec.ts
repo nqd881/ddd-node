@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe } from "mocha";
-import { EntityBase, Prop } from "../src";
+import { EntityBase, EntityBuilder, Prop } from "../src";
 
 interface UserProps {
   name: string;
@@ -12,9 +12,11 @@ class User extends EntityBase<UserProps> {
 }
 
 describe("Entity", function () {
+  const UserBuilder = () => new EntityBuilder(User);
+
   describe("Static methods", function () {
     it("newEntity", () => {
-      const user = User.newEntity({ name: "Dai" });
+      const user = UserBuilder().withProps({ name: "Dai" }).build();
 
       expect(user.name).to.equal("Dai");
     });

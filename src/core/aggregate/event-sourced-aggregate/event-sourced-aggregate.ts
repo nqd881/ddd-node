@@ -1,20 +1,15 @@
 import { Class } from "type-fest";
-import {
-  getCommandHandlerMap,
-  getEventApplierMap,
-  getOwnCommandHandlerMap,
-  getOwnEventApplierMap,
-} from "../../meta";
-import { ClassStatic } from "../../types";
-import { toArray } from "../../utils";
-import { Id } from "../id";
+import { Props, PropsOf } from "../../../model";
+import { ClassStatic } from "../../../types";
+import { toArray } from "../../../utils";
 import {
   AnyCommand,
   AnyEvent,
   EventClassWithTypedConstructor,
-} from "../message";
-import { Props, PropsOf } from "../../model";
-import { AggregateBase, AggregateMetadata } from "./base";
+} from "../../message";
+import { AggregateBase, AggregateMetadata } from "../aggregate-base";
+import { IEventDispatcher } from "../event-dispatcher.interface";
+import { ESAModelMetadata } from "./event-sourced-aggregate.model-metadata";
 
 export interface SnapshotMetadata extends AggregateMetadata {}
 
@@ -38,60 +33,16 @@ export class EventSourcedAggregateBase<
     this._pastEvents = [];
   }
 
-  static newStream<T extends AnyEventSourcedAggregate>(
-    this: EventSourcedAggregateClassWithTypedConstructor<T>,
-    id?: Id
-  ) {
-    return new this({
-      id: this.id(id),
-      version: 0,
-    });
-  }
-
-  static fromStream<T extends AnyEventSourcedAggregate>(
-    this: EventSourcedAggregateClassWithTypedConstructor<T>,
-    id: Id,
-    pastEvents: AnyEvent[] = []
-  ) {
-    const instance = this.newStream(id);
-
-    instance.applyPastEvents(pastEvents);
-
-    return instance;
-  }
-
-  static fromSnapshot<T extends AnyEventSourcedAggregate>(
-    this: EventSourcedAggregateClassWithTypedConstructor<T>,
-    snapshot: Snapshot<T>,
-    pastEventsAfterSnapshot: AnyEvent[] = []
-  ) {
-    const { metadata, props } = snapshot;
-
-    const instance = new this(metadata, props);
-
-    instance.applyPastEvents(pastEventsAfterSnapshot);
-
-    return instance;
-  }
-
-  static ownEventApplierMap() {
-    return getOwnEventApplierMap(this.prototype);
-  }
-
-  static eventApplierMap<T extends AnyEventSourcedAggregate>(
+  static esaModelMetadata<T extends AnyEventSourcedAggregate>(
     this: EventSourcedAggregateClass<T>
   ) {
-    return getEventApplierMap(this.prototype);
+    return new ESAModelMetadata(this);
   }
 
-  static ownCommandHandlerMap() {
-    return getOwnCommandHandlerMap(this.prototype);
-  }
-
-  static commandHandlerMap<T extends AnyEventSourcedAggregate>(
-    this: EventSourcedAggregateClass<T>
-  ) {
-    return getCommandHandlerMap(this.prototype);
+  esaModelMetadata() {
+    return (
+      this.constructor as EventSourcedAggregateClass<typeof this>
+    ).esaModelMetadata();
   }
 
   version() {
@@ -110,24 +61,15 @@ export class EventSourcedAggregateBase<
     return Array.from(this._handledCommands);
   }
 
-  ownEventApplierMap() {
-    return (
-      this.constructor as EventSourcedAggregateClass
-    ).ownEventApplierMap();
-  }
-
-  eventApplierMap() {
-    return (this.constructor as EventSourcedAggregateClass).eventApplierMap();
-  }
-
   hasNewEvent() {
     return Boolean(this._events.length);
   }
 
   getApplierForEvent<E extends AnyEvent>(event: E) {
-    const eventType = event.eventType();
+    const { eventType } = event.eventModelMetadata();
+    const { eventApplierMap } = this.esaModelMetadata();
 
-    const applier = this.eventApplierMap().get(eventType);
+    const applier = eventApplierMap.get(eventType);
 
     if (!applier) throw new Error("Event applier not found");
 
@@ -137,7 +79,7 @@ export class EventSourcedAggregateBase<
   private validateEventBeforeApply(event: AnyEvent) {
     const eventSource = event.source();
 
-    if (eventSource.aggregateModel !== this.modelName())
+    if (eventSource.aggregateModelId !== this.modelMetadata().modelId)
       throw new Error("Invalid source type");
 
     if (!eventSource.aggregateId.equals(this._id))
@@ -163,7 +105,7 @@ export class EventSourcedAggregateBase<
     this._pastEvents.push(event);
   }
 
-  private applyPastEvents(pastEvents: AnyEvent[]) {
+  applyPastEvents(pastEvents: AnyEvent[]) {
     pastEvents.forEach((pastEvent) => {
       this.applyPastEvent(pastEvent);
     });
@@ -188,20 +130,11 @@ export class EventSourcedAggregateBase<
     this.applyEvent(this.newEvent(eventClass, props));
   }
 
-  ownCommandHandlerMap() {
-    return (
-      this.constructor as EventSourcedAggregateClass
-    ).ownCommandHandlerMap();
-  }
-
-  commandHandlerMap() {
-    return (this.constructor as EventSourcedAggregateClass).commandHandlerMap();
-  }
-
   getHandlerForCommand<C extends AnyCommand>(command: C) {
-    const commandType = command.commandType();
+    const { commandType } = command.commandModelMetadata();
+    const { commandHandlerMap } = this.esaModelMetadata();
 
-    const handler = this.commandHandlerMap().get(commandType);
+    const handler = commandHandlerMap.get(commandType);
 
     if (!handler) throw new Error("Command handler not found");
 
@@ -244,6 +177,21 @@ export class EventSourcedAggregateBase<
       metadata: this.snapMetadata(),
       props: this.props(),
     } as Snapshot<typeof this>;
+  }
+
+  protected archiveEvents() {
+    const events = this.events();
+
+    this._events = [];
+    this._pastEvents.push(...events);
+  }
+
+  dispatchEvents(dispatcher: IEventDispatcher): void {
+    this.events().forEach((event) => {
+      dispatcher.dispatch(event);
+    });
+
+    this.archiveEvents();
   }
 }
 

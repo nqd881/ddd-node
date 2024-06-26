@@ -31,39 +31,39 @@ export type EmptyProps = {
 export class ModelMetadata<T extends AnyModel = AnyModel> {
   constructor(private modelClass: ModelClass<T>) {}
 
-  modelMutable() {
+  get modelMutable() {
     return getModelMutable(this.modelClass) ?? false;
   }
 
-  modelName(): ModelName {
+  get modelName(): ModelName {
     return getModelName(this.modelClass);
   }
 
-  modelVersion(): ModelVersion {
+  get modelVersion(): ModelVersion {
     return getModelVersion(this.modelClass);
   }
 
-  modelId(): ModelId {
+  get modelId(): ModelId {
     return getModelId(this.modelClass);
   }
 
-  ownPropsValidator(): PropsValidator<T> | undefined {
+  get ownPropsValidator(): PropsValidator<T> | undefined {
     return getOwnPropsValidator<T>(this.modelClass);
   }
 
-  propsValidators(): PropsValidator[] {
+  get propsValidators(): PropsValidator[] {
     return getPropsValidators(this.modelClass);
   }
 
-  ownStaticValues(): StaticValuesMap<T> {
+  get ownStaticValues(): StaticValuesMap<T> {
     return getOwnStaticValues<T>(this.modelClass);
   }
 
-  ownPropsMap(): PropsMap<T> {
+  get ownPropsMap(): PropsMap<T> {
     return getOwnPropsMap<T>(this.modelClass.prototype);
   }
 
-  propsMap(): PropsMap<T> {
+  get propsMap(): PropsMap<T> {
     return getPropsMap<T>(this.modelClass.prototype);
   }
 }
@@ -88,7 +88,7 @@ export class ModelBase<P extends Props> {
   }
 
   protected redefineModel() {
-    this.propsMap().forEach((propTargetKey, key) => {
+    this.modelMetadata().propsMap.forEach((propTargetKey, key) => {
       this.redefineProp(key as keyof this, propTargetKey);
     });
   }
@@ -110,40 +110,8 @@ export class ModelBase<P extends Props> {
     ).modelMetadata();
   }
 
-  modelMutable(): boolean {
-    return this.modelMetadata().modelMutable();
-  }
-
-  modelName() {
-    return this.modelMetadata().modelName();
-  }
-
-  modelVersion() {
-    return this.modelMetadata().modelVersion();
-  }
-
-  modelId() {
-    return this.modelMetadata().modelId();
-  }
-
-  ownPropsValidator() {
-    return this.modelMetadata().ownPropsValidator();
-  }
-
-  propsValidators() {
-    return this.modelMetadata().propsValidators();
-  }
-
-  ownPropsMap() {
-    return this.modelMetadata().ownPropsMap();
-  }
-
-  propsMap() {
-    return this.modelMetadata().propsMap();
-  }
-
   validateProps(props: P): void {
-    const propsValidators = this.propsValidators();
+    const propsValidators = this.modelMetadata().propsValidators;
 
     propsValidators.forEach((propsValidator) => propsValidator(props));
   }
@@ -171,7 +139,7 @@ export class ModelBase<P extends Props> {
   protected initializeProps(props: P) {
     if (!this.propsIsEmpty()) throw new PropsInitializedError();
 
-    if (!this.modelMutable()) {
+    if (!this.modelMetadata().modelMutable) {
       this._props = props;
 
       Object.freeze(this._props);

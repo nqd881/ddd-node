@@ -1,13 +1,9 @@
 import { Class } from "type-fest";
-import { ClassStatic } from "../../types";
-import { Id } from "../id";
-import { AnyEvent, EventClass } from "../message";
-import { Props, PropsOf } from "../../model";
-import { AggregateBase, AggregateMetadata } from "./base";
-
-export interface IEventDispatcher {
-  dispatch(event: AnyEvent): void;
-}
+import { Props, PropsOf } from "../../../model";
+import { ClassStatic } from "../../../types";
+import { AnyEvent, EventClass } from "../../message";
+import { AggregateBase, AggregateMetadata } from "../aggregate-base";
+import { IEventDispatcher } from "../event-dispatcher.interface";
 
 export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
   private _events: AnyEvent[];
@@ -16,20 +12,6 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     super(metadata, props);
 
     this._events = [];
-  }
-
-  static newAggregate<T extends AnyStateAggregate>(
-    this: StateAggregateClassWithTypedConstructor<T>,
-    props: PropsOf<T>,
-    id?: Id
-  ) {
-    return new this(
-      {
-        id: this.id(id),
-        version: 0,
-      },
-      props
-    );
   }
 
   override props() {

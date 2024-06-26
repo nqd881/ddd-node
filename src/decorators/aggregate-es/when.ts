@@ -13,7 +13,7 @@ export const When = <T extends AnyEvent>(eventClass: EventClass<T>) => {
     descriptor: TypedPropertyDescriptor<U>
   ) => {
     if (typeof descriptor.value === "function") {
-      const eventType = eventClass.eventType();
+      const { eventType } = eventClass.eventModelMetadata();
 
       defineEventApplier(target, eventType, descriptor.value);
     }

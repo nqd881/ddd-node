@@ -1,5 +1,11 @@
 import { describe } from "mocha";
-import { StateAggregateBase, EventBase, Prop, Event } from "../src";
+import {
+  StateAggregateBase,
+  EventBase,
+  Prop,
+  Event,
+  StateAggregateBuilder,
+} from "../src";
 import { expect } from "chai";
 
 interface PersonNameChangedEventProps {
@@ -28,9 +34,13 @@ class Person extends StateAggregateBase<PersonProps> {
 }
 
 describe("State aggregate", function () {
+  const personBuilder = new StateAggregateBuilder(Person);
+
   describe("Static methods", function () {
     it("create new instance using newAggregate", () => {
-      const person = Person.newAggregate({ name: "Dai" });
+      const person = new StateAggregateBuilder(Person)
+        .withProps({ name: "Dai" })
+        .build();
 
       expect(person.name).to.equal("Dai");
     });
@@ -38,7 +48,9 @@ describe("State aggregate", function () {
 
   describe("Instance method", function () {
     it("record an event and then clear all", () => {
-      const person = Person.newAggregate({ name: "Dai" });
+      const person = new StateAggregateBuilder(Person)
+        .withProps({ name: "Dai" })
+        .build();
 
       person.changeName("Nam");
 

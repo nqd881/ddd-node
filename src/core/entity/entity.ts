@@ -1,8 +1,8 @@
 import { Class } from "type-fest";
-import { Mutable, Props, PropsOf } from "../model";
-import { ClassStatic } from "../types";
-import { Id } from "./id";
-import { ModelWithId } from "./model-with-id";
+import { Mutable, Props, PropsOf } from "../../model";
+import { ClassStatic } from "../../types";
+import { Id } from "../id";
+import { ModelWithId } from "../model-with-id";
 
 export interface EntityMetadata {
   readonly id: Id;
@@ -14,19 +14,6 @@ export class EntityBase<P extends Props> extends ModelWithId<P> {
     super(metadata.id);
 
     if (props) this.initializeProps(props);
-  }
-
-  static newEntity<T extends AnyEntity>(
-    this: EntityClassWithTypedConstructor<T>,
-    props: PropsOf<T>,
-    id?: Id
-  ) {
-    return new this(
-      {
-        id: this.id(id),
-      },
-      props
-    );
   }
 }
 

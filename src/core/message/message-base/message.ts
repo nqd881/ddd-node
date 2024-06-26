@@ -1,7 +1,9 @@
 import _ from "lodash";
-import { Mutable, Props } from "../../model";
-import { Id } from "../id";
-import { ModelWithId } from "../model-with-id";
+import { Class } from "type-fest";
+import { Mutable, Props, PropsOf } from "../../../model";
+import { ClassStatic } from "../../../types";
+import { Id } from "../../id";
+import { ModelWithId } from "../../model-with-id";
 
 export interface MessageContext {
   correlationId?: string;
@@ -11,7 +13,7 @@ export interface MessageContext {
 export interface MessageMetadata {
   readonly id: Id;
   readonly messageType: string;
-  readonly timestamp?: number;
+  readonly timestamp: number;
   context?: MessageContext;
 }
 
@@ -26,7 +28,7 @@ export class MessageBase<P extends Props> extends ModelWithId<P> {
 
     this._messageType = metadata.messageType;
     this._context = metadata?.context ?? {};
-    this._timestamp = metadata.timestamp ?? Date.now();
+    this._timestamp = metadata.timestamp;
 
     this.initializeProps(props);
   }
@@ -51,3 +53,18 @@ export class MessageBase<P extends Props> extends ModelWithId<P> {
     this._context = _.merge(this._context, context);
   }
 }
+
+export type AnyMessage = MessageBase<Props>;
+
+export interface MessageClass<
+  T extends AnyMessage = AnyMessage,
+  Arguments extends unknown[] = any[]
+> extends Class<T, Arguments>,
+    ClassStatic<typeof MessageBase<PropsOf<T>>> {}
+
+export interface MessageClassWithTypedConstructor<
+  T extends AnyMessage = AnyMessage
+> extends MessageClass<
+    T,
+    ConstructorParameters<typeof MessageBase<PropsOf<T>>>
+  > {}

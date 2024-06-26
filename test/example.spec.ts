@@ -2,10 +2,12 @@ import { expect } from "chai";
 import { beforeEach, describe } from "mocha";
 import {
   EntityBase,
+  EntityBuilder,
   Id,
   Model,
   Prop,
   StateAggregateBase,
+  StateAggregateBuilder,
   ValueObjectBase,
 } from "../src";
 
@@ -98,21 +100,30 @@ describe("Example", function () {
   let person: Person;
   let applePhone: Phone, samsungPhone: Phone;
 
+  const PhoneBuilder = () => new EntityBuilder(Phone);
+  const PersonBuilder = () => new StateAggregateBuilder(Person);
+
   beforeEach(() => {
-    applePhone = Phone.newEntity({
-      brand: "Apple",
-      batteryLevel: new BatteryLevel(50),
-    });
+    applePhone = PhoneBuilder()
+      .withProps({
+        brand: "Apple",
+        batteryLevel: new BatteryLevel(50),
+      })
+      .build();
 
-    samsungPhone = Phone.newEntity({
-      brand: "Samsung",
-      batteryLevel: new BatteryLevel(75),
-    });
+    samsungPhone = PhoneBuilder()
+      .withProps({
+        brand: "Samsung",
+        batteryLevel: new BatteryLevel(75),
+      })
+      .build();
 
-    person = Person.newAggregate({
-      name: new Name("Dai", "Nguyen Quoc"),
-      phones: [applePhone, samsungPhone],
-    });
+    person = PersonBuilder()
+      .withProps({
+        name: new Name("Dai", "Nguyen Quoc"),
+        phones: [applePhone, samsungPhone],
+      })
+      .build();
   });
 
   it("expect deep getter working", () => {

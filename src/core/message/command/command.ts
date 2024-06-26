@@ -1,8 +1,20 @@
-import { ClassStatic } from "../../types";
 import { Class } from "type-fest";
-import { Props, PropsOf } from "../../model";
-import { MessageBase, MessageContext, MessageMetadata } from "./message";
-import { CommandType, getCommandType } from "../../meta";
+import { getCommandType } from "../../../meta";
+import { Props, PropsOf } from "../../../model";
+import { ClassStatic } from "../../../types";
+import {
+  MessageBase,
+  MessageBuilderBase,
+  MessageMetadata,
+} from "../message-base";
+
+export class CommandModelMetadata {
+  constructor(private commandClass: CommandClass) {}
+
+  get commandType() {
+    return getCommandType(this.commandClass);
+  }
+}
 
 export interface CommandMetadata extends Omit<MessageMetadata, "messageType"> {}
 
@@ -16,28 +28,12 @@ export class CommandBase<P extends Props> extends MessageBase<P> {
     );
   }
 
-  static commandType(): CommandType {
-    return getCommandType(this);
+  static commandModelMetadata<T extends AnyCommand>(this: CommandClass<T>) {
+    return new CommandModelMetadata(this);
   }
 
-  static newCommand<T extends AnyCommand>(
-    this: CommandClassWithTypedConstructor<T>,
-    props: PropsOf<T>,
-    context?: MessageContext,
-    timestamp?: number
-  ) {
-    return new this(
-      {
-        id: this.id(),
-        context,
-        timestamp,
-      },
-      props
-    );
-  }
-
-  commandType() {
-    return (this.constructor as CommandClass).commandType();
+  commandModelMetadata() {
+    return (this.constructor as CommandClass).commandModelMetadata();
   }
 }
 
