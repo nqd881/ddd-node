@@ -104,7 +104,7 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  protected modelMetadata(): ModelMetadata<typeof this> {
+  modelMetadata(): ModelMetadata<typeof this> {
     return (
       this.constructor as unknown as ModelClass<typeof this>
     ).modelMetadata();
