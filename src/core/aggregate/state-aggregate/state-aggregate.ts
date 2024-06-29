@@ -1,7 +1,7 @@
 import { Class } from "type-fest";
 import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
-import { AnyEvent, EventClass } from "../../message";
+import { AnyEvent, EventClassWithTypedConstructor } from "../../message";
 import { AggregateBase, AggregateMetadata } from "../aggregate-base";
 import { IEventDispatcher } from "../event-dispatcher.interface";
 
@@ -28,11 +28,11 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
 
   protected recordEvent<E extends AnyEvent>(event: E): void;
   protected recordEvent<E extends AnyEvent>(
-    eventClass: EventClass<E>,
+    eventClass: EventClassWithTypedConstructor<E>,
     props: PropsOf<E>
   ): void;
   protected recordEvent<E extends AnyEvent>(
-    param1: E | EventClass<E>,
+    param1: E | EventClassWithTypedConstructor<E>,
     param2?: PropsOf<E>
   ): void {
     let event: E;
