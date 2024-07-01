@@ -1,3 +1,4 @@
+import { toArray } from "../../utils";
 import { AnyEvent, EventClass } from "../message";
 import { IEventSubscriber } from "./event-subscriber";
 
@@ -56,20 +57,20 @@ export class EventSubscriberRegistry implements IEventSubscriberRegistry {
     return subscribers()!;
   }
 
-  private _hasSubscriber(subscriber: IEventSubscriber) {
-    const subscribedEvent = subscriber.subscribeToEvent();
-
+  private _hasSubscriber<T extends AnyEvent>(
+    subscribedEvent: EventClass<T>,
+    subscriber: IEventSubscriber<T>
+  ) {
     const subscribers = this._getSubscribersForEvent(subscribedEvent);
 
     return subscribers.some((_subscriber) => _subscriber === subscriber);
   }
 
   private _addSubscriber<T extends AnyEvent = AnyEvent>(
+    subscribedEvent: EventClass<T>,
     subscriber: IEventSubscriber<T>
   ) {
-    if (!this._hasSubscriber(subscriber)) {
-      const subscribedEvent = subscriber.subscribeToEvent();
-
+    if (!this._hasSubscriber(subscribedEvent, subscriber)) {
       const subscribers = this._getSubscribersForEvent(subscribedEvent);
 
       subscribers.push(subscriber);
@@ -77,10 +78,9 @@ export class EventSubscriberRegistry implements IEventSubscriberRegistry {
   }
 
   private _removeSubscriber<T extends AnyEvent = AnyEvent>(
+    subscribedEvent: EventClass<T>,
     subscriber: IEventSubscriber<T>
   ) {
-    const subscribedEvent = subscriber.subscribeToEvent();
-
     const subscribers = this._getSubscribersForEvent(subscribedEvent);
 
     this._setSubscribersForEvent(
@@ -90,13 +90,21 @@ export class EventSubscriberRegistry implements IEventSubscriberRegistry {
   }
 
   registerSubscriber(subscriber: IEventSubscriber) {
-    this._addSubscriber(subscriber);
+    const subscribedEvents = toArray(subscriber.subscribeToEvents());
+
+    subscribedEvents.forEach((subscribedEvent) => {
+      this._addSubscriber(subscribedEvent, subscriber);
+    });
 
     return () => this.deregisterSubscriber(subscriber);
   }
 
   deregisterSubscriber(subscriber: IEventSubscriber<AnyEvent>): void {
-    this._removeSubscriber(subscriber);
+    const subscribedEvents = toArray(subscriber.subscribeToEvents());
+
+    subscribedEvents.forEach((subscribedEvent) => {
+      this._removeSubscriber(subscribedEvent, subscriber);
+    });
   }
 
   getSubscribersForEvent<T extends AnyEvent = AnyEvent>(

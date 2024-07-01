@@ -1,7 +1,7 @@
 import { AnyEvent, EventClass } from "../message";
 
 export interface IEventSubscriber<T extends AnyEvent = AnyEvent> {
-  subscribeToEvent(): EventClass<T>;
+  subscribeToEvents(): EventClass<T> | EventClass<T>[];
   handleEvent(event: T): Promise<void>;
 }
 
@@ -16,7 +16,7 @@ export class EventSubscriber<T extends AnyEvent = AnyEvent>
     private readonly eventHandler: EventSubscriberHandler<T>
   ) {}
 
-  subscribeToEvent() {
+  subscribeToEvents() {
     return this.subscribedEvent;
   }
 
