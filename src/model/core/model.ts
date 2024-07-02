@@ -87,7 +87,7 @@ export class ModelBase<P extends Props> {
     this.redefineModel();
   }
 
-  protected redefineModel() {
+  redefineModel() {
     this.modelMetadata().propsMap.forEach((propTargetKey, key) => {
       this.redefineProp(key as keyof this, propTargetKey);
     });
