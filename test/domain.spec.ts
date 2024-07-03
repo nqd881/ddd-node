@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { describe } from "mocha";
 import {
-  DEFAULT_MODEL_DOMAIN,
   Model,
   ModelRegistry,
   Prop,
@@ -75,14 +74,20 @@ describe("Domain", function () {
   });
 
   it("Domain manager", () => {
-    const defaultDomain = domainManager.getDomain(DEFAULT_MODEL_DOMAIN)!;
+    const defaultDomain = domainManager.getDomain();
+
+    expect(defaultDomain).not.be.undefined;
 
     expect(
-      defaultDomain?.modelRegistry?.getModelVersionMap(PERSON_MODEL_NAME).size
+      defaultDomain.modelRegistry.getModelVersionMap(PERSON_MODEL_NAME).size
     ).to.equal(3);
 
     expect(defaultDomain.modelRegistry.getModel(PERSON_MODEL_NAME, 2)).to.equal(
       Person2
     );
+
+    const testDomain = domainManager.getDomain("uncreated_domain");
+
+    expect(testDomain).to.be.undefined;
   });
 });
