@@ -1,5 +1,4 @@
 import { EntityBase, EntityMetadata } from "../../entity";
-
 import { Props, PropsOf } from "../../../model";
 import {
   AnyEvent,
@@ -10,6 +9,7 @@ import {
 import { IEventDispatcher } from "../event-dispatcher.interface";
 
 export interface AggregateMetadata extends EntityMetadata {
+  aggregateType: string;
   version: number;
 }
 

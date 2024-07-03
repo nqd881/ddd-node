@@ -11,7 +11,12 @@ import { AggregateBase, AggregateMetadata } from "../aggregate-base";
 import { IEventDispatcher } from "../event-dispatcher.interface";
 import { ESAModelMetadata } from "./event-sourced-aggregate.model-metadata";
 
-export interface SnapshotMetadata extends AggregateMetadata {}
+export type EventSourceAggregateMetadata = Omit<
+  AggregateMetadata,
+  "aggregateType"
+>;
+
+export interface SnapshotMetadata extends EventSourceAggregateMetadata {}
 
 export interface Snapshot<T extends AnyEventSourcedAggregate> {
   metadata: SnapshotMetadata;
@@ -21,12 +26,17 @@ export interface Snapshot<T extends AnyEventSourcedAggregate> {
 export class EventSourcedAggregateBase<
   P extends Props
 > extends AggregateBase<P> {
+  static readonly AGGREGATE_TYPE = "event_sourced";
+
   private _handledCommands: AnyCommand[];
   private _pastEvents: AnyEvent[];
   private _events: AnyEvent[];
 
-  constructor(metadata: AggregateMetadata, props?: P) {
-    super(metadata, props);
+  constructor(metadata: EventSourceAggregateMetadata, props?: P) {
+    super(
+      { ...metadata, aggregateType: EventSourcedAggregateBase.AGGREGATE_TYPE },
+      props
+    );
 
     this._handledCommands = [];
     this._events = [];
