@@ -1,4 +1,10 @@
 import { Class } from "type-fest";
+import {
+  getCommandHandlerMap,
+  getEventApplierMap,
+  getOwnCommandHandlerMap,
+  getOwnEventApplierMap,
+} from "../../../meta";
 import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
 import { toArray } from "../../../utils";
@@ -9,50 +15,60 @@ import {
 } from "../../message";
 import { AggregateBase, AggregateMetadata } from "../aggregate-base";
 import { IEventDispatcher } from "../event-dispatcher.interface";
-import { ESAModelMetadata } from "./event-sourced-aggregate.model-metadata";
+import { IEventSourcedAggregateModelMetadata } from "./event-sourced-aggregate-model-metadata";
+import { Snapshot, SnapshotMetadata } from "./snapshot";
 
-export type EventSourceAggregateMetadata = Omit<
-  AggregateMetadata,
-  "aggregateType"
->;
-
-export interface SnapshotMetadata extends EventSourceAggregateMetadata {}
-
-export interface Snapshot<T extends AnyEventSourcedAggregate> {
-  metadata: SnapshotMetadata;
-  props: PropsOf<T>;
-}
+export interface EventSourceAggregateMetadata extends AggregateMetadata {}
 
 export class EventSourcedAggregateBase<
   P extends Props
 > extends AggregateBase<P> {
-  static readonly AGGREGATE_TYPE = "event_sourced";
-
   private _handledCommands: AnyCommand[];
   private _pastEvents: AnyEvent[];
   private _events: AnyEvent[];
 
   constructor(metadata: EventSourceAggregateMetadata, props?: P) {
-    super(
-      { ...metadata, aggregateType: EventSourcedAggregateBase.AGGREGATE_TYPE },
-      props
-    );
+    super(metadata, props);
 
     this._handledCommands = [];
     this._events = [];
     this._pastEvents = [];
   }
 
-  static esaModelMetadata<T extends AnyEventSourcedAggregate>(
+  static ownEventApplierMap<T extends AnyEventSourcedAggregate>(
     this: EventSourcedAggregateClass<T>
   ) {
-    return new ESAModelMetadata(this);
+    return getOwnEventApplierMap(this.prototype);
   }
 
-  esaModelMetadata() {
-    return (
-      this.constructor as EventSourcedAggregateClass<typeof this>
-    ).esaModelMetadata();
+  static eventApplierMap<T extends AnyEventSourcedAggregate>(
+    this: EventSourcedAggregateClass<T>
+  ) {
+    return getEventApplierMap(this.prototype);
+  }
+
+  static ownCommandHandlerMap<T extends AnyEventSourcedAggregate>(
+    this: EventSourcedAggregateClass<T>
+  ) {
+    return getOwnCommandHandlerMap(this.prototype);
+  }
+
+  static commandHandlerMap<T extends AnyEventSourcedAggregate>(
+    this: EventSourcedAggregateClass<T>
+  ) {
+    return getCommandHandlerMap(this.prototype);
+  }
+
+  modelMetadata(): IEventSourcedAggregateModelMetadata<typeof this> {
+    const aggregateClass = this.constructor as EventSourcedAggregateClass;
+
+    return {
+      ...super.modelMetadata(),
+      ownEventApplierMap: aggregateClass.ownEventApplierMap(),
+      eventApplierMap: aggregateClass.eventApplierMap(),
+      ownCommandHandlerMap: aggregateClass.ownCommandHandlerMap(),
+      commandHandlerMap: aggregateClass.commandHandlerMap(),
+    };
   }
 
   version() {
@@ -76,8 +92,8 @@ export class EventSourcedAggregateBase<
   }
 
   getApplierForEvent<E extends AnyEvent>(event: E) {
-    const { eventType } = event.eventModelMetadata();
-    const { eventApplierMap } = this.esaModelMetadata();
+    const { eventType } = event.modelMetadata();
+    const { eventApplierMap } = this.modelMetadata();
 
     const applier = eventApplierMap.get(eventType);
 
@@ -87,16 +103,12 @@ export class EventSourcedAggregateBase<
   }
 
   private validateEventBeforeApply(event: AnyEvent) {
-    const eventSource = event.source();
+    const { aggregateId, aggregateVersion } = event.source();
 
-    if (eventSource.aggregateModelId !== this.modelMetadata().modelId)
-      throw new Error("Invalid source type");
+    if (!aggregateId.equals(this._id)) throw new Error("Invalid aggregate id");
 
-    if (!eventSource.aggregateId.equals(this._id))
-      throw new Error("Invalid source id");
-
-    if (eventSource.aggregateVersion !== this.version())
-      throw new Error("Invalid source version");
+    if (aggregateVersion !== this.version())
+      throw new Error("Invalid aggregate version");
   }
 
   private _applyEvent<E extends AnyEvent>(event: E) {
@@ -141,8 +153,8 @@ export class EventSourcedAggregateBase<
   }
 
   getHandlerForCommand<C extends AnyCommand>(command: C) {
-    const { commandType } = command.commandModelMetadata();
-    const { commandHandlerMap } = this.esaModelMetadata();
+    const { commandType } = command.modelMetadata();
+    const { commandHandlerMap } = this.modelMetadata();
 
     const handler = commandHandlerMap.get(commandType);
 
@@ -185,7 +197,7 @@ export class EventSourcedAggregateBase<
 
     return {
       metadata: this.snapMetadata(),
-      props: this.props(),
+      props: this.props()!,
     } as Snapshot<typeof this>;
   }
 

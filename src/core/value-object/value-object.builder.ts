@@ -14,8 +14,8 @@ export class ValueObjectBuilder<
   }
 
   build(): T {
-    if (!this._props) throw new Error("The props must be set before build");
+    if (!this.props) throw new Error("The props must be set before build");
 
-    return new this.valueObjectClass(this._props);
+    return new this.valueObjectClass(this.props);
   }
 }

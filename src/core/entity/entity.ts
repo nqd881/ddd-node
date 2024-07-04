@@ -1,17 +1,17 @@
 import { Class } from "type-fest";
 import { Mutable, Props, PropsOf } from "../../model";
 import { ClassStatic } from "../../types";
-import { Id } from "../id";
-import { ModelWithId } from "../model-with-id";
+import {
+  IdentifiableModel,
+  IdentifiableModelMetadata,
+} from "../identifiable-model";
 
-export interface EntityMetadata {
-  readonly id: Id;
-}
+export interface EntityMetadata extends IdentifiableModelMetadata {}
 
 @Mutable(true)
-export class EntityBase<P extends Props> extends ModelWithId<P> {
+export class EntityBase<P extends Props> extends IdentifiableModel<P> {
   constructor(metadata: EntityMetadata, props?: P) {
-    super(metadata.id);
+    super(metadata);
 
     if (props) this.initializeProps(props);
   }

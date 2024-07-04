@@ -9,15 +9,15 @@ export class CommandBuilder<
   }
 
   build() {
-    if (!this._props) throw new Error();
+    if (!this.props) throw new Error();
 
     return new this.commandClass(
       {
-        id: this.getId(),
-        timestamp: this.getTimestamp(),
-        context: this._context,
+        id: this.id,
+        timestamp: this.timestamp,
+        context: this.context,
       },
-      this._props
+      this.props
     );
   }
 }

@@ -3,14 +3,14 @@ import { AggregateBuilderBase } from "../aggregate-base";
 import {
   AnyEventSourcedAggregate,
   EventSourcedAggregateClassWithTypedConstructor,
-  Snapshot,
 } from "./event-sourced-aggregate";
+import { Snapshot } from "./snapshot";
 
 export class EventSourcedAggregateBuilder<
   T extends AnyEventSourcedAggregate
 > extends AggregateBuilderBase<T> {
-  private _pastEvents?: AnyEvent[];
-  private _snapshot?: Snapshot<T>;
+  private pastEvents?: AnyEvent[];
+  private snapshot?: Snapshot<T>;
 
   constructor(
     private aggregateClass: EventSourcedAggregateClassWithTypedConstructor<T>
@@ -19,41 +19,34 @@ export class EventSourcedAggregateBuilder<
   }
 
   withPastEvents(pastEvents: AnyEvent[]) {
-    this._pastEvents = pastEvents;
+    this.pastEvents = pastEvents;
 
     return this;
   }
 
   withSnapshot(snapshot: Snapshot<T>) {
-    this._snapshot = snapshot;
+    this.snapshot = snapshot;
 
     return this;
   }
 
   build(): T {
-    if (this._snapshot) {
-      const { id, version } = this._snapshot.metadata;
-      const { props } = this._snapshot;
+    if (this.snapshot) {
+      const { id, version } = this.snapshot.metadata;
+      const { props } = this.snapshot;
 
       this.withId(id).withVersion(version).withProps(props);
     }
 
     const instance = new this.aggregateClass(
       {
-        id: this.getId(),
-        version: this.getVersion(),
+        id: this.id,
+        version: this.version,
       },
-      this._props
+      this.props
     );
 
-    if (this._pastEvents) {
-      const pastEvents = this._pastEvents.filter(
-        (_pastEvent) =>
-          _pastEvent.source().aggregateVersion >= instance.version()
-      );
-
-      instance.applyPastEvents(pastEvents);
-    }
+    if (this.pastEvents) instance.applyPastEvents(this.pastEvents);
 
     return instance;
   }

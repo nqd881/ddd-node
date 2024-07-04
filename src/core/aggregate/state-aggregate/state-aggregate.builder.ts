@@ -14,14 +14,14 @@ export class StateAggregateBuilder<
   }
 
   build() {
-    if (!this._props) throw new Error("The props must be set before build");
+    if (!this.props) throw new Error("The props must be set before build");
 
     return new this.aggregateClass(
       {
-        id: this.getId(),
-        version: this.getVersion(),
+        id: this.id,
+        version: this.version,
       },
-      this._props
+      this.props
     );
   }
 }

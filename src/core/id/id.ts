@@ -1,15 +1,15 @@
-export class Id {
-  private _value: string;
+import { Prop } from "../../model";
+import { ValueObjectBase } from "../value-object";
 
+export interface IdProps {
+  value: string;
+}
+
+export class Id extends ValueObjectBase<IdProps> {
   constructor(idOrValue: Id | string) {
-    this._value = idOrValue instanceof Id ? idOrValue.value : idOrValue;
+    super({ value: idOrValue instanceof Id ? idOrValue.value : idOrValue });
   }
 
-  get value() {
-    return this._value;
-  }
-
-  equals(id: Id) {
-    return id._value === this._value;
-  }
+  @Prop()
+  declare value: string;
 }

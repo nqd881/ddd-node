@@ -26,7 +26,7 @@ export class ValueObjectBase<P extends Props> extends ModelBase<P> {
   with(props: Partial<P>) {
     const newProps = _.merge(this.props(), props);
 
-    return new (this.constructor as ValueObjectClass<this>)(newProps);
+    return new (this.constructor as ValueObjectClass<typeof this>)(newProps);
   }
 }
 

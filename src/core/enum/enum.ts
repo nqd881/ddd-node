@@ -1,5 +1,6 @@
 import { Class } from "type-fest";
-import { ModelBase, Mutable } from "../../model";
+import { ValueObjectBase } from "..";
+import { Mutable, Prop } from "../../model";
 import { ClassStatic } from "../../types";
 
 export type EnumValue = string | number;
@@ -9,9 +10,9 @@ export interface EnumProps {
 }
 
 @Mutable(false)
-export class EnumBase extends ModelBase<EnumProps> {
+export class EnumBase extends ValueObjectBase<EnumProps> {
   static values() {
-    return Array.from(this.modelMetadata().ownStaticValues.values()).map(
+    return Array.from(this.ownStaticValues().values()).map(
       (staticValue) => staticValue.value
     );
   }
@@ -22,7 +23,7 @@ export class EnumBase extends ModelBase<EnumProps> {
   ): T {
     let result: T | undefined = undefined;
 
-    this.modelMetadata().ownStaticValues.forEach((staticValue) => {
+    this.ownStaticValues().forEach((staticValue) => {
       if (staticValue.value instanceof this) {
         const staticEnum = staticValue.value as T;
 
@@ -33,9 +34,7 @@ export class EnumBase extends ModelBase<EnumProps> {
     });
 
     if (!result)
-      throw new Error(
-        `Invalid provided value for enum ${this.modelMetadata().modelName}`
-      );
+      throw new Error(`Invalid provided value for enum ${this.modelName()}`);
 
     return result;
   }
@@ -52,25 +51,11 @@ export class EnumBase extends ModelBase<EnumProps> {
   }
 
   constructor(value: EnumValue) {
-    super();
-
-    this.initializeProps({ value });
+    super({ value });
   }
 
-  override props() {
-    return super.props()!;
-  }
-
-  get value() {
-    return this._props.value;
-  }
-
-  equals<T extends AnyEnum>(other: T) {
-    const equalType = other instanceof this.constructor;
-    const equalValue = other.value === this.value;
-
-    return equalType && equalValue;
-  }
+  @Prop()
+  declare value: EnumValue;
 }
 
 export type AnyEnum = EnumBase;

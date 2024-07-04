@@ -1,49 +1,40 @@
 import { Class } from "type-fest";
-import { getEventType } from "../../../meta";
-import { ModelId, Props, PropsOf } from "../../../model";
+import { EventType, getEventType } from "../../../meta";
+import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
 import { Id } from "../../id";
-import {
-  MessageBase,
-  MessageBuilderBase,
-  MessageMetadata,
-} from "../message-base";
-
-export class EventModelMetadata {
-  constructor(private eventClass: EventClass) {}
-
-  get eventType() {
-    return getEventType(this.eventClass);
-  }
-}
+import { MessageBase, MessageMetadata } from "../message-base";
+import { IEventModelMetadata } from "./event-model.metadata";
 
 export type EventSource = Readonly<{
-  aggregateModelId: ModelId;
   aggregateId: Id;
   aggregateVersion: number;
 }>;
 
-export interface EventMetadata extends Omit<MessageMetadata, "messageType"> {
+export interface EventMetadata extends MessageMetadata {
   source: EventSource;
 }
 
 export class EventBase<P extends Props> extends MessageBase<P> {
-  static readonly EVENT_MESSAGE_TYPE = "event";
-
   private readonly _source: EventSource;
 
   constructor(metadata: EventMetadata, props: P) {
-    super({ ...metadata, messageType: EventBase.EVENT_MESSAGE_TYPE }, props);
+    super(metadata, props);
 
     this._source = metadata.source;
   }
 
-  static eventModelMetadata<T extends AnyEvent>(this: EventClass<T>) {
-    return new EventModelMetadata(this);
+  static eventType(): EventType {
+    return getEventType(this);
   }
 
-  eventModelMetadata() {
-    return (this.constructor as EventClass).eventModelMetadata();
+  modelMetadata(): IEventModelMetadata<typeof this> {
+    const eventClass = this.constructor as EventClass<typeof this>;
+
+    return {
+      ...super.modelMetadata(),
+      eventType: eventClass.eventType(),
+    };
   }
 
   source() {

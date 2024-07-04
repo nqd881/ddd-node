@@ -8,10 +8,10 @@ export interface IModelBuilder<T extends AnyModel = AnyModel> {
 export abstract class ModelBuilder<T extends AnyModel = AnyModel>
   implements IModelBuilder<T>
 {
-  protected _props?: PropsOf<T>;
+  protected props?: PropsOf<T>;
 
   withProps(props: PropsOf<T>) {
-    this._props = props;
+    this.props = props;
 
     return this;
   }

@@ -52,16 +52,16 @@ export class ModelRegistry {
       modelName = p1;
       modelVersion = p2 as ModelVersion;
     } else {
-      modelName = p1.modelMetadata().modelName;
-      modelVersion = p1.modelMetadata().modelVersion;
+      modelName = p1.modelName();
+      modelVersion = p1.modelVersion();
     }
 
     return Boolean(this.getModel(modelName, modelVersion));
   }
 
   registerModel(modelClass: ModelClass) {
-    const modelName = modelClass.modelMetadata().modelName;
-    const modelVersion = modelClass.modelMetadata().modelVersion;
+    const modelName = modelClass.modelName();
+    const modelVersion = modelClass.modelVersion();
 
     if (this.hasRegisteredModel(modelName, modelVersion))
       throw new Error(

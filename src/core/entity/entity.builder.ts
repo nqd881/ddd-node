@@ -1,9 +1,9 @@
-import { ModelWithIdBuilder } from "..";
+import { IdentifiableModelBuilder } from "..";
 import { AnyEntity, EntityClassWithTypedConstructor } from "./entity";
 
 export abstract class EntityBuilderBase<
   T extends AnyEntity
-> extends ModelWithIdBuilder<T> {}
+> extends IdentifiableModelBuilder<T> {}
 
 export class EntityBuilder<T extends AnyEntity> extends EntityBuilderBase<T> {
   constructor(private entityClass: EntityClassWithTypedConstructor<T>) {
@@ -11,6 +11,6 @@ export class EntityBuilder<T extends AnyEntity> extends EntityBuilderBase<T> {
   }
 
   build() {
-    return new this.entityClass({ id: this.getId() }, this._props);
+    return new this.entityClass({ id: this.id }, this.props);
   }
 }

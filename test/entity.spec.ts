@@ -16,7 +16,7 @@ describe("Entity", function () {
 
   describe("Static methods", function () {
     it("newEntity", () => {
-      const user = UserBuilder().withProps({ name: "Dai" }).build();
+      const user = UserBuilder().withNewId().withProps({ name: "Dai" }).build();
 
       expect(user.name).to.equal("Dai");
     });

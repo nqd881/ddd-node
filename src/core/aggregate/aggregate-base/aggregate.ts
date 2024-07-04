@@ -1,5 +1,5 @@
-import { EntityBase, EntityMetadata } from "../../entity";
 import { Props, PropsOf } from "../../../model";
+import { EntityBase, EntityMetadata } from "../../entity";
 import {
   AnyEvent,
   EventBuilder,
@@ -9,7 +9,6 @@ import {
 import { IEventDispatcher } from "../event-dispatcher.interface";
 
 export interface AggregateMetadata extends EntityMetadata {
-  aggregateType: string;
   version: number;
 }
 
@@ -26,7 +25,6 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
 
   protected createEventSource(): EventSource {
     return {
-      aggregateModelId: this.modelMetadata().modelId,
       aggregateId: this.id(),
       aggregateVersion: this.version(),
     };

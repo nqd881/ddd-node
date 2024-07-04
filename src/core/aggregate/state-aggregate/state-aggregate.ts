@@ -5,18 +5,13 @@ import { AnyEvent, EventClassWithTypedConstructor } from "../../message";
 import { AggregateBase, AggregateMetadata } from "../aggregate-base";
 import { IEventDispatcher } from "../event-dispatcher.interface";
 
-export type StateAggregateMetadata = Omit<AggregateMetadata, "aggregateType">;
+export interface StateAggregateMetadata extends AggregateMetadata {}
 
 export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
-  static readonly AGGREGATE_TYPE = "state";
-
   private _events: AnyEvent[];
 
   constructor(metadata: StateAggregateMetadata, props: P) {
-    super(
-      { ...metadata, aggregateType: StateAggregateBase.AGGREGATE_TYPE },
-      props
-    );
+    super(metadata, props);
 
     this._events = [];
   }

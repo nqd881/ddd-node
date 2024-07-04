@@ -222,13 +222,11 @@ describe("Event sourced aggregate", function () {
 
       const snapshot = personA.snap();
 
-      personA.handleCommand(
+      const eventsAfterSnapshot = personA.handleCommand(
         new CommandBuilder(ChangePersonNameCommand)
           .withProps({ name: "Vu" })
           .build()
       );
-
-      const events = personA.events();
 
       const personB = PersonBuilder().withSnapshot(snapshot).build();
 
@@ -238,7 +236,7 @@ describe("Event sourced aggregate", function () {
 
       const personC = PersonBuilder()
         .withSnapshot(snapshot)
-        .withPastEvents(events)
+        .withPastEvents(eventsAfterSnapshot)
         .build();
 
       expect(personC.name).to.equal("Vu");
@@ -269,17 +267,13 @@ describe("Event sourced aggregate", function () {
 
   describe("Extendable aggregate", function () {
     it("command handler map", () => {
-      expect(
-        ExtendablePerson.esaModelMetadata().commandHandlerMap.size
-      ).to.equal(1);
-      expect(Student.esaModelMetadata().commandHandlerMap.size).to.equal(2);
+      expect(ExtendablePerson.commandHandlerMap().size).to.equal(1);
+      expect(Student.commandHandlerMap().size).to.equal(2);
     });
 
     it("event applier map", () => {
-      expect(ExtendablePerson.esaModelMetadata().eventApplierMap.size).to.equal(
-        1
-      );
-      expect(Student.esaModelMetadata().eventApplierMap.size).to.equal(3);
+      expect(ExtendablePerson.eventApplierMap().size).to.equal(1);
+      expect(Student.eventApplierMap().size).to.equal(3);
     });
 
     it("handle super command", () => {

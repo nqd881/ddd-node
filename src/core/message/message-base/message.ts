@@ -2,31 +2,29 @@ import _ from "lodash";
 import { Class } from "type-fest";
 import { Mutable, Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
-import { Id } from "../../id";
-import { ModelWithId } from "../../model-with-id";
+import {
+  IdentifiableModel,
+  IdentifiableModelMetadata,
+} from "../../identifiable-model";
 
 export interface MessageContext {
   correlationId?: string;
   causationId?: string;
 }
 
-export interface MessageMetadata {
-  readonly id: Id;
-  readonly messageType: string;
-  readonly timestamp: number;
+export interface MessageMetadata extends IdentifiableModelMetadata {
+  timestamp: number;
   context?: MessageContext;
 }
 
 @Mutable(false)
-export class MessageBase<P extends Props> extends ModelWithId<P> {
-  private readonly _messageType: string;
+export class MessageBase<P extends Props> extends IdentifiableModel<P> {
   private readonly _timestamp: number;
   private _context?: MessageContext;
 
   constructor(metadata: MessageMetadata, props: P) {
-    super(metadata.id);
+    super(metadata);
 
-    this._messageType = metadata.messageType;
     this._context = metadata?.context ?? {};
     this._timestamp = metadata.timestamp;
 
@@ -35,10 +33,6 @@ export class MessageBase<P extends Props> extends ModelWithId<P> {
 
   override props() {
     return super.props()!;
-  }
-
-  messageType() {
-    return this._messageType;
   }
 
   timestamp() {

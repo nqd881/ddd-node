@@ -19,6 +19,7 @@ import {
 } from "../meta";
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
+import { IModelMetadata } from "./model-metadata";
 
 export interface Props {
   [key: PropertyKey]: any;
@@ -27,46 +28,6 @@ export interface Props {
 export type EmptyProps = {
   [key: PropertyKey]: never;
 };
-
-export class ModelMetadata<T extends AnyModel = AnyModel> {
-  constructor(private modelClass: ModelClass<T>) {}
-
-  get modelMutable() {
-    return getModelMutable(this.modelClass) ?? false;
-  }
-
-  get modelName(): ModelName {
-    return getModelName(this.modelClass);
-  }
-
-  get modelVersion(): ModelVersion {
-    return getModelVersion(this.modelClass);
-  }
-
-  get modelId(): ModelId {
-    return getModelId(this.modelClass);
-  }
-
-  get ownPropsValidator(): PropsValidator<T> | undefined {
-    return getOwnPropsValidator<T>(this.modelClass);
-  }
-
-  get propsValidators(): PropsValidator[] {
-    return getPropsValidators(this.modelClass);
-  }
-
-  get ownStaticValues(): StaticValuesMap<T> {
-    return getOwnStaticValues<T>(this.modelClass);
-  }
-
-  get ownPropsMap(): PropsMap<T> {
-    return getOwnPropsMap<T>(this.modelClass.prototype);
-  }
-
-  get propsMap(): PropsMap<T> {
-    return getPropsMap<T>(this.modelClass.prototype);
-  }
-}
 
 export class ModelBase<P extends Props> {
   public static readonly EMPTY_PROPS: EmptyProps = {};
@@ -77,10 +38,46 @@ export class ModelBase<P extends Props> {
     return model instanceof ModelBase;
   }
 
-  static modelMetadata<T extends AnyModel>(
+  static modelMutable<T extends AnyModel>(this: ModelClass<T>) {
+    return getModelMutable(this) ?? false;
+  }
+
+  static modelName<T extends AnyModel>(this: ModelClass<T>): ModelName {
+    return getModelName(this);
+  }
+
+  static modelVersion<T extends AnyModel>(this: ModelClass<T>): ModelVersion {
+    return getModelVersion(this);
+  }
+
+  static modelId<T extends AnyModel>(this: ModelClass<T>): ModelId {
+    return getModelId(this);
+  }
+
+  static ownPropsValidator<T extends AnyModel>(
     this: ModelClass<T>
-  ): ModelMetadata<T> {
-    return new ModelMetadata(this);
+  ): PropsValidator<T> | undefined {
+    return getOwnPropsValidator<T>(this);
+  }
+
+  static propsValidators<T extends AnyModel>(
+    this: ModelClass<T>
+  ): PropsValidator[] {
+    return getPropsValidators(this);
+  }
+
+  static ownStaticValues<T extends AnyModel>(
+    this: ModelClass<T>
+  ): StaticValuesMap<T> {
+    return getOwnStaticValues<T>(this);
+  }
+
+  static ownPropsMap<T extends AnyModel>(this: ModelClass<T>): PropsMap<T> {
+    return getOwnPropsMap<T>(this.prototype);
+  }
+
+  static propsMap<T extends AnyModel>(this: ModelClass<T>): PropsMap<T> {
+    return getPropsMap<T>(this.prototype);
   }
 
   constructor() {
@@ -104,10 +101,20 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  modelMetadata(): ModelMetadata<typeof this> {
-    return (
-      this.constructor as unknown as ModelClass<typeof this>
-    ).modelMetadata();
+  modelMetadata(): IModelMetadata<typeof this> {
+    const modelClass = this.constructor as unknown as ModelClass<typeof this>;
+
+    return {
+      modelMutable: modelClass.modelMutable(),
+      modelId: modelClass.modelId(),
+      modelName: modelClass.modelName(),
+      modelVersion: modelClass.modelVersion(),
+      ownPropsValidator: modelClass.ownPropsValidator(),
+      propsValidators: modelClass.propsValidators(),
+      ownStaticValues: modelClass.ownStaticValues(),
+      ownPropsMap: modelClass.ownPropsMap(),
+      propsMap: modelClass.propsMap(),
+    };
   }
 
   validateProps(props: P): void {
@@ -134,6 +141,10 @@ export class ModelBase<P extends Props> {
         return value;
       }
     });
+  }
+
+  metadata() {
+    return {};
   }
 
   protected initializeProps(props: P) {
