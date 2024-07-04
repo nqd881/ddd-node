@@ -23,6 +23,13 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
 
   abstract version(): number;
 
+  override metadata(): AggregateMetadata {
+    return {
+      ...super.metadata(),
+      version: this.version(),
+    };
+  }
+
   protected createEventSource(): EventSource {
     return {
       aggregateId: this.id(),

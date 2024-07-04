@@ -35,6 +35,14 @@ export class MessageBase<P extends Props> extends IdentifiableModel<P> {
     return super.props()!;
   }
 
+  override metadata(): MessageMetadata {
+    return {
+      ...super.metadata(),
+      timestamp: this._timestamp,
+      context: this._context,
+    };
+  }
+
   timestamp() {
     return this._timestamp;
   }

@@ -14,6 +14,13 @@ export class IdentifiableModel<P extends Props> extends ModelBase<P> {
     this._id = metadata.id;
   }
 
+  override metadata(): IdentifiableModelMetadata {
+    return {
+      ...super.metadata(),
+      id: this._id,
+    };
+  }
+
   id() {
     return this._id;
   }

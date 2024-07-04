@@ -28,12 +28,19 @@ export class EventBase<P extends Props> extends MessageBase<P> {
     return getEventType(this);
   }
 
-  modelMetadata(): IEventModelMetadata<typeof this> {
+  override modelMetadata(): IEventModelMetadata<typeof this> {
     const eventClass = this.constructor as EventClass<typeof this>;
 
     return {
       ...super.modelMetadata(),
       eventType: eventClass.eventType(),
+    };
+  }
+
+  override metadata(): EventMetadata {
+    return {
+      ...super.metadata(),
+      source: this._source,
     };
   }
 

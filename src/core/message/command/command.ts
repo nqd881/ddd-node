@@ -1,13 +1,9 @@
 import { Class } from "type-fest";
-import { CommandType, getCommandType } from "../../../meta";
-import { IModelMetadata, Props, PropsOf } from "../../../model";
+import { getCommandType } from "../../../meta";
+import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
 import { MessageBase, MessageMetadata } from "../message-base";
-
-export interface ICommandModelMetadata<T extends AnyCommand>
-  extends IModelMetadata<T> {
-  commandType: CommandType;
-}
+import { ICommandModelMetadata } from "./command-model.metadata";
 
 export interface CommandMetadata extends MessageMetadata {}
 
@@ -20,7 +16,7 @@ export class CommandBase<P extends Props> extends MessageBase<P> {
     super(metadata, props);
   }
 
-  modelMetadata(): ICommandModelMetadata<typeof this> {
+  override modelMetadata(): ICommandModelMetadata<typeof this> {
     const commandClass = this.constructor as CommandClass;
 
     return {
