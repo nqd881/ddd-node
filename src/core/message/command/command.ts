@@ -1,19 +1,25 @@
 import { Class } from "type-fest";
-import { getCommandType } from "../../../meta";
+import { CommandType, getCommandType } from "../../../meta";
 import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
 import { MessageBase, MessageMetadata } from "../message-base";
 import { ICommandModelMetadata } from "./command-model.metadata";
 
-export interface CommandMetadata extends MessageMetadata {}
+export interface CommandMetadata extends MessageMetadata {
+  commandType: CommandType;
+}
 
-export class CommandBase<P extends Props> extends MessageBase<P> {
+export abstract class CommandBase<P extends Props> extends MessageBase<P> {
+  protected readonly _commandType: CommandType;
+
   static commandType() {
     return getCommandType(this);
   }
 
-  constructor(metadata: CommandMetadata, props: P) {
+  constructor(metadata: Omit<CommandMetadata, "commandType">, props: P) {
     super(metadata, props);
+
+    this._commandType = getCommandType(this.constructor);
   }
 
   override modelMetadata(): ICommandModelMetadata<typeof this> {
@@ -23,6 +29,17 @@ export class CommandBase<P extends Props> extends MessageBase<P> {
       ...super.modelMetadata(),
       commandType: commandClass.commandType(),
     };
+  }
+
+  override metadata(): CommandMetadata {
+    return {
+      ...super.metadata(),
+      commandType: this._commandType,
+    };
+  }
+
+  commandType() {
+    return this._commandType;
   }
 }
 

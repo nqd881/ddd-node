@@ -20,7 +20,7 @@ export class StaticValue<T extends AnyModel = AnyModel> {
 
 const OwnStaticValuesMetaKey = Symbol.for("OWN_STATIC_VALUES");
 
-export class StaticValuesMap<T extends AnyModel> extends Map<
+export class StaticValuesMap<T extends AnyModel = AnyModel> extends Map<
   PropertyKey,
   StaticValue<T>
 > {}

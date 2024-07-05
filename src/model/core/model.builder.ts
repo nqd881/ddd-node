@@ -1,4 +1,4 @@
-import { AnyModel, ModelBase, PropsOf } from "./model";
+import { AnyModel, PropsOf } from "./model";
 
 export interface IModelBuilder<T extends AnyModel = AnyModel> {
   buildSafe(): T | null;

@@ -12,15 +12,18 @@ export type EventSource = Readonly<{
 }>;
 
 export interface EventMetadata extends MessageMetadata {
+  eventType: EventType;
   source: EventSource;
 }
 
 export class EventBase<P extends Props> extends MessageBase<P> {
+  private readonly _eventType: EventType;
   private readonly _source: EventSource;
 
-  constructor(metadata: EventMetadata, props: P) {
+  constructor(metadata: Omit<EventMetadata, "eventType">, props: P) {
     super(metadata, props);
 
+    this._eventType = getEventType(this.constructor);
     this._source = metadata.source;
   }
 
@@ -40,8 +43,13 @@ export class EventBase<P extends Props> extends MessageBase<P> {
   override metadata(): EventMetadata {
     return {
       ...super.metadata(),
+      eventType: this._eventType,
       source: this._source,
     };
+  }
+
+  eventType() {
+    return this._eventType;
   }
 
   source() {
