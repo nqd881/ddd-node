@@ -16,7 +16,7 @@ export interface EventMetadata extends MessageMetadata {
   source: EventSource;
 }
 
-export class EventBase<P extends Props> extends MessageBase<P> {
+export abstract class EventBase<P extends Props> extends MessageBase<P> {
   private readonly _eventType: EventType;
   private readonly _source: EventSource;
 
