@@ -12,12 +12,12 @@ export class EventSubscriber<T extends AnyEvent = AnyEvent>
   implements IEventSubscriber<T>
 {
   constructor(
-    private readonly subscribedEvent: EventClass<T>,
+    private readonly subscribedEvents: EventClass<T> | EventClass<T>[],
     private readonly eventHandler: EventSubscriberHandler<T>
   ) {}
 
   subscribeToEvents() {
-    return this.subscribedEvent;
+    return this.subscribedEvents;
   }
 
   handleEvent(event: T) {
