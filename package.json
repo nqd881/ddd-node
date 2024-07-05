@@ -1,6 +1,6 @@
 {
   "name": "ddd-node",
-  "version": "22.0.0",
+  "version": "22.0.1",
   "description": "Domain Driven Design base for NodeJs",
   "type": "module",
   "main": "dist/index.js",
