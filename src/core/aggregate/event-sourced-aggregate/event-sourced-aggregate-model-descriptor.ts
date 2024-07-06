@@ -1,10 +1,10 @@
 import { AnyEventSourcedAggregate } from ".";
 import { CommandHandlerMap, EventApplierMap } from "../../../meta";
-import { IModelMetadata } from "../../../model";
+import { ModelDescriptor } from "../../../model";
 
-export interface IEventSourcedAggregateModelMetadata<
+export interface EventSourcedAggregateModelDescriptor<
   T extends AnyEventSourcedAggregate
-> extends IModelMetadata<T> {
+> extends ModelDescriptor<T> {
   ownEventApplierMap: EventApplierMap;
   eventApplierMap: EventApplierMap;
   ownCommandHandlerMap: CommandHandlerMap;

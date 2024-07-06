@@ -19,7 +19,7 @@ import {
 } from "../meta";
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
-import { IModelMetadata } from "./model-metadata";
+import { ModelDescriptor } from "./model-descriptor";
 
 export interface Props {
   [key: PropertyKey]: any;
@@ -85,7 +85,7 @@ export class ModelBase<P extends Props> {
   }
 
   redefineModel() {
-    this.modelMetadata().propsMap.forEach((propTargetKey, key) => {
+    this.modelDescriptor().propsMap.forEach((propTargetKey, key) => {
       this.redefineProp(key as keyof this, propTargetKey);
     });
   }
@@ -101,7 +101,7 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  modelMetadata(): IModelMetadata<typeof this> {
+  modelDescriptor(): ModelDescriptor<typeof this> {
     const modelClass = this.constructor as unknown as ModelClass<typeof this>;
 
     return {
@@ -118,7 +118,7 @@ export class ModelBase<P extends Props> {
   }
 
   validateProps(props: P): void {
-    const propsValidators = this.modelMetadata().propsValidators;
+    const propsValidators = this.modelDescriptor().propsValidators;
 
     propsValidators.forEach((propsValidator) => propsValidator(props));
   }
@@ -150,7 +150,7 @@ export class ModelBase<P extends Props> {
   protected initializeProps(props: P) {
     if (!this.propsIsEmpty()) throw new PropsInitializedError();
 
-    if (!this.modelMetadata().modelMutable) {
+    if (!this.modelDescriptor().modelMutable) {
       this._props = props;
 
       Object.freeze(this._props);

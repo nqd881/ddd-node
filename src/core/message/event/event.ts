@@ -4,7 +4,7 @@ import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
 import { Id } from "../../id";
 import { MessageBase, MessageMetadata } from "../message-base";
-import { IEventModelMetadata } from "./event-model.metadata";
+import { EventModelDescriptor } from "./event-model-descriptor";
 
 export type EventSource = Readonly<{
   aggregateId: Id;
@@ -31,11 +31,11 @@ export abstract class EventBase<P extends Props> extends MessageBase<P> {
     return getEventType(this);
   }
 
-  override modelMetadata(): IEventModelMetadata<typeof this> {
+  override modelDescriptor(): EventModelDescriptor<typeof this> {
     const eventClass = this.constructor as EventClass<typeof this>;
 
     return {
-      ...super.modelMetadata(),
+      ...super.modelDescriptor(),
       eventType: eventClass.eventType(),
     };
   }

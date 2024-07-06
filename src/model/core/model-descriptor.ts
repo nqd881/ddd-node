@@ -8,11 +8,11 @@ import {
   StaticValuesMap,
 } from "../meta";
 
-export interface IModelMetadata<T extends AnyModel = AnyModel> {
-  modelMutable: boolean;
+export interface ModelDescriptor<T extends AnyModel = AnyModel> {
   modelId: ModelId;
   modelName: ModelName;
   modelVersion: ModelVersion;
+  modelMutable: boolean;
   ownPropsValidator?: PropsValidator<T>;
   propsValidators: PropsValidator[];
   ownStaticValues: StaticValuesMap<T>;

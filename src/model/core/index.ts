@@ -1,3 +1,3 @@
 export * from "./model";
-export * from "./model-metadata";
+export * from "./model-descriptor";
 export * from "./model.builder";

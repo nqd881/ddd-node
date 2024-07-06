@@ -3,7 +3,7 @@ import { CommandType, getCommandType } from "../../../meta";
 import { Props, PropsOf } from "../../../model";
 import { ClassStatic } from "../../../types";
 import { MessageBase, MessageMetadata } from "../message-base";
-import { ICommandModelMetadata } from "./command-model.metadata";
+import { CommandModelDescriptor } from "./command-model-descriptor";
 
 export interface CommandMetadata extends MessageMetadata {
   commandType: CommandType;
@@ -22,11 +22,11 @@ export abstract class CommandBase<P extends Props> extends MessageBase<P> {
     this._commandType = getCommandType(this.constructor);
   }
 
-  override modelMetadata(): ICommandModelMetadata<typeof this> {
+  override modelDescriptor(): CommandModelDescriptor<typeof this> {
     const commandClass = this.constructor as CommandClass;
 
     return {
-      ...super.modelMetadata(),
+      ...super.modelDescriptor(),
       commandType: commandClass.commandType(),
     };
   }

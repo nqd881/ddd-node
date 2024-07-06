@@ -15,7 +15,7 @@ import {
 } from "../../message";
 import { AggregateBase, AggregateMetadata } from "../aggregate-base";
 import { IEventDispatcher } from "../event-dispatcher.interface";
-import { IEventSourcedAggregateModelMetadata } from "./event-sourced-aggregate-model-metadata";
+import { EventSourcedAggregateModelDescriptor } from "./event-sourced-aggregate-model-descriptor";
 import { Snapshot, SnapshotMetadata } from "./snapshot";
 
 export interface EventSourceAggregateMetadata extends AggregateMetadata {}
@@ -59,11 +59,11 @@ export class EventSourcedAggregateBase<
     return getCommandHandlerMap(this.prototype);
   }
 
-  modelMetadata(): IEventSourcedAggregateModelMetadata<typeof this> {
+  modelDescriptor(): EventSourcedAggregateModelDescriptor<typeof this> {
     const aggregateClass = this.constructor as EventSourcedAggregateClass;
 
     return {
-      ...super.modelMetadata(),
+      ...super.modelDescriptor(),
       ownEventApplierMap: aggregateClass.ownEventApplierMap(),
       eventApplierMap: aggregateClass.eventApplierMap(),
       ownCommandHandlerMap: aggregateClass.ownCommandHandlerMap(),
@@ -92,8 +92,8 @@ export class EventSourcedAggregateBase<
   }
 
   getApplierForEvent<E extends AnyEvent>(event: E) {
-    const { eventType } = event.modelMetadata();
-    const { eventApplierMap } = this.modelMetadata();
+    const { eventType } = event.modelDescriptor();
+    const { eventApplierMap } = this.modelDescriptor();
 
     const applier = eventApplierMap.get(eventType);
 
@@ -153,8 +153,8 @@ export class EventSourcedAggregateBase<
   }
 
   getHandlerForCommand<C extends AnyCommand>(command: C) {
-    const { commandType } = command.modelMetadata();
-    const { commandHandlerMap } = this.modelMetadata();
+    const { commandType } = command.modelDescriptor();
+    const { commandHandlerMap } = this.modelDescriptor();
 
     const handler = commandHandlerMap.get(commandType);
 
