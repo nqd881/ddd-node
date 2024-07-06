@@ -2,14 +2,14 @@ import { AnyModel, ModelClass } from "../core";
 
 export type ModelVersion = number;
 
-export class MVersion extends Number {
+export class $ModelVersion extends Number {
   static validate(modelVersion: ModelVersion) {
     if (modelVersion < 0 && Number.isInteger(modelVersion))
       throw new Error("Model version must be a non-negative integer number");
   }
 
   constructor(modelVersion: ModelVersion) {
-    MVersion.validate(modelVersion);
+    $ModelVersion.validate(modelVersion);
 
     super(modelVersion);
   }
@@ -23,7 +23,7 @@ export const defineModelVersion = <T extends AnyModel>(
 ) => {
   Reflect.defineMetadata(
     ModelVersionMetaKey,
-    new MVersion(modelVersion),
+    new $ModelVersion(modelVersion),
     target
   );
 };
@@ -34,7 +34,7 @@ export const getModelVersion = <T extends AnyModel>(
   if (!Reflect.hasOwnMetadata(ModelVersionMetaKey, target))
     defineModelVersion(target, 0);
 
-  return Reflect.getOwnMetadata<MVersion>(
+  return Reflect.getOwnMetadata<$ModelVersion>(
     ModelVersionMetaKey,
     target
   )!.valueOf();

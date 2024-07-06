@@ -1,5 +1,5 @@
 import { AnyModel, ModelClass } from "./core";
-import { MId, ModelId, ModelName, ModelVersion } from "./meta";
+import { $ModelId, ModelId, ModelName, ModelVersion } from "./meta";
 
 export class ModelVersionMap<T extends AnyModel = AnyModel> extends Map<
   ModelVersion,
@@ -38,7 +38,7 @@ export class ModelRegistry {
   }
 
   getModelByModelId<T extends AnyModel = AnyModel>(modelId: ModelId) {
-    const { modelName, modelVersion } = MId.fromValue(modelId);
+    const { modelName, modelVersion } = $ModelId.fromValue(modelId);
 
     return this.getModel<T>(modelName, modelVersion);
   }

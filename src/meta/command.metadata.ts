@@ -2,14 +2,14 @@ import "reflect-metadata";
 
 export type CommandType = string;
 
-export class CType extends String {
+export class $CommandType extends String {
   static validate(commandType: string) {
     if (commandType.trim().length === 0)
       throw new Error("Command type cannot be an empty string");
   }
 
   constructor(commandType: CommandType) {
-    CType.validate(commandType);
+    $CommandType.validate(commandType);
 
     super(commandType);
   }
@@ -18,11 +18,18 @@ export class CType extends String {
 const CommandTypeMetaKey = Symbol.for("COMMAND_TYPE");
 
 export const defineCommandType = (target: object, commandType: CommandType) => {
-  Reflect.defineMetadata(CommandTypeMetaKey, new CType(commandType), target);
+  Reflect.defineMetadata(
+    CommandTypeMetaKey,
+    new $CommandType(commandType),
+    target
+  );
 };
 
 export const getCommandType = (target: object): CommandType => {
-  const commandType = Reflect.getOwnMetadata<CType>(CommandTypeMetaKey, target);
+  const commandType = Reflect.getOwnMetadata<$CommandType>(
+    CommandTypeMetaKey,
+    target
+  );
 
   if (!commandType) throw new Error("Command's type is not defined");
 
