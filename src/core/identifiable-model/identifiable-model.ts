@@ -1,5 +1,5 @@
+import { Id } from "./id";
 import { ModelBase, Props } from "../../model";
-import { Id } from "../id";
 
 export interface IdentifiableModelMetadata {
   id: Id;
@@ -26,7 +26,7 @@ export class IdentifiableModel<P extends Props> extends ModelBase<P> {
   }
 
   hasId(id: Id) {
-    return this._id.equals(id);
+    return this._id === id;
   }
 }
 

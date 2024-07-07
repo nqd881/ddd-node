@@ -105,7 +105,7 @@ export class EventSourcedAggregateBase<
   private validateEventBeforeApply(event: AnyEvent) {
     const { aggregateId, aggregateVersion } = event.source();
 
-    if (!aggregateId.equals(this._id)) throw new Error("Invalid aggregate id");
+    if (aggregateId !== this._id) throw new Error("Invalid aggregate id");
 
     if (aggregateVersion !== this.version())
       throw new Error("Invalid aggregate version");
@@ -171,7 +171,7 @@ export class EventSourcedAggregateBase<
     events.forEach((event) => {
       event.setContext({
         correlationId: command.context()?.correlationId,
-        causationId: command.id().value,
+        causationId: command.id(),
       });
     });
 

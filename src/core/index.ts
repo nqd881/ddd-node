@@ -1,6 +1,5 @@
 export * from "./value-object";
 export * from "./enum";
-export * from "./id";
 export * from "./identifiable-model";
 export * from "./entity";
 export * from "./aggregate";
