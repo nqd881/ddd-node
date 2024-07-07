@@ -11,7 +11,7 @@ export abstract class MessageBuilderBase<
   protected timestamp: number = Date.now();
   protected context?: MessageContext;
 
-  withContext(context: MessageContext) {
+  withContext(context?: MessageContext) {
     this.context = context;
     return this;
   }
