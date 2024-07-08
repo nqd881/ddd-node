@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Enum, EnumBase } from "../src";
+import { Enum, EnumBase, EnumBuilder } from "../src";
 
 class Status extends EnumBase {
   @Enum("active")
@@ -9,14 +9,17 @@ class Status extends EnumBase {
   static Inactive: Status;
 }
 
+const StatusBuilder = () => new EnumBuilder(Status);
+
 describe("Enum", function () {
   it("values()", () => {
     expect(Status.values().length).to.equal(2);
   });
 
   it("parse()", () => {
-    const activeStatus = () => Status.parse("active");
-    const invalidActiveStatus = () => Status.parse("ACTIVE");
+    const activeStatus = () => StatusBuilder().withValue("active").build();
+    const invalidActiveStatus = () =>
+      StatusBuilder().withValue("ACTIVE").build();
 
     expect(activeStatus).not.throw();
     expect(invalidActiveStatus).throw();
@@ -25,7 +28,8 @@ describe("Enum", function () {
   });
 
   it("parseSafe()", () => {
-    const invalidActiveStatus = () => Status.parseSafe("ACTIVE");
+    const invalidActiveStatus = () =>
+      StatusBuilder().withValue("ACTIVE").buildSafe();
 
     expect(invalidActiveStatus).not.throw();
   });
