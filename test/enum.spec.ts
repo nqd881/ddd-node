@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { Enum, EnumBase, EnumBuilder } from "../src";
 
 class Status extends EnumBase {
-  @Enum("active")
+  @Enum()
   static Active: Status;
 
   @Enum("inactive")
@@ -17,7 +17,7 @@ describe("Enum", function () {
   });
 
   it("parse()", () => {
-    const activeStatus = () => StatusBuilder().withValue("active").build();
+    const activeStatus = () => StatusBuilder().withValue("Active").build();
     const invalidActiveStatus = () =>
       StatusBuilder().withValue("ACTIVE").build();
 

@@ -143,7 +143,7 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  metadata() {
+  metadata(): any {
     return {};
   }
 
