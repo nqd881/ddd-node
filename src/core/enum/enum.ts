@@ -24,6 +24,10 @@ export class EnumBase extends ModelBase<EnumProps> {
 
   @Prop()
   declare value: EnumValue;
+
+  valueOf() {
+    return this.value;
+  }
 }
 
 export type AnyEnum = EnumBase;

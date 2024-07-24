@@ -17,8 +17,8 @@ export class ValueObjectBase<P extends Props> extends ModelBase<P> {
 
   equals<V extends AnyValueObject>(vo: V) {
     const equalsType = vo instanceof this.constructor;
-    const equalsValue =
-      JSON.stringify(vo.props()) === JSON.stringify(this.props());
+
+    const equalsValue = this.getEqualityValue() === vo.getEqualityValue();
 
     return equalsType && equalsValue;
   }
@@ -27,6 +27,37 @@ export class ValueObjectBase<P extends Props> extends ModelBase<P> {
     const newProps = _.merge(this.props(), props);
 
     return new (this.constructor as ValueObjectClass<typeof this>)(newProps);
+  }
+
+  getEqualityValue() {
+    return JSON.stringify(this.getEqualityObject());
+  }
+
+  getEqualityObject() {
+    const result: any = {};
+
+    const props = this.props();
+
+    const valueOf = (v: any) =>
+      v instanceof ValueObjectBase ? v.getEqualityObject() : v;
+
+    for (let [key, value] of Object.entries(props)) {
+      if (Array.isArray(value)) {
+        result[key] = value.map((v) => valueOf(v));
+
+        (result[key] as any[]).sort((a, b) => {
+          const stringValueOf = (v: any) => JSON.stringify(v);
+
+          return stringValueOf(a).localeCompare(stringValueOf(b));
+        });
+
+        continue;
+      }
+
+      result[key] = valueOf(value);
+    }
+
+    return result;
   }
 }
 

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { Class } from "type-fest";
+import { AbstractClass, Class } from "type-fest";
 import {
   ModelId,
   ModelName,
@@ -184,4 +184,8 @@ export type PropsOf<T extends AnyModel> = T extends ModelBase<
 
 export interface ModelClass<T extends AnyModel = AnyModel>
   extends Class<T>,
+    ClassStatic<typeof ModelBase<PropsOf<T>>> {}
+
+export interface AbstractModelClass<T extends AnyModel = AnyModel>
+  extends AbstractClass<T>,
     ClassStatic<typeof ModelBase<PropsOf<T>>> {}
