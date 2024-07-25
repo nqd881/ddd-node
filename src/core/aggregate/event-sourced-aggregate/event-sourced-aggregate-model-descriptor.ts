@@ -1,6 +1,6 @@
 import { AnyEventSourcedAggregate } from ".";
 import { CommandHandlerMap, EventApplierMap } from "../../../meta";
-import { ModelDescriptor } from "../../../model";
+import { ModelDescriptor } from "../../../base";
 
 export interface EventSourcedAggregateModelDescriptor<
   T extends AnyEventSourcedAggregate

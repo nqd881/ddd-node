@@ -1,4 +1,4 @@
-import { AnyModel, PropsOf } from "../core";
+import { AnyModel, PropsOf } from "../model";
 import { defineProp } from "../meta";
 
 export const Prop = <T extends AnyModel>(propTargetKey?: keyof PropsOf<T>) => {

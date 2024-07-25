@@ -1,5 +1,5 @@
 import { Class } from "type-fest";
-import { ModelBase, Mutable, Prop } from "../../model";
+import { ModelBase, Mutable, Prop } from "../../base";
 import { ClassStatic } from "../../types";
 
 export type EnumValue = string | number;

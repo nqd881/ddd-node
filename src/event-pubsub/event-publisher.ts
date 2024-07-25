@@ -1,9 +1,5 @@
-import { AnyEvent, EventClass } from "../message";
-import { IEventSubscriberRegistry } from "./event-subscriber-registry";
-
-export interface IEventPublisher {
-  publish<T extends AnyEvent = AnyEvent>(event: T): Promise<void>;
-}
+import { AnyEvent, EventClass } from "../core";
+import { IEventPublisher, IEventSubscriberRegistry } from "./interfaces";
 
 export class EventPublisher implements IEventPublisher {
   constructor(private subscriberRegistry: IEventSubscriberRegistry) {}

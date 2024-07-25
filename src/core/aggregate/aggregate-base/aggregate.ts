@@ -1,4 +1,4 @@
-import { Props, PropsOf } from "../../../model";
+import { Props, PropsOf } from "../../../base";
 import { EntityBase, EntityMetadata } from "../../entity";
 import {
   AnyEvent,
@@ -6,7 +6,7 @@ import {
   EventClassWithTypedConstructor,
   EventSource,
 } from "../../message";
-import { IEventDispatcher } from "../event-dispatcher.interface";
+import { IAggregateEventDispatcher } from "./aggregate-event-dispatcher.interface";
 
 export interface AggregateMetadata extends EntityMetadata {
   version: number;
@@ -49,7 +49,7 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
       .build();
   }
 
-  abstract dispatchEvents(dispatcher: IEventDispatcher): void;
+  abstract dispatchEvents(dispatcher: IAggregateEventDispatcher): void;
 }
 
 export type AnyAggregate = AggregateBase<Props>;

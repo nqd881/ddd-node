@@ -1,4 +1,4 @@
-import { AnyModel, ModelBase, PropsOf } from "../core";
+import { AnyModel, ModelBase, PropsOf } from "../model";
 
 const OwnPropsMapMetaKey = Symbol.for("OWN_PROPS_MAP");
 

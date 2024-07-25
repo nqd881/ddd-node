@@ -1,5 +1,5 @@
 import { Id } from "./id";
-import { ModelBase, Props } from "../../model";
+import { ModelBase, Props } from "../../base";
 
 export interface IdentifiableModelMetadata {
   id: Id;

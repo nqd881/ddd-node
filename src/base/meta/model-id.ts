@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "../core";
+import { AnyModel, ModelClass } from "../model";
 import { ModelName, getModelName } from "./model-name";
 import { ModelVersion, getModelVersion } from "./model-version";
 

@@ -1,5 +1,5 @@
 import { Class } from "type-fest";
-import { Mutable, Props, PropsOf } from "../../model";
+import { Mutable, Props, PropsOf } from "../../base";
 import { ClassStatic } from "../../types";
 import {
   IdentifiableModel,

@@ -1,5 +1,5 @@
 export * from "./meta";
-export * from "./core";
+export * from "./model";
 export * from "./decorators";
 
 export * from "./domain";

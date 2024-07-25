@@ -1,4 +1,4 @@
-import { ModelClass } from "../core";
+import { ModelClass } from "../model";
 import {
   StaticValueBuilder,
   defineStaticValueProperty,

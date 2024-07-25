@@ -1,9 +1,12 @@
 import { Class } from "type-fest";
-import { Props, PropsOf } from "../../../model";
+import { Props, PropsOf } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { AnyEvent, EventClassWithTypedConstructor } from "../../message";
-import { AggregateBase, AggregateMetadata } from "../aggregate-base";
-import { IEventDispatcher } from "../event-dispatcher.interface";
+import {
+  AggregateBase,
+  AggregateMetadata,
+  IAggregateEventDispatcher,
+} from "../aggregate-base";
 
 export interface StateAggregateMetadata extends AggregateMetadata {}
 
@@ -52,7 +55,7 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     this._events = [];
   }
 
-  dispatchEvents(dispatcher: IEventDispatcher) {
+  dispatchEvents(dispatcher: IAggregateEventDispatcher) {
     this.events().forEach((event) => {
       dispatcher.dispatch(event);
     });

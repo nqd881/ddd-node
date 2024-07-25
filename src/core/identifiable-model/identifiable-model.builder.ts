@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { ModelBuilder } from "../../model";
+import { ModelBuilder } from "../../base";
 import { AnyIdentifiableModel } from "./identifiable-model";
 import { Id } from "./id";
 

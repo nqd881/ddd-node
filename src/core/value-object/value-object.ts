@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Class } from "type-fest";
-import { ModelBase, Mutable, Props, PropsOf } from "../../model";
+import { ModelBase, Mutable, Props, PropsOf } from "../../base";
 import { ClassStatic } from "../../types";
 
 @Mutable(false)

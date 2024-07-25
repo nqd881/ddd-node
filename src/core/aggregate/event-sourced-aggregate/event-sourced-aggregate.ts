@@ -5,7 +5,7 @@ import {
   getOwnCommandHandlerMap,
   getOwnEventApplierMap,
 } from "../../../meta";
-import { Props, PropsOf } from "../../../model";
+import { Props, PropsOf } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { toArray } from "../../../utils";
 import {
@@ -14,7 +14,7 @@ import {
   EventClassWithTypedConstructor,
 } from "../../message";
 import { AggregateBase, AggregateMetadata } from "../aggregate-base";
-import { IEventDispatcher } from "../event-dispatcher.interface";
+import { IAggregateEventDispatcher } from "../aggregate-base";
 import { EventSourcedAggregateModelDescriptor } from "./event-sourced-aggregate-model-descriptor";
 import { Snapshot, SnapshotMetadata } from "./snapshot";
 
@@ -208,7 +208,7 @@ export class EventSourcedAggregateBase<
     this._pastEvents.push(...events);
   }
 
-  dispatchEvents(dispatcher: IEventDispatcher): void {
+  dispatchEvents(dispatcher: IAggregateEventDispatcher): void {
     this.events().forEach((event) => {
       dispatcher.dispatch(event);
     });

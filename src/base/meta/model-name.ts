@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "../core";
+import { AnyModel, ModelClass } from "../model";
 
 export type ModelName = string;
 

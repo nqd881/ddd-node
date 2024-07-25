@@ -1,4 +1,4 @@
-import { PropsOf } from "../../../model";
+import { PropsOf } from "../../../base";
 import {
   AnyEventSourcedAggregate,
   EventSourceAggregateMetadata,

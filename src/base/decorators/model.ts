@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { AnyModel, ModelClass } from "../core";
+import { AnyModel, ModelClass } from "../model";
 import { Domain, domainManager } from "../domain";
 import {
   PropsValidator,

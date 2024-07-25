@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { AnyModel, PropsOf } from "../core";
+import { AnyModel, PropsOf } from "../model";
 
 export type PropsValidator<T extends AnyModel = AnyModel> = (
   props: PropsOf<T>

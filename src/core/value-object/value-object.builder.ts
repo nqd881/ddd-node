@@ -1,4 +1,4 @@
-import { ModelBuilder } from "../../model";
+import { ModelBuilder } from "../../base";
 import {
   AnyValueObject,
   ValueObjectClassWithTypedConstructor,

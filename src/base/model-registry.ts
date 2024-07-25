@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "./core";
+import { AnyModel, ModelClass } from "./model";
 import { $ModelId, ModelId, ModelName, ModelVersion } from "./meta";
 
 export class ModelVersionMap<T extends AnyModel = AnyModel> extends Map<

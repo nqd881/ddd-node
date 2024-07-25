@@ -1,6 +1,6 @@
 import { Class } from "type-fest";
 import { EventType, getEventType } from "../../../meta";
-import { Props, PropsOf } from "../../../model";
+import { Props, PropsOf } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { Id } from "../../identifiable-model";
 import { MessageBase, MessageMetadata } from "../message-base";

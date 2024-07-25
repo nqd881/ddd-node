@@ -1,5 +1,5 @@
 import { DEFAULT_DOMAIN } from "../domain";
-import { AnyModel, ModelClass } from "../core";
+import { AnyModel, ModelClass } from "../model";
 
 export const ModelDomainMetaKey = Symbol.for("MODEL_DOMAIN");
 

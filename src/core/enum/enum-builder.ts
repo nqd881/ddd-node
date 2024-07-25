@@ -1,4 +1,4 @@
-import { ModelBuilder } from "../../model";
+import { ModelBuilder } from "../../base";
 import { AnyEnum, EnumClass, EnumValue } from "./enum";
 
 export class EnumBuilder<T extends AnyEnum> extends ModelBuilder<T> {

@@ -1,4 +1,4 @@
-import { IdentifiableModelBuilder } from "..";
+import { IdentifiableModelBuilder } from "../identifiable-model";
 import { AnyEntity, EntityClassWithTypedConstructor } from "./entity";
 
 export abstract class EntityBuilderBase<
