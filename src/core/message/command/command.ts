@@ -9,7 +9,7 @@ export interface CommandMetadata extends MessageMetadata {
   commandType: CommandType;
 }
 
-export abstract class CommandBase<P extends Props> extends MessageBase<P> {
+export class CommandBase<P extends Props> extends MessageBase<P> {
   protected readonly _commandType: CommandType;
 
   static commandType() {

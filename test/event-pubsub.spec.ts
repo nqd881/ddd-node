@@ -1,10 +1,12 @@
 import { afterEach, describe } from "mocha";
 import {
+  AnyEvent,
   Event,
   EventBase,
   EventPublisher,
   EventSubscriber,
   EventSubscriberRegistry,
+  IGlobalEventSubscriber,
   StateAggregateBase,
   StateAggregateBuilder,
   SubscribeToEvents,
@@ -26,6 +28,12 @@ interface Test2EventProps {
 
 @Event("TEST2")
 class Test2Event extends EventBase<Test2EventProps> {}
+
+class TestGlobalEventSubscriber implements IGlobalEventSubscriber {
+  async handleEvent(event: AnyEvent): Promise<void> {
+    count.value++;
+  }
+}
 
 @SubscribeToEvents(TestEvent)
 class TestEventSubscriber extends EventSubscriber<TestEvent> {
@@ -62,6 +70,10 @@ class TestAggregate extends StateAggregateBase<TestAggregateProps> {
 
 const eventSubscriberRegistry = new EventSubscriberRegistry();
 
+eventSubscriberRegistry.registerGlobalSubscriber(
+  new TestGlobalEventSubscriber()
+);
+
 eventSubscriberRegistry.registerSubscriber(new TestEventSubscriber());
 eventSubscriberRegistry.registerSubscriber(new CompositeTestEventSubscriber());
 
@@ -84,7 +96,7 @@ describe("Event Pubsub", function () {
 
     await Promise.all(events.map((event) => eventPublisher.publish(event)));
 
-    expect(count.value).equals(3);
+    expect(count.value).equals(4);
   });
 
   it("Test2 event handled", async () => {
@@ -94,6 +106,17 @@ describe("Event Pubsub", function () {
 
     await Promise.all(events.map((event) => eventPublisher.publish(event)));
 
-    expect(count.value).equals(4);
+    expect(count.value).equals(5);
+  });
+
+  it("Test1 & Test2 events handled", async () => {
+    aggregate.action1();
+    aggregate.action2();
+
+    const events = aggregate.events();
+
+    await Promise.all(events.map((event) => eventPublisher.publish(event)));
+
+    expect(count.value).equals(9);
   });
 });

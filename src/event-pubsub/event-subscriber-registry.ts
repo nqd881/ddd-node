@@ -1,6 +1,11 @@
 import { toArray } from "../utils";
 import { AnyEvent, EventClass } from "../core";
-import { IEventSubscriber, IEventSubscriberRegistry } from "./interfaces";
+import {
+  IEventSubscriber,
+  IEventSubscriberRegistry,
+  IGlobalEventSubscriber,
+  Unsubscriber,
+} from "./interfaces";
 
 export class EventSubscriberRegistry implements IEventSubscriberRegistry {
   private static _instance: EventSubscriberRegistry;
@@ -11,6 +16,7 @@ export class EventSubscriberRegistry implements IEventSubscriberRegistry {
     return this._instance;
   }
 
+  private _globalSubscribers: Set<IGlobalEventSubscriber> = new Set();
   private _subscribers: Map<EventClass, IEventSubscriber[]> = new Map();
 
   constructor(subscribers: IEventSubscriber[] = []) {
@@ -75,7 +81,17 @@ export class EventSubscriberRegistry implements IEventSubscriberRegistry {
     );
   }
 
-  registerSubscriber(subscriber: IEventSubscriber) {
+  registerGlobalSubscriber(subscriber: IGlobalEventSubscriber): Unsubscriber {
+    this._globalSubscribers.add(subscriber);
+
+    return () => this.deregisterGlobalSubscriber(subscriber);
+  }
+
+  deregisterGlobalSubscriber(subscriber: IGlobalEventSubscriber) {
+    this._globalSubscribers.delete(subscriber);
+  }
+
+  registerSubscriber(subscriber: IEventSubscriber): Unsubscriber {
     const subscribedEvents = toArray(subscriber.subscribeToEvents());
 
     subscribedEvents.forEach((subscribedEvent) => {
@@ -93,13 +109,26 @@ export class EventSubscriberRegistry implements IEventSubscriberRegistry {
     });
   }
 
-  getSubscribersForEvent<T extends AnyEvent = AnyEvent>(
-    eventType: EventClass<T, any[]>
-  ) {
-    return Array.from(this._getSubscribersForEvent(eventType));
+  getGlobalSubscribers(): IGlobalEventSubscriber[] {
+    return Array.from(this._globalSubscribers);
   }
 
   getSubscribers(): IEventSubscriber[] {
     return Array.from(this._subscribers.values()).flat();
+  }
+
+  getSubscribersForEvent<T extends AnyEvent = AnyEvent>(
+    eventType: EventClass<T>
+  ) {
+    return Array.from(this._getSubscribersForEvent(eventType));
+  }
+
+  getAllSubscribersForEvent<T extends AnyEvent = AnyEvent>(
+    eventType: EventClass<T>
+  ): (IGlobalEventSubscriber | IEventSubscriber<T>)[] {
+    return [
+      ...this.getGlobalSubscribers(),
+      ...this.getSubscribersForEvent(eventType),
+    ];
   }
 }

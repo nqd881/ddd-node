@@ -5,7 +5,7 @@ export class EventPublisher implements IEventPublisher {
   constructor(private subscriberRegistry: IEventSubscriberRegistry) {}
 
   async publish<T extends AnyEvent = AnyEvent>(event: T): Promise<void> {
-    const subscribers = this.subscriberRegistry.getSubscribersForEvent(
+    const subscribers = this.subscriberRegistry.getAllSubscribersForEvent(
       event.constructor as EventClass
     );
 
