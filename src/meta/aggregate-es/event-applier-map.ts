@@ -49,8 +49,8 @@ export const getEventApplierMap = (target: object): EventApplierMap => {
       } while (_target !== null);
 
       ownEventApplierMaps.forEach((ownEventApplierMap) => {
-        ownEventApplierMap.forEach((eventApplier, methodName) => {
-          result.set(methodName, eventApplier);
+        ownEventApplierMap.forEach((eventApplier, eventType) => {
+          result.set(eventType, eventApplier);
         });
       });
 

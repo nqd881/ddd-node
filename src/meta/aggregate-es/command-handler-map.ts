@@ -53,8 +53,8 @@ export const getCommandHandlerMap = (target: object): CommandHandlerMap => {
       } while (_target !== null);
 
       ownCommandHandlerMaps.forEach((ownCommandHandlerMap) => {
-        ownCommandHandlerMap.forEach((commandHandler, methodName) => {
-          result.set(methodName, commandHandler);
+        ownCommandHandlerMap.forEach((commandHandler, commandType) => {
+          result.set(commandType, commandHandler);
         });
       });
 
