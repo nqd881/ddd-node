@@ -8,7 +8,7 @@ import {
 } from "../../identifiable-model";
 
 export interface CorrelationIds {
-  [type: string]: string;
+  [type: string]: string | undefined;
 }
 
 export interface MessageMetadata extends IdentifiableModelMetadata {
