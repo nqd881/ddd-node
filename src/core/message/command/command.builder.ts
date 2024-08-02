@@ -15,7 +15,8 @@ export class CommandBuilder<
       {
         id: this.id,
         timestamp: this.timestamp,
-        context: this.context,
+        causationId: this.causationId,
+        correlationIds: this.correlationIds,
       },
       this.props
     );

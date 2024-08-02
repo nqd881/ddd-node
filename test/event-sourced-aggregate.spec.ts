@@ -12,6 +12,7 @@ import {
   Prop,
   When,
 } from "../src";
+import { v4 } from "uuid";
 
 interface PersonCreatedEventProps {
   name: string;
@@ -188,11 +189,19 @@ describe("Event sourced aggregate", function () {
     it("create instance with existing stream", () => {
       const personA = Person.createPerson({ name: "Dai" });
 
-      personA.handleCommand(
-        new CommandBuilder(ChangePersonNameCommand)
-          .withProps({ name: "Duong" })
-          .build()
-      );
+      const requestId = v4();
+
+      const command1 = new CommandBuilder(ChangePersonNameCommand)
+        .withProps({ name: "Duong" })
+        .withCorrelationIds({
+          requestId,
+        })
+        .build();
+
+      const [event1] = personA.handleCommand(command1);
+
+      expect(event1.correlationIds().requestId).to.equals(requestId);
+      expect(event1.causationId()).to.equals(command1.id());
 
       const pastEvents = personA.events();
 

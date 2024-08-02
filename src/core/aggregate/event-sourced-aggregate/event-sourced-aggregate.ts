@@ -170,7 +170,7 @@ export class EventSourcedAggregateBase<
 
     events.forEach((event) => {
       event.setCausationId(command.id());
-      event.setCorrelationIds(command.context().correlationIds || {});
+      event.setCorrelationIds(command.correlationIds());
     });
 
     this.applyEvents(events);

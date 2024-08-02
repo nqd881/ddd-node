@@ -25,7 +25,8 @@ export class EventBuilder<T extends AnyEvent> extends MessageBuilderBase<T> {
         id: this.id,
         timestamp: this.timestamp,
         source: this.source,
-        context: this.context,
+        causationId: this.causationId,
+        correlationIds: this.correlationIds,
       },
       this.props
     );

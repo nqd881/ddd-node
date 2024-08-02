@@ -1,18 +1,24 @@
 import { IdentifiableModelBuilder } from "../../identifiable-model";
 import {
   AnyMessage,
+  CorrelationIds,
   MessageClassWithTypedConstructor,
-  MessageContext,
 } from "./message";
 
 export abstract class MessageBuilderBase<
   T extends AnyMessage
 > extends IdentifiableModelBuilder<T> {
   protected timestamp: number = Date.now();
-  protected context?: MessageContext;
+  protected causationId?: string;
+  protected correlationIds: CorrelationIds = {};
 
-  withContext(context?: MessageContext) {
-    this.context = context;
+  withCausationId(causationId: string) {
+    this.causationId = causationId;
+    return this;
+  }
+
+  withCorrelationIds(correlationIds: CorrelationIds) {
+    this.correlationIds = correlationIds;
     return this;
   }
 
@@ -39,8 +45,9 @@ export class MessageBuilder<
     return new this.messageClass(
       {
         id: this.id,
-        context: this.context,
         timestamp: this.timestamp,
+        correlationIds: this.correlationIds,
+        causationId: this.causationId,
       },
       this.props
     );

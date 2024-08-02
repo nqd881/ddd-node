@@ -11,26 +11,24 @@ export interface CorrelationIds {
   [type: string]: string;
 }
 
-export interface MessageContext {
-  correlationIds?: CorrelationIds;
-  causationId?: string;
-}
-
 export interface MessageMetadata extends IdentifiableModelMetadata {
   timestamp: number;
-  context?: MessageContext;
+  causationId?: string;
+  correlationIds: CorrelationIds;
 }
 
 @Mutable(false)
 export class MessageBase<P extends Props> extends IdentifiableModel<P> {
   private readonly _timestamp: number;
-  private _context: MessageContext;
+  private _causationId?: string;
+  private _correlationIds: CorrelationIds;
 
   constructor(metadata: MessageMetadata, props: P) {
     super(metadata);
 
-    this._context = metadata?.context ?? {};
     this._timestamp = metadata.timestamp;
+    this._causationId = metadata.causationId;
+    this._correlationIds = metadata.correlationIds;
 
     this.initializeProps(props);
   }
@@ -43,7 +41,8 @@ export class MessageBase<P extends Props> extends IdentifiableModel<P> {
     return {
       ...super.metadata(),
       timestamp: this._timestamp,
-      context: this._context,
+      correlationIds: this._correlationIds,
+      causationId: this._causationId,
     };
   }
 
@@ -51,24 +50,24 @@ export class MessageBase<P extends Props> extends IdentifiableModel<P> {
     return this._timestamp;
   }
 
-  context() {
-    return this._context;
+  correlationIds() {
+    return this._correlationIds;
+  }
+
+  causationId() {
+    return this._causationId;
   }
 
   setCausationId(causationId: string) {
-    if (!this._context.causationId) this._context.causationId = causationId;
+    if (!this._causationId) this._causationId = causationId;
   }
 
   addCorrelationId(type: string, correlationId: string) {
-    if (!this._context.correlationIds) this._context.correlationIds = {};
-
-    if (!this._context.correlationIds[type])
-      this._context.correlationIds[type] = correlationId;
+    this._correlationIds[type] = correlationId;
   }
 
   setCorrelationIds(correlationIds: CorrelationIds) {
-    if (!this._context.correlationIds)
-      this._context.correlationIds = correlationIds;
+    this._correlationIds = correlationIds;
   }
 }
 
