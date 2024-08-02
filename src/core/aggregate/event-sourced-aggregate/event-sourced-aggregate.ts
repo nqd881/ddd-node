@@ -169,10 +169,8 @@ export class EventSourcedAggregateBase<
     const events = toArray(handler.call(this, command));
 
     events.forEach((event) => {
-      event.setContext({
-        correlationId: command.context()?.correlationId,
-        causationId: command.id(),
-      });
+      event.setCausationId(command.id());
+      event.setCorrelationIds(command.context().correlationIds || {});
     });
 
     this.applyEvents(events);
