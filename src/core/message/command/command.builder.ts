@@ -9,7 +9,7 @@ export class CommandBuilder<
   }
 
   build() {
-    if (!this.props) throw new Error();
+    if (!this.props) throw new Error("The props must be set before build");
 
     return new this.commandClass(
       {

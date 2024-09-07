@@ -10,6 +10,7 @@ import {
   Mutable,
   Prop,
   PropsValidator,
+  Static,
   ValueObjectBase,
 } from "../src";
 
@@ -21,6 +22,9 @@ interface NameProps {
 }
 
 export class Name extends ValueObjectBase<NameProps> {
+  @Static(() => new Name("Dai", "Quoc"))
+  static QUOCDAI: Name;
+
   @Prop()
   declare firstName: string;
 
@@ -168,7 +172,7 @@ describe("Model", function () {
     });
 
     it("with initialized props", () => {
-      const props = { name: new Name("Dai") };
+      const props = { name: Name.QUOCDAI };
 
       person.initializeProps(props);
 
@@ -276,6 +280,12 @@ describe("Model", function () {
       expect(Student.propsValidators().length).to.equal(2);
 
       expect(student).to.throw(InvalidPersonAgeError);
+    });
+  });
+
+  describe("Static value", () => {
+    it("comparable", () => {
+      expect(Name.QUOCDAI).to.equal(Name.QUOCDAI);
     });
   });
 });

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { AbstractClass, Class } from "type-fest";
+import { ClassStatic } from "../../types";
 import {
   ModelId,
   ModelName,
@@ -17,7 +18,6 @@ import {
   getPropsMap,
   getPropsValidators,
 } from "../meta";
-import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
 import { ModelDescriptor } from "./model-descriptor";
 
@@ -90,7 +90,7 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  protected redefineProp(key: keyof this, propTargetKey: keyof P) {
+  protected redefineProp<K extends keyof P>(key: keyof this, propTargetKey: K) {
     Object.defineProperty(this, key, {
       // must be true because the props() method need to recall redefineModel(-> redefineProp)
       configurable: true,
@@ -120,7 +120,9 @@ export class ModelBase<P extends Props> {
   validateProps(props: P): void {
     const propsValidators = this.modelDescriptor().propsValidators;
 
-    propsValidators.forEach((propsValidator) => propsValidator(props));
+    propsValidators.forEach((propsValidator) =>
+      propsValidator.call(this.constructor, props)
+    );
   }
 
   validate() {
@@ -176,9 +178,7 @@ export class ModelBase<P extends Props> {
 
 export type AnyModel = ModelBase<Props>;
 
-export type PropsOf<T extends AnyModel> = T extends ModelBase<
-  infer P extends Props
->
+export type PropsOf<T extends AnyModel> = T extends ModelBase<infer P>
   ? P
   : never;
 

@@ -29,11 +29,15 @@ export class ValueObjectBase<P extends Props> extends ModelBase<P> {
     return new (this.constructor as ValueObjectClass<typeof this>)(newProps);
   }
 
+  clone() {
+    return this.with({});
+  }
+
   getEqualityValue() {
     return JSON.stringify(this.getEqualityObject());
   }
 
-  getEqualityObject() {
+  protected getEqualityObject() {
     const result: any = {};
 
     const props = this.props();
@@ -45,9 +49,9 @@ export class ValueObjectBase<P extends Props> extends ModelBase<P> {
       if (Array.isArray(value)) {
         result[key] = value.map((v) => valueOf(v));
 
-        (result[key] as any[]).sort((a, b) => {
-          const stringValueOf = (v: any) => JSON.stringify(v);
+        const stringValueOf = (v: any) => JSON.stringify(v);
 
+        (result[key] as any[]).sort((a, b) => {
           return stringValueOf(a).localeCompare(stringValueOf(b));
         });
 
