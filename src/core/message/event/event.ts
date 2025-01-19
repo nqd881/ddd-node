@@ -5,6 +5,7 @@ import { ClassStatic } from "../../../types";
 import { Id } from "../../identifiable-model";
 import { MessageBase, MessageMetadata } from "../message-base";
 import { EventModelDescriptor } from "./event-model-descriptor";
+import { EventBuilder } from ".";
 
 export type EventSource = Readonly<{
   aggregateId: Id;
@@ -17,6 +18,10 @@ export interface EventMetadata extends MessageMetadata {
 }
 
 export class EventBase<P extends Props> extends MessageBase<P> {
+  static builder<T extends AnyEvent>(this: EventClass<T>): EventBuilder<T> {
+    return new EventBuilder(this);
+  }
+
   private readonly _eventType: EventType;
   private readonly _source: EventSource;
 

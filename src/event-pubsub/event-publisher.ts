@@ -9,7 +9,6 @@ export class EventPublisher implements IEventPublisher {
       event.constructor as EventClass
     );
 
-    // TODO: should convert to for await (subscriber be called sequently) ?
     await Promise.all(
       subscribers.map((subscriber) => subscriber.handleEvent(event))
     );

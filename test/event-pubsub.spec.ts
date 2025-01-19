@@ -80,9 +80,7 @@ eventSubscriberRegistry.registerSubscriber(new CompositeTestEventSubscriber());
 const eventPublisher = new EventPublisher(eventSubscriberRegistry);
 
 describe("Event Pubsub", function () {
-  const aggregate = new StateAggregateBuilder(TestAggregate)
-    .withProps({})
-    .build();
+  const aggregate = TestAggregate.builder().withProps({}).build();
 
   afterEach(() => {
     count.value = 0;

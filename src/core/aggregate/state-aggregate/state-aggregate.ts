@@ -7,10 +7,17 @@ import {
   AggregateMetadata,
   IAggregateEventDispatcher,
 } from "../aggregate-base";
+import { StateAggregateBuilder } from ".";
 
 export interface StateAggregateMetadata extends AggregateMetadata {}
 
 export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
+  static builder<T extends AnyStateAggregate>(
+    this: StateAggregateClass<T>
+  ): StateAggregateBuilder<T> {
+    return new StateAggregateBuilder(this);
+  }
+
   private _events: AnyEvent[];
 
   constructor(metadata: StateAggregateMetadata, props: P) {

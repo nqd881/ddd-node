@@ -12,11 +12,12 @@ class User extends EntityBase<UserProps> {
 }
 
 describe("Entity", function () {
-  const UserBuilder = () => new EntityBuilder(User);
-
   describe("Static methods", function () {
     it("newEntity", () => {
-      const user = UserBuilder().withNewId().withProps({ name: "Dai" }).build();
+      const user = User.builder()
+        .withNewId()
+        .withProps({ name: "Dai" })
+        .build();
 
       expect(user.name).to.equal("Dai");
     });

@@ -1,6 +1,7 @@
 import { Class } from "type-fest";
 import { ModelBase, Mutable, Prop } from "../../base";
 import { ClassStatic } from "../../types";
+import { EnumBuilder } from ".";
 
 export type EnumValue = string | number;
 
@@ -10,10 +11,25 @@ export interface EnumProps {
 
 @Mutable(false)
 export class EnumBase extends ModelBase<EnumProps> {
+  static builder<T extends AnyEnum>(this: EnumClass<T>): EnumBuilder<T> {
+    return new EnumBuilder(this);
+  }
+
   static values() {
     return Array.from(this.ownStaticValues().values()).map(
       (staticValue) => staticValue.value
     );
+  }
+
+  static from<T extends AnyEnum>(this: EnumClass<T>, value: EnumValue): T {
+    return this.builder().withValue(value).build();
+  }
+
+  static fromSafe<T extends AnyEnum>(
+    this: EnumClass<T>,
+    value: EnumValue
+  ): T | null {
+    return this.builder().withValue(value).buildSafe();
   }
 
   constructor(value: EnumValue) {

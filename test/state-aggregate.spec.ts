@@ -34,13 +34,9 @@ class Person extends StateAggregateBase<PersonProps> {
 }
 
 describe("State aggregate", function () {
-  const personBuilder = new StateAggregateBuilder(Person);
-
   describe("Static methods", function () {
     it("create new instance using newAggregate", () => {
-      const person = new StateAggregateBuilder(Person)
-        .withProps({ name: "Dai" })
-        .build();
+      const person = Person.builder().withProps({ name: "Dai" }).build();
 
       expect(person.name).to.equal("Dai");
     });
@@ -48,9 +44,7 @@ describe("State aggregate", function () {
 
   describe("Instance method", function () {
     it("record an event and then clear all", () => {
-      const person = new StateAggregateBuilder(Person)
-        .withProps({ name: "Dai" })
-        .build();
+      const person = Person.builder().withProps({ name: "Dai" }).build();
 
       person.changeName("Nam");
 

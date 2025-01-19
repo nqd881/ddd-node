@@ -47,9 +47,7 @@ class InvalidPersonNameError extends Error {
 
 class Person extends EventSourcedAggregateBase<PersonProps> {
   static createPerson(props: PersonProps) {
-    const builder = new EventSourcedAggregateBuilder(Person);
-
-    const person = builder.build();
+    const person = Person.builder().build();
 
     person.applyNewEvent(PersonCreatedEvent, { name: props.name });
 
@@ -177,11 +175,9 @@ class Student extends ExtendablePerson<StudentProps> {
 }
 
 describe("Event sourced aggregate", function () {
-  const PersonBuilder = () => new EventSourcedAggregateBuilder(Person);
-
   describe("Building", function () {
     it("create instance with new stream", () => {
-      const person = PersonBuilder().build();
+      const person = Person.builder().build();
 
       expect(person.props()).to.be.null;
     });
@@ -211,7 +207,7 @@ describe("Event sourced aggregate", function () {
           .build()
       );
 
-      const personB = PersonBuilder()
+      const personB = Person.builder()
         .withId(personA.id())
         .withPastEvents(pastEvents)
         .build();
@@ -237,13 +233,13 @@ describe("Event sourced aggregate", function () {
           .build()
       );
 
-      const personB = PersonBuilder().withSnapshot(snapshot).build();
+      const personB = Person.builder().withSnapshot(snapshot).build();
 
       expect(personB.name).to.equal("Duong");
       expect(personB.pastEvents().length).to.equal(0);
       expect(personB.version()).to.equal(2);
 
-      const personC = PersonBuilder()
+      const personC = Person.builder()
         .withSnapshot(snapshot)
         .withPastEvents(eventsAfterSnapshot)
         .build();

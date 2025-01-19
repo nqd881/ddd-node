@@ -9,8 +9,6 @@ class Status extends EnumBase {
   static Inactive: Status;
 }
 
-const StatusBuilder = () => new EnumBuilder(Status);
-
 describe("Enum", function () {
   it("correct value", () => {
     expect(Status.Inactive.value).to.equal("inactive");
@@ -25,21 +23,20 @@ describe("Enum", function () {
     expect(Status.Active).to.equal(Status.Active);
   });
 
-  it("parse()", () => {
-    const activeStatus = () => StatusBuilder().withValue("Active").build();
+  it("build", () => {
+    const activeStatus = () => Status.from("Active");
 
-    const invalidActiveStatus = () =>
-      StatusBuilder().withValue("ACTIVE").build();
+    const invalidActiveStatus = () => Status.from("ACTIVE");
 
     expect(activeStatus).not.throw();
     expect(invalidActiveStatus).throw();
     expect(activeStatus()).to.equal(Status.Active);
   });
 
-  it("parseSafe()", () => {
-    const invalidActiveStatus = () =>
-      StatusBuilder().withValue("ACTIVE").buildSafe();
+  it("build safe", () => {
+    const invalidActiveStatus = () => Status.fromSafe("ACTIVE");
 
     expect(invalidActiveStatus).not.throw();
+    expect(invalidActiveStatus()).to.equal(null);
   });
 });

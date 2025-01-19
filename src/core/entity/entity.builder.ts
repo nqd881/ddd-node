@@ -1,16 +1,16 @@
 import { IdentifiableModelBuilder } from "../identifiable-model";
 import { AnyEntity, EntityClassWithTypedConstructor } from "./entity";
 
-export abstract class EntityBuilderBase<
+export class EntityBuilder<
   T extends AnyEntity
-> extends IdentifiableModelBuilder<T> {}
-
-export class EntityBuilder<T extends AnyEntity> extends EntityBuilderBase<T> {
+> extends IdentifiableModelBuilder<T> {
   constructor(private entityClass: EntityClassWithTypedConstructor<T>) {
     super();
   }
 
   build() {
+    if (!this.props) throw new Error("The props must be set before build");
+
     return new this.entityClass({ id: this.id }, this.props);
   }
 }

@@ -4,12 +4,19 @@ import { Props, PropsOf } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { MessageBase, MessageMetadata } from "../message-base";
 import { CommandModelDescriptor } from "./command-model-descriptor";
+import { CommandBuilder } from ".";
 
 export interface CommandMetadata extends MessageMetadata {
   commandType: CommandType;
 }
 
 export class CommandBase<P extends Props> extends MessageBase<P> {
+  static builder<T extends AnyCommand>(
+    this: CommandClass<T>
+  ): CommandBuilder<T> {
+    return new CommandBuilder(this);
+  }
+
   protected readonly _commandType: CommandType;
 
   static commandType() {

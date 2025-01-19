@@ -5,15 +5,20 @@ import {
   IdentifiableModel,
   IdentifiableModelMetadata,
 } from "../identifiable-model";
+import { EntityBuilder } from ".";
 
 export interface EntityMetadata extends IdentifiableModelMetadata {}
 
 @Mutable(true)
 export class EntityBase<P extends Props> extends IdentifiableModel<P> {
-  constructor(metadata: EntityMetadata, props?: P) {
+  static builder<T extends AnyEntity>(this: EntityClass<T>): EntityBuilder<T> {
+    return new EntityBuilder(this);
+  }
+
+  constructor(metadata: EntityMetadata, props: P) {
     super(metadata);
 
-    if (props) this.initializeProps(props);
+    this.initializeProps(props);
   }
 }
 

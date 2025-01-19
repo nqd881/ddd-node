@@ -17,12 +17,19 @@ import { AggregateBase, AggregateMetadata } from "../aggregate-base";
 import { IAggregateEventDispatcher } from "../aggregate-base";
 import { EventSourcedAggregateModelDescriptor } from "./event-sourced-aggregate-model-descriptor";
 import { Snapshot, SnapshotMetadata } from "./snapshot";
+import { EventSourcedAggregateBuilder } from ".";
 
 export interface EventSourceAggregateMetadata extends AggregateMetadata {}
 
 export class EventSourcedAggregateBase<
   P extends Props
 > extends AggregateBase<P> {
+  static builder<T extends AnyEventSourcedAggregate>(
+    this: EventSourcedAggregateClass<T>
+  ): EventSourcedAggregateBuilder<T> {
+    return new EventSourcedAggregateBuilder(this);
+  }
+
   private _handledCommands: AnyCommand[];
   private _pastEvents: AnyEvent[];
   private _events: AnyEvent[];
@@ -91,7 +98,7 @@ export class EventSourcedAggregateBase<
     return Boolean(this._events.length);
   }
 
-  getApplierForEvent<E extends AnyEvent>(event: E) {
+  getEventApplier<E extends AnyEvent>(event: E) {
     const { eventType } = event.modelDescriptor();
     const { eventApplierMap } = this.modelDescriptor();
 
@@ -112,7 +119,7 @@ export class EventSourcedAggregateBase<
   }
 
   private _applyEvent<E extends AnyEvent>(event: E) {
-    const applier = this.getApplierForEvent(event);
+    const applier = this.getEventApplier(event);
 
     this.validateEventBeforeApply(event);
 
@@ -120,7 +127,8 @@ export class EventSourcedAggregateBase<
   }
 
   private applyPastEvent<E extends AnyEvent>(event: E) {
-    if (this.hasNewEvent()) throw new Error();
+    if (this.hasNewEvent())
+      throw new Error("Cannot apply a past event when new event is recorded");
 
     this._applyEvent(event);
 
@@ -152,7 +160,7 @@ export class EventSourcedAggregateBase<
     this.applyEvent(this.newEvent(eventClass, props));
   }
 
-  getHandlerForCommand<C extends AnyCommand>(command: C) {
+  getCommandHandler<C extends AnyCommand>(command: C) {
     const { commandType } = command.modelDescriptor();
     const { commandHandlerMap } = this.modelDescriptor();
 
@@ -164,7 +172,7 @@ export class EventSourcedAggregateBase<
   }
 
   handleCommand<C extends AnyCommand>(command: C) {
-    const handler = this.getHandlerForCommand(command);
+    const handler = this.getCommandHandler(command);
 
     const events = toArray(handler.call(this, command));
 

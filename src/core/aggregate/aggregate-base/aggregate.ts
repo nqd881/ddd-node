@@ -1,22 +1,29 @@
-import { Props, PropsOf } from "../../../base";
-import { EntityBase, EntityMetadata } from "../../entity";
+import { Mutable, Props, PropsOf } from "../../../base";
+import {
+  IdentifiableModel,
+  IdentifiableModelMetadata,
+} from "../../identifiable-model";
 import {
   AnyEvent,
-  EventBuilder,
   EventClassWithTypedConstructor,
   EventSource,
 } from "../../message";
 import { IAggregateEventDispatcher } from "./aggregate-event-dispatcher.interface";
 
-export interface AggregateMetadata extends EntityMetadata {
+export interface AggregateMetadata extends IdentifiableModelMetadata {
   version: number;
 }
 
-export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
+@Mutable(true)
+export abstract class AggregateBase<
+  P extends Props
+> extends IdentifiableModel<P> {
   protected readonly _version: number;
 
   constructor(metadata: AggregateMetadata, props?: P) {
-    super(metadata, props);
+    super(metadata);
+
+    if (props) this.initializeProps(props);
 
     this._version = metadata.version;
   }
@@ -41,9 +48,8 @@ export abstract class AggregateBase<P extends Props> extends EntityBase<P> {
     eventClass: EventClassWithTypedConstructor<E>,
     props: PropsOf<E>
   ) {
-    const eventBuilder = new EventBuilder(eventClass);
-
-    return eventBuilder
+    return eventClass
+      .builder()
       .withSource(this.createEventSource())
       .withProps(props)
       .build();

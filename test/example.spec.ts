@@ -100,25 +100,22 @@ describe("Example", function () {
   let person: Person;
   let applePhone: Phone, samsungPhone: Phone;
 
-  const PhoneBuilder = () => new EntityBuilder(Phone);
-  const PersonBuilder = () => new StateAggregateBuilder(Person);
-
   beforeEach(() => {
-    applePhone = PhoneBuilder()
+    applePhone = Phone.builder()
       .withProps({
         brand: "Apple",
         batteryLevel: new BatteryLevel(50),
       })
       .build();
 
-    samsungPhone = PhoneBuilder()
+    samsungPhone = Phone.builder()
       .withProps({
         brand: "Samsung",
         batteryLevel: new BatteryLevel(75),
       })
       .build();
 
-    person = PersonBuilder()
+    person = Person.builder()
       .withProps({
         name: new Name("Dai", "Nguyen Quoc"),
         phones: [applePhone, samsungPhone],
