@@ -16,7 +16,7 @@ export class EnumBase extends ModelBase<EnumProps> {
   }
 
   static values() {
-    return Array.from(this.ownStaticValues().values()).map(
+    return Array.from(this.ownModelStaticValues().values()).map(
       (staticValue) => staticValue.value
     );
   }

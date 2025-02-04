@@ -2,11 +2,11 @@ import _ from "lodash";
 import { AnyModel, ModelClass } from "../model";
 import { Domain, domainManager } from "../domain";
 import {
-  PropsValidator,
+  ModelPropsValidator,
   defineModelDomain,
   defineModelName,
   defineModelVersion,
-  definePropsValidator,
+  defineModelPropsValidator,
   getModelDomain,
 } from "../meta";
 
@@ -14,7 +14,7 @@ export type ModelOptions<T extends AnyModel = AnyModel> = {
   name?: string;
   version?: number;
   domain?: string;
-  propsValidator?: PropsValidator<T>;
+  propsValidator?: ModelPropsValidator<T>;
   autoRegisterModel?: boolean;
 };
 
@@ -81,6 +81,6 @@ export function Model<
     }
 
     if (modelOptions?.propsValidator)
-      definePropsValidator(target, modelOptions.propsValidator);
+      defineModelPropsValidator(target, modelOptions.propsValidator);
   };
 }

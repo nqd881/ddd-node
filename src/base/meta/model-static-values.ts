@@ -1,11 +1,11 @@
 import { AnyModel, ModelClass } from "../model";
 
-export type StaticValueBuilder<T extends AnyModel = AnyModel> = () => T;
+export type ModelStaticValueBuilder<T extends AnyModel = AnyModel> = () => T;
 
-export class StaticValue<T extends AnyModel = AnyModel> {
-  private _value: T | StaticValueBuilder<T>;
+export class ModelStaticValue<T extends AnyModel = AnyModel> {
+  private _value: T | ModelStaticValueBuilder<T>;
 
-  constructor(value: T | StaticValueBuilder<T>) {
+  constructor(value: T | ModelStaticValueBuilder<T>) {
     this._value = value;
   }
 
@@ -18,42 +18,42 @@ export class StaticValue<T extends AnyModel = AnyModel> {
   }
 }
 
-const OwnStaticValuesMetaKey = Symbol.for("OWN_STATIC_VALUES");
+const OwnModelStaticValuesMetaKey = Symbol.for("OWN_MODEL_STATIC_VALUES");
 
-export class StaticValuesMap<T extends AnyModel = AnyModel> extends Map<
+export class ModelStaticValuesMap<T extends AnyModel = AnyModel> extends Map<
   PropertyKey,
-  StaticValue<T>
+  ModelStaticValue<T>
 > {}
 
-export const getOwnStaticValues = <T extends AnyModel>(target: object) => {
-  if (!Reflect.hasOwnMetadata(OwnStaticValuesMetaKey, target))
+export const getOwnModelStaticValues = <T extends AnyModel>(target: object) => {
+  if (!Reflect.hasOwnMetadata(OwnModelStaticValuesMetaKey, target))
     Reflect.defineMetadata(
-      OwnStaticValuesMetaKey,
-      new StaticValuesMap(),
+      OwnModelStaticValuesMetaKey,
+      new ModelStaticValuesMap(),
       target
     );
 
-  return Reflect.getOwnMetadata<StaticValuesMap<T>>(
-    OwnStaticValuesMetaKey,
+  return Reflect.getOwnMetadata<ModelStaticValuesMap<T>>(
+    OwnModelStaticValuesMetaKey,
     target
   )!;
 };
 
-export const setStaticValue = <T extends AnyModel>(
+export const setModelStaticValue = <T extends AnyModel>(
   target: object,
   key: PropertyKey,
-  value: T | StaticValueBuilder<T>
+  value: T | ModelStaticValueBuilder<T>
 ) => {
-  const staticValues = getOwnStaticValues(target);
+  const staticValues = getOwnModelStaticValues(target);
 
-  staticValues.set(key, new StaticValue(value));
+  staticValues.set(key, new ModelStaticValue(value));
 };
 
-export const getStaticValue = (target: object, key: PropertyKey) => {
+export const getModelStaticValue = (target: object, key: PropertyKey) => {
   let _target: object | null = target;
 
   do {
-    const staticValues = getOwnStaticValues(_target);
+    const staticValues = getOwnModelStaticValues(_target);
 
     if (staticValues.has(key)) return staticValues.get(key)?.value;
 
@@ -63,7 +63,7 @@ export const getStaticValue = (target: object, key: PropertyKey) => {
   return undefined;
 };
 
-export const defineStaticValueProperty = (
+export const defineModelStaticValueProperty = (
   target: ModelClass,
   key: PropertyKey
 ) => {
@@ -71,7 +71,7 @@ export const defineStaticValueProperty = (
     configurable: false,
     enumerable: true,
     get() {
-      return getStaticValue(target, key);
+      return getModelStaticValue(target, key);
     },
     set() {
       throw new Error("Static value is readonly");

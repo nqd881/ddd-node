@@ -1,57 +1,64 @@
 import { AnyModel, ModelBase, PropsOf } from "../model";
 
-const OwnPropsMapMetaKey = Symbol.for("OWN_PROPS_MAP");
+const OwnModelPropsMapMetaKey = Symbol.for("OWN_MODEL_PROPS_MAP");
 
-export class PropsMap<T extends AnyModel = AnyModel> extends Map<
+export class ModelPropsMap<T extends AnyModel = AnyModel> extends Map<
   PropertyKey,
   keyof PropsOf<T>
 > {}
 
 // target is prototype
-export const getOwnPropsMap = <T extends AnyModel = AnyModel>(
+export const getOwnModelPropsMap = <T extends AnyModel = AnyModel>(
   target: object
-): PropsMap<T> => {
-  if (!Reflect.hasOwnMetadata(OwnPropsMapMetaKey, target))
-    Reflect.defineMetadata(OwnPropsMapMetaKey, new PropsMap<T>(), target);
+): ModelPropsMap<T> => {
+  if (!Reflect.hasOwnMetadata(OwnModelPropsMapMetaKey, target))
+    Reflect.defineMetadata(
+      OwnModelPropsMapMetaKey,
+      new ModelPropsMap<T>(),
+      target
+    );
 
-  return Reflect.getOwnMetadata<PropsMap<T>>(OwnPropsMapMetaKey, target)!;
+  return Reflect.getOwnMetadata<ModelPropsMap<T>>(
+    OwnModelPropsMapMetaKey,
+    target
+  )!;
 };
 
-export const defineProp = <T extends AnyModel = AnyModel>(
+export const defineModelProp = <T extends AnyModel = AnyModel>(
   target: object,
   key: PropertyKey,
   propTargetKey?: keyof PropsOf<T>
 ) => {
-  const ownPropsMap = getOwnPropsMap<T>(target);
+  const ownModelPropsMap = getOwnModelPropsMap<T>(target);
 
-  if (propTargetKey) ownPropsMap.set(key, propTargetKey);
+  if (propTargetKey) ownModelPropsMap.set(key, propTargetKey);
 };
 
-const PropsMapMetaKey = Symbol.for("PROPS_MAP");
+const ModelPropsMapMetaKey = Symbol.for("MODEL_PROPS_MAP");
 
-export const getPropsMap = <T extends AnyModel = AnyModel>(
+export const getModelPropsMap = <T extends AnyModel = AnyModel>(
   target: object
-): PropsMap<T> => {
-  if (!Reflect.hasOwnMetadata(PropsMapMetaKey, target)) {
+): ModelPropsMap<T> => {
+  if (!Reflect.hasOwnMetadata(ModelPropsMapMetaKey, target)) {
     const buildPropsMap = (target: object) => {
       let _target: object | null = target;
 
-      const result = new PropsMap<T>();
+      const result = new ModelPropsMap<T>();
 
       const ownPropsMapList = [];
 
       do {
         if (ModelBase.isModel(_target)) {
-          const ownPropsMap = getOwnPropsMap(_target);
+          const ownModelPropsMap = getOwnModelPropsMap(_target);
 
-          ownPropsMapList.unshift(ownPropsMap);
+          ownPropsMapList.unshift(ownModelPropsMap);
         }
 
         _target = Reflect.getPrototypeOf(_target);
       } while (_target !== null);
 
-      ownPropsMapList.forEach((ownPropsMap) => {
-        ownPropsMap.forEach((targetPropKey, key) =>
+      ownPropsMapList.forEach((ownModelPropsMap) => {
+        ownModelPropsMap.forEach((targetPropKey, key) =>
           result.set(key, targetPropKey)
         );
       });
@@ -59,8 +66,11 @@ export const getPropsMap = <T extends AnyModel = AnyModel>(
       return result;
     };
 
-    Reflect.defineMetadata(PropsMapMetaKey, buildPropsMap(target), target);
+    Reflect.defineMetadata(ModelPropsMapMetaKey, buildPropsMap(target), target);
   }
 
-  return Reflect.getOwnMetadata<PropsMap<T>>(PropsMapMetaKey, target)!;
+  return Reflect.getOwnMetadata<ModelPropsMap<T>>(
+    ModelPropsMapMetaKey,
+    target
+  )!;
 };

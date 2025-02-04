@@ -1,19 +1,19 @@
 import { ModelClass } from "../model";
 import {
-  StaticValueBuilder,
-  defineStaticValueProperty,
-  setStaticValue,
+  ModelStaticValueBuilder,
+  defineModelStaticValueProperty,
+  setModelStaticValue,
 } from "../meta";
 
 export const Static = <
   T extends ModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(
-  builder: StaticValueBuilder<I>
+  builder: ModelStaticValueBuilder<I>
 ) => {
   return (target: T, key: PropertyKey) => {
-    setStaticValue(target, key, builder);
+    setModelStaticValue(target, key, builder);
 
-    defineStaticValueProperty(target, key);
+    defineModelStaticValueProperty(target, key);
   };
 };

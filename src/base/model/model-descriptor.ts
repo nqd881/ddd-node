@@ -3,9 +3,9 @@ import {
   ModelId,
   ModelName,
   ModelVersion,
-  PropsMap,
-  PropsValidator,
-  StaticValuesMap,
+  ModelPropsMap,
+  ModelPropsValidator,
+  ModelStaticValuesMap,
 } from "../meta";
 
 export interface ModelDescriptor<T extends AnyModel = AnyModel> {
@@ -13,9 +13,9 @@ export interface ModelDescriptor<T extends AnyModel = AnyModel> {
   modelName: ModelName;
   modelVersion: ModelVersion;
   modelMutable: boolean;
-  ownPropsValidator?: PropsValidator<T>;
-  propsValidators: PropsValidator[];
-  ownStaticValues: StaticValuesMap<T>;
-  ownPropsMap: PropsMap<T>;
-  propsMap: PropsMap<T>;
+  ownModelPropsValidator?: ModelPropsValidator<T>;
+  modelPropsValidators: ModelPropsValidator[];
+  ownModelStaticValues: ModelStaticValuesMap<T>;
+  ownModelPropsMap: ModelPropsMap<T>;
+  modelPropsMap: ModelPropsMap<T>;
 }

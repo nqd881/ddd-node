@@ -20,7 +20,7 @@ export class EnumBuilder<T extends AnyEnum> extends ModelBuilder<T> {
 
     let result: T | undefined;
 
-    enumClass.ownStaticValues().forEach((staticValue) => {
+    enumClass.ownModelStaticValues().forEach((staticValue) => {
       if (staticValue.value instanceof enumClass) {
         const staticEnum = staticValue.value as T;
 

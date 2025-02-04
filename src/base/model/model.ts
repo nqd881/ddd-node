@@ -4,19 +4,19 @@ import { ClassStatic } from "../../types";
 import {
   ModelId,
   ModelName,
+  ModelPropsMap,
+  ModelPropsValidator,
+  ModelStaticValuesMap,
   ModelVersion,
-  PropsMap,
-  PropsValidator,
-  StaticValuesMap,
   getModelId,
   getModelMutable,
   getModelName,
+  getModelPropsMap,
+  getModelPropsValidators,
   getModelVersion,
-  getOwnPropsMap,
-  getOwnPropsValidator,
-  getOwnStaticValues,
-  getPropsMap,
-  getPropsValidators,
+  getOwnModelPropsMap,
+  getOwnModelPropsValidator,
+  getOwnModelStaticValues,
 } from "../meta";
 import { PropsInitializedError } from "./errors";
 import { ModelDescriptor } from "./model-descriptor";
@@ -54,30 +54,34 @@ export class ModelBase<P extends Props> {
     return getModelId(this);
   }
 
-  static ownPropsValidator<T extends AnyModel>(
+  static ownModelPropsValidator<T extends AnyModel>(
     this: ModelClass<T>
-  ): PropsValidator<T> | undefined {
-    return getOwnPropsValidator<T>(this);
+  ): ModelPropsValidator<T> | undefined {
+    return getOwnModelPropsValidator<T>(this);
   }
 
-  static propsValidators<T extends AnyModel>(
+  static modelPropsValidators<T extends AnyModel>(
     this: ModelClass<T>
-  ): PropsValidator[] {
-    return getPropsValidators(this);
+  ): ModelPropsValidator[] {
+    return getModelPropsValidators(this);
   }
 
-  static ownStaticValues<T extends AnyModel>(
+  static ownModelStaticValues<T extends AnyModel>(
     this: ModelClass<T>
-  ): StaticValuesMap<T> {
-    return getOwnStaticValues<T>(this);
+  ): ModelStaticValuesMap<T> {
+    return getOwnModelStaticValues<T>(this);
   }
 
-  static ownPropsMap<T extends AnyModel>(this: ModelClass<T>): PropsMap<T> {
-    return getOwnPropsMap<T>(this.prototype);
+  static ownModelPropsMap<T extends AnyModel>(
+    this: ModelClass<T>
+  ): ModelPropsMap<T> {
+    return getOwnModelPropsMap<T>(this.prototype);
   }
 
-  static propsMap<T extends AnyModel>(this: ModelClass<T>): PropsMap<T> {
-    return getPropsMap<T>(this.prototype);
+  static modelPropsMap<T extends AnyModel>(
+    this: ModelClass<T>
+  ): ModelPropsMap<T> {
+    return getModelPropsMap<T>(this.prototype);
   }
 
   constructor() {
@@ -85,7 +89,7 @@ export class ModelBase<P extends Props> {
   }
 
   redefineModel() {
-    this.modelDescriptor().propsMap.forEach((propTargetKey, key) => {
+    this.modelDescriptor().modelPropsMap.forEach((propTargetKey, key) => {
       this.redefineProp(key as keyof this, propTargetKey);
     });
   }
@@ -109,18 +113,18 @@ export class ModelBase<P extends Props> {
       modelId: modelClass.modelId(),
       modelName: modelClass.modelName(),
       modelVersion: modelClass.modelVersion(),
-      ownPropsValidator: modelClass.ownPropsValidator(),
-      propsValidators: modelClass.propsValidators(),
-      ownStaticValues: modelClass.ownStaticValues(),
-      ownPropsMap: modelClass.ownPropsMap(),
-      propsMap: modelClass.propsMap(),
+      ownModelPropsValidator: modelClass.ownModelPropsValidator(),
+      modelPropsValidators: modelClass.modelPropsValidators(),
+      ownModelStaticValues: modelClass.ownModelStaticValues(),
+      ownModelPropsMap: modelClass.ownModelPropsMap(),
+      modelPropsMap: modelClass.modelPropsMap(),
     };
   }
 
   validateProps(props: P): void {
-    const propsValidators = this.modelDescriptor().propsValidators;
+    const modelPropsValidators = this.modelDescriptor().modelPropsValidators;
 
-    propsValidators.forEach((propsValidator) =>
+    modelPropsValidators.forEach((propsValidator) =>
       propsValidator.call(this.constructor, props)
     );
   }

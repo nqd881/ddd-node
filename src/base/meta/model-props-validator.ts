@@ -1,35 +1,39 @@
 import _ from "lodash";
 import { AnyModel, PropsOf } from "../model";
 
-export type PropsValidator<T extends AnyModel = AnyModel> = (
+export type ModelPropsValidator<T extends AnyModel = AnyModel> = (
   props: PropsOf<T>
 ) => void;
 
-const OwnPropsValidatorMetaKey = Symbol.for("OWN_PROPS_VALIDATOR");
+const OwnPropsValidatorMetaKey = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
 
-export const definePropsValidator = <T extends AnyModel>(
+export const defineModelPropsValidator = <T extends AnyModel>(
   target: object,
-  validator: PropsValidator<T>
+  validator: ModelPropsValidator<T>
 ) => {
   Reflect.defineMetadata(OwnPropsValidatorMetaKey, validator, target);
 };
 
-export const getOwnPropsValidator = <T extends AnyModel>(target: object) => {
-  return Reflect.getOwnMetadata<PropsValidator<T>>(
+export const getOwnModelPropsValidator = <T extends AnyModel>(
+  target: object
+) => {
+  return Reflect.getOwnMetadata<ModelPropsValidator<T>>(
     OwnPropsValidatorMetaKey,
     target
   );
 };
 
-export const PropsValidatorsMetaKey = Symbol.for("PROPS_VALIDATORS");
+export const ModelPropsValidatorsMetaKey = Symbol.for("MODEL_PROPS_VALIDATORS");
 
-export const getPropsValidators = (target: object): PropsValidator[] => {
-  if (!Reflect.hasOwnMetadata(PropsValidatorsMetaKey, target)) {
+export const getModelPropsValidators = (
+  target: object
+): ModelPropsValidator[] => {
+  if (!Reflect.hasOwnMetadata(ModelPropsValidatorsMetaKey, target)) {
     let result = [];
     let _target: object | null = target;
 
     do {
-      const ownValidator = getOwnPropsValidator(_target);
+      const ownValidator = getOwnModelPropsValidator(_target);
 
       if (ownValidator) result.push(ownValidator);
 
@@ -38,11 +42,11 @@ export const getPropsValidators = (target: object): PropsValidator[] => {
 
     result = _.uniq(result);
 
-    Reflect.defineMetadata(PropsValidatorsMetaKey, result, target);
+    Reflect.defineMetadata(ModelPropsValidatorsMetaKey, result, target);
   }
 
-  return Reflect.getOwnMetadata<PropsValidator[]>(
-    PropsValidatorsMetaKey,
+  return Reflect.getOwnMetadata<ModelPropsValidator[]>(
+    ModelPropsValidatorsMetaKey,
     target
   )!;
 };
