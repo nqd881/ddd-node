@@ -1,4 +1,4 @@
-import { IdentifiableModelBuilder } from "../../identifiable-model";
+import { ModelWithIdBuilder } from "../../model-with-id";
 import {
   AnyMessage,
   CorrelationIds,
@@ -7,7 +7,7 @@ import {
 
 export abstract class MessageBuilderBase<
   T extends AnyMessage
-> extends IdentifiableModelBuilder<T> {
+> extends ModelWithIdBuilder<T> {
   protected timestamp: number = Date.now();
   protected causationId?: string;
   protected correlationIds: CorrelationIds = {};

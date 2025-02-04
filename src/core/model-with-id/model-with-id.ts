@@ -1,20 +1,20 @@
 import { Id } from "./id";
 import { ModelBase, Props } from "../../base";
 
-export interface IdentifiableModelMetadata {
+export interface ModelWithIdMetadata {
   id: Id;
 }
 
-export class IdentifiableModel<P extends Props> extends ModelBase<P> {
+export class ModelWithId<P extends Props> extends ModelBase<P> {
   protected readonly _id: Id;
 
-  constructor(metadata: IdentifiableModelMetadata) {
+  constructor(metadata: ModelWithIdMetadata) {
     super();
 
     this._id = metadata.id;
   }
 
-  override metadata(): IdentifiableModelMetadata {
+  override metadata(): ModelWithIdMetadata {
     return {
       ...super.metadata(),
       id: this._id,
@@ -30,4 +30,4 @@ export class IdentifiableModel<P extends Props> extends ModelBase<P> {
   }
 }
 
-export type AnyIdentifiableModel = IdentifiableModel<Props>;
+export type AnyModelWithId = ModelWithId<Props>;

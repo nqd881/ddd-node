@@ -1,4 +1,4 @@
-import { Id } from "../identifiable-model";
+import { Id } from "../model-with-id";
 import { AnyAggregate } from "../aggregate";
 
 export interface IRepository<T extends AnyAggregate> {

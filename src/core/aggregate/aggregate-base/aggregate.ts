@@ -1,8 +1,5 @@
 import { Mutable, Props, PropsOf } from "../../../base";
-import {
-  IdentifiableModel,
-  IdentifiableModelMetadata,
-} from "../../identifiable-model";
+import { ModelWithId, ModelWithIdMetadata } from "../../model-with-id";
 import {
   AnyEvent,
   EventClassWithTypedConstructor,
@@ -10,14 +7,12 @@ import {
 } from "../../message";
 import { IAggregateEventDispatcher } from "./aggregate-event-dispatcher.interface";
 
-export interface AggregateMetadata extends IdentifiableModelMetadata {
+export interface AggregateMetadata extends ModelWithIdMetadata {
   version: number;
 }
 
 @Mutable(true)
-export abstract class AggregateBase<
-  P extends Props
-> extends IdentifiableModel<P> {
+export abstract class AggregateBase<P extends Props> extends ModelWithId<P> {
   protected readonly _version: number;
 
   constructor(metadata: AggregateMetadata, props?: P) {

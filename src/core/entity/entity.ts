@@ -1,16 +1,13 @@
 import { Class } from "type-fest";
 import { Mutable, Props, PropsOf } from "../../base";
 import { ClassStatic } from "../../types";
-import {
-  IdentifiableModel,
-  IdentifiableModelMetadata,
-} from "../identifiable-model";
+import { ModelWithId, ModelWithIdMetadata } from "../model-with-id";
 import { EntityBuilder } from ".";
 
-export interface EntityMetadata extends IdentifiableModelMetadata {}
+export interface EntityMetadata extends ModelWithIdMetadata {}
 
 @Mutable(true)
-export class EntityBase<P extends Props> extends IdentifiableModel<P> {
+export class EntityBase<P extends Props> extends ModelWithId<P> {
   static builder<T extends AnyEntity>(this: EntityClass<T>): EntityBuilder<T> {
     return new EntityBuilder(this);
   }

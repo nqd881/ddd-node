@@ -1,9 +1,7 @@
-import { IdentifiableModelBuilder } from "../identifiable-model";
+import { ModelWithIdBuilder } from "../model-with-id";
 import { AnyEntity, EntityClassWithTypedConstructor } from "./entity";
 
-export class EntityBuilder<
-  T extends AnyEntity
-> extends IdentifiableModelBuilder<T> {
+export class EntityBuilder<T extends AnyEntity> extends ModelWithIdBuilder<T> {
   constructor(private entityClass: EntityClassWithTypedConstructor<T>) {
     super();
   }

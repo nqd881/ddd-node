@@ -2,23 +2,20 @@ import _ from "lodash";
 import { Class } from "type-fest";
 import { Mutable, Props, PropsOf } from "../../../base";
 import { ClassStatic } from "../../../types";
-import {
-  IdentifiableModel,
-  IdentifiableModelMetadata,
-} from "../../identifiable-model";
+import { ModelWithId, ModelWithIdMetadata } from "../../model-with-id";
 
 export interface CorrelationIds {
   [type: string]: string | undefined;
 }
 
-export interface MessageMetadata extends IdentifiableModelMetadata {
+export interface MessageMetadata extends ModelWithIdMetadata {
   timestamp: number;
   causationId?: string;
   correlationIds: CorrelationIds;
 }
 
 @Mutable(false)
-export class MessageBase<P extends Props> extends IdentifiableModel<P> {
+export class MessageBase<P extends Props> extends ModelWithId<P> {
   private readonly _timestamp: number;
   private _causationId?: string;
   private _correlationIds: CorrelationIds;

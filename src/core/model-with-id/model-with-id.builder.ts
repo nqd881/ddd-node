@@ -1,10 +1,10 @@
 import { v4 } from "uuid";
 import { ModelBuilder } from "../../base";
-import { AnyIdentifiableModel } from "./identifiable-model";
+import { AnyModelWithId } from "./model-with-id";
 import { Id } from "./id";
 
-export abstract class IdentifiableModelBuilder<
-  T extends AnyIdentifiableModel
+export abstract class ModelWithIdBuilder<
+  T extends AnyModelWithId
 > extends ModelBuilder<T> {
   protected id: Id = this.newId();
 

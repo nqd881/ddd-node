@@ -2,7 +2,7 @@ import { Class } from "type-fest";
 import { EventType, getEventType } from "../../../meta";
 import { Props, PropsOf } from "../../../base";
 import { ClassStatic } from "../../../types";
-import { Id } from "../../identifiable-model";
+import { Id } from "../../model-with-id";
 import { MessageBase, MessageMetadata } from "../message-base";
 import { EventModelDescriptor } from "./event-model-descriptor";
 import { EventBuilder } from ".";
