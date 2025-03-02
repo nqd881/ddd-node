@@ -1,4 +1,4 @@
-import { AnyModel, PropsOf } from "./model";
+import { AnyModel, InferredProps } from "./model";
 
 export interface IModelBuilder<T extends AnyModel = AnyModel> {
   buildSafe(): T | null;
@@ -8,9 +8,9 @@ export interface IModelBuilder<T extends AnyModel = AnyModel> {
 export abstract class ModelBuilder<T extends AnyModel = AnyModel>
   implements IModelBuilder<T>
 {
-  protected props?: PropsOf<T>;
+  protected props?: InferredProps<T>;
 
-  withProps(props: PropsOf<T>) {
+  withProps(props: InferredProps<T>) {
     this.props = props;
 
     return this;

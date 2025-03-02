@@ -1,10 +1,10 @@
-import { AnyModel, ModelBase, PropsOf } from "../model";
+import { AnyModel, ModelBase, InferredProps } from "../model";
 
 const OwnModelPropsMapMetaKey = Symbol.for("OWN_MODEL_PROPS_MAP");
 
 export class ModelPropsMap<T extends AnyModel = AnyModel> extends Map<
   PropertyKey,
-  keyof PropsOf<T>
+  keyof InferredProps<T>
 > {}
 
 // target is prototype
@@ -27,7 +27,7 @@ export const getOwnModelPropsMap = <T extends AnyModel = AnyModel>(
 export const defineModelProp = <T extends AnyModel = AnyModel>(
   target: object,
   key: PropertyKey,
-  propTargetKey?: keyof PropsOf<T>
+  propTargetKey?: keyof InferredProps<T>
 ) => {
   const ownModelPropsMap = getOwnModelPropsMap<T>(target);
 

@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Class } from "type-fest";
-import { ModelBase, Mutable, Props, PropsOf } from "../../base";
+import { ModelBase, Mutable, Props, InferredProps } from "../../base";
 import { ClassStatic } from "../../types";
 
 @Mutable(false)
@@ -69,8 +69,11 @@ export type AnyValueObject = ValueObjectBase<Props>;
 
 export interface ValueObjectClass<T extends AnyValueObject = AnyValueObject>
   extends Class<T>,
-    ClassStatic<typeof ValueObjectBase<PropsOf<T>>> {}
+    ClassStatic<typeof ValueObjectBase<InferredProps<T>>> {}
 
 export interface ValueObjectClassWithTypedConstructor<
   T extends AnyValueObject = AnyValueObject
-> extends Class<T, ConstructorParameters<typeof ValueObjectBase<PropsOf<T>>>> {}
+> extends Class<
+    T,
+    ConstructorParameters<typeof ValueObjectBase<InferredProps<T>>>
+  > {}

@@ -1,8 +1,8 @@
 import _ from "lodash";
-import { AnyModel, PropsOf } from "../model";
+import { AnyModel, InferredProps } from "../model";
 
 export type ModelPropsValidator<T extends AnyModel = AnyModel> = (
-  props: PropsOf<T>
+  props: InferredProps<T>
 ) => void;
 
 const OwnPropsValidatorMetaKey = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");

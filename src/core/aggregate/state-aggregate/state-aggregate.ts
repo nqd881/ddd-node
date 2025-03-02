@@ -1,5 +1,5 @@
 import { Class } from "type-fest";
-import { Props, PropsOf } from "../../../base";
+import { Props, InferredProps } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { AnyEvent, EventClassWithTypedConstructor } from "../../message";
 import {
@@ -41,11 +41,11 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
   protected recordEvent<E extends AnyEvent>(event: E): void;
   protected recordEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
-    props: PropsOf<E>
+    props: InferredProps<E>
   ): void;
   protected recordEvent<E extends AnyEvent>(
     param1: E | EventClassWithTypedConstructor<E>,
-    param2?: PropsOf<E>
+    param2?: InferredProps<E>
   ): void {
     let event: E;
 
@@ -77,11 +77,11 @@ export interface StateAggregateClass<
   T extends AnyStateAggregate = AnyStateAggregate,
   Arguments extends unknown[] = any[]
 > extends Class<T, Arguments>,
-    ClassStatic<typeof StateAggregateBase<PropsOf<T>>> {}
+    ClassStatic<typeof StateAggregateBase<InferredProps<T>>> {}
 
 export interface StateAggregateClassWithTypedConstructor<
   T extends AnyStateAggregate = AnyStateAggregate
 > extends StateAggregateClass<
     T,
-    ConstructorParameters<typeof StateAggregateBase<PropsOf<T>>>
+    ConstructorParameters<typeof StateAggregateBase<InferredProps<T>>>
   > {}

@@ -1,5 +1,5 @@
 import { Class } from "type-fest";
-import { Mutable, Props, PropsOf } from "../../base";
+import { Mutable, Props, InferredProps } from "../../base";
 import { ClassStatic } from "../../types";
 import { ModelWithId, ModelWithIdMetadata } from "../model-with-id";
 import { EntityBuilder } from ".";
@@ -25,13 +25,13 @@ export interface EntityClass<
   T extends AnyEntity = AnyEntity,
   Arguments extends unknown[] = any[]
 > extends Class<T, Arguments>,
-    ClassStatic<typeof EntityBase<PropsOf<T>>> {}
+    ClassStatic<typeof EntityBase<InferredProps<T>>> {}
 
 export interface EntityClassWithTypedConstructor<
   T extends AnyEntity = AnyEntity
 > extends EntityClass<
     T,
-    ConstructorParameters<typeof EntityBase<PropsOf<T>>>
+    ConstructorParameters<typeof EntityBase<InferredProps<T>>>
   > {}
 
 export interface EntityClassWithProps<P extends Props>

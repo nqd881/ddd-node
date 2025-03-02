@@ -1,4 +1,4 @@
-import { PropsOf } from "../../../base";
+import { InferredProps } from "../../../base";
 import {
   AnyEventSourcedAggregate,
   EventSourceAggregateMetadata,
@@ -8,5 +8,5 @@ export interface SnapshotMetadata extends EventSourceAggregateMetadata {}
 
 export interface Snapshot<T extends AnyEventSourcedAggregate> {
   metadata: SnapshotMetadata;
-  props: PropsOf<T>;
+  props: InferredProps<T>;
 }

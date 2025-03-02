@@ -1,4 +1,4 @@
-import { Mutable, Props, PropsOf } from "../../../base";
+import { Mutable, Props, InferredProps } from "../../../base";
 import { ModelWithId, ModelWithIdMetadata } from "../../model-with-id";
 import {
   AnyEvent,
@@ -41,7 +41,7 @@ export abstract class AggregateBase<P extends Props> extends ModelWithId<P> {
 
   protected newEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
-    props: PropsOf<E>
+    props: InferredProps<E>
   ) {
     return eventClass
       .builder()

@@ -182,14 +182,14 @@ export class ModelBase<P extends Props> {
 
 export type AnyModel = ModelBase<Props>;
 
-export type PropsOf<T extends AnyModel> = T extends ModelBase<infer P>
+export type InferredProps<T extends AnyModel> = T extends ModelBase<infer P>
   ? P
   : never;
 
 export interface ModelClass<T extends AnyModel = AnyModel>
   extends Class<T>,
-    ClassStatic<typeof ModelBase<PropsOf<T>>> {}
+    ClassStatic<typeof ModelBase<InferredProps<T>>> {}
 
 export interface AbstractModelClass<T extends AnyModel = AnyModel>
   extends AbstractClass<T>,
-    ClassStatic<typeof ModelBase<PropsOf<T>>> {}
+    ClassStatic<typeof ModelBase<InferredProps<T>>> {}

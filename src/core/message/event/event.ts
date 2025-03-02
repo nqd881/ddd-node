@@ -1,6 +1,6 @@
 import { Class } from "type-fest";
 import { EventType, getEventType } from "../../../meta";
-import { Props, PropsOf } from "../../../base";
+import { Props, InferredProps } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { Id } from "../../model-with-id";
 import { MessageBase, MessageMetadata } from "../message-base";
@@ -68,7 +68,10 @@ export interface EventClass<
   T extends AnyEvent = AnyEvent,
   Arguments extends unknown[] = any[]
 > extends Class<T, Arguments>,
-    ClassStatic<typeof EventBase<PropsOf<T>>> {}
+    ClassStatic<typeof EventBase<InferredProps<T>>> {}
 
 export interface EventClassWithTypedConstructor<T extends AnyEvent = AnyEvent>
-  extends EventClass<T, ConstructorParameters<typeof EventBase<PropsOf<T>>>> {}
+  extends EventClass<
+    T,
+    ConstructorParameters<typeof EventBase<InferredProps<T>>>
+  > {}

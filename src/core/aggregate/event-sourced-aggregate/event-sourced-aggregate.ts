@@ -5,7 +5,7 @@ import {
   getOwnCommandHandlerMap,
   getOwnEventApplierMap,
 } from "../../../meta";
-import { Props, PropsOf } from "../../../base";
+import { Props, InferredProps } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { toArray } from "../../../utils";
 import {
@@ -155,7 +155,7 @@ export class EventSourcedAggregateBase<
 
   applyNewEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
-    props: PropsOf<E>
+    props: InferredProps<E>
   ) {
     this.applyEvent(this.newEvent(eventClass, props));
   }
@@ -229,13 +229,13 @@ export interface EventSourcedAggregateClass<
   T extends AnyEventSourcedAggregate = AnyEventSourcedAggregate,
   Arguments extends unknown[] = any[]
 > extends Class<T, Arguments>,
-    ClassStatic<typeof EventSourcedAggregateBase<PropsOf<T>>> {}
+    ClassStatic<typeof EventSourcedAggregateBase<InferredProps<T>>> {}
 
 export interface EventSourcedAggregateClassWithTypedConstructor<
   T extends AnyEventSourcedAggregate = AnyEventSourcedAggregate
 > extends EventSourcedAggregateClass<
     T,
-    ConstructorParameters<typeof EventSourcedAggregateBase<PropsOf<T>>>
+    ConstructorParameters<typeof EventSourcedAggregateBase<InferredProps<T>>>
   > {}
 
 export type EventApplier<T extends AnyEvent = AnyEvent> = (event: T) => void;

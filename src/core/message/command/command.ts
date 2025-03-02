@@ -1,6 +1,6 @@
 import { Class } from "type-fest";
 import { CommandType, getCommandType } from "../../../meta";
-import { Props, PropsOf } from "../../../base";
+import { Props, InferredProps } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { MessageBase, MessageMetadata } from "../message-base";
 import { CommandModelDescriptor } from "./command-model-descriptor";
@@ -56,11 +56,11 @@ export interface CommandClass<
   T extends AnyCommand = AnyCommand,
   Arguments extends unknown[] = any[]
 > extends Class<T, Arguments>,
-    ClassStatic<typeof CommandBase<PropsOf<T>>> {}
+    ClassStatic<typeof CommandBase<InferredProps<T>>> {}
 
 export interface CommandClassWithTypedConstructor<
   T extends AnyCommand = AnyCommand
 > extends CommandClass<
     T,
-    ConstructorParameters<typeof CommandBase<PropsOf<T>>>
+    ConstructorParameters<typeof CommandBase<InferredProps<T>>>
   > {}

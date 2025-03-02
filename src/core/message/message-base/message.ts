@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { Class } from "type-fest";
-import { Mutable, Props, PropsOf } from "../../../base";
+import { Mutable, Props, InferredProps } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { ModelWithId, ModelWithIdMetadata } from "../../model-with-id";
 
@@ -74,11 +74,11 @@ export interface MessageClass<
   T extends AnyMessage = AnyMessage,
   Arguments extends unknown[] = any[]
 > extends Class<T, Arguments>,
-    ClassStatic<typeof MessageBase<PropsOf<T>>> {}
+    ClassStatic<typeof MessageBase<InferredProps<T>>> {}
 
 export interface MessageClassWithTypedConstructor<
   T extends AnyMessage = AnyMessage
 > extends MessageClass<
     T,
-    ConstructorParameters<typeof MessageBase<PropsOf<T>>>
+    ConstructorParameters<typeof MessageBase<InferredProps<T>>>
   > {}
