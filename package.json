@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rm -rf dist && tsc -p src/tsconfig.build.json && tsc-alias -p src/tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p src/tsconfig.build.json && tsc-alias -p src/tsconfig.build.json && node setup-package",
+    "publish": "cd dist && npm publish",
     "test": "mocha"
   },
   "files": [
