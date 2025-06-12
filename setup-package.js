@@ -1,5 +1,4 @@
 import fs from "fs";
-// import packageJson from "./package.json" with { type: "json" };
 
 const createCjsPackageJson = () => {
   const packageJsonContent = fs.readFileSync("./package.json", "utf-8");
