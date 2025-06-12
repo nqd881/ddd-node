@@ -11,6 +11,7 @@ const createCjsPackageJson = () => {
     result.main = "index.js";
     result.types = "index.d.ts";
 
+    delete result.files;
     delete result.scripts;
     delete result.mocha;
 
