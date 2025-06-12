@@ -34,13 +34,13 @@
     "chai-deep-match": "^1.2.1",
     "ddd-node": "file:dist",
     "mocha": "^10.4.0",
-    "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {
     "lodash": "^4.17.21",
     "reflect-metadata": "^0.1.13",
+    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.8",
     "type-fest": "^4.20.1",
     "uuid": "^9.0.1"

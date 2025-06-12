@@ -1,12 +1,6 @@
-import { describe } from "mocha";
-import {
-  StateAggregateBase,
-  EventBase,
-  Prop,
-  Event,
-  StateAggregateBuilder,
-} from "../src";
 import { expect } from "chai";
+import { describe } from "mocha";
+import { Event, EventBase, Prop, StateAggregateBase } from "../src";
 
 interface PersonNameChangedEventProps {
   oldName: string;

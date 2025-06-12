@@ -14,7 +14,7 @@ import {
   EventClassWithTypedConstructor,
 } from "../../message";
 import { AggregateBase, AggregateMetadata } from "../aggregate-base";
-import { IAggregateEventDispatcher } from "../aggregate-base";
+import { IAggregateEventPublisher } from "../aggregate-base";
 import { EventSourcedAggregateModelDescriptor } from "./event-sourced-aggregate-model-descriptor";
 import { Snapshot, SnapshotMetadata } from "./snapshot";
 import { EventSourcedAggregateBuilder } from ".";
@@ -214,10 +214,8 @@ export class EventSourcedAggregateBase<
     this._pastEvents.push(...events);
   }
 
-  dispatchEvents(dispatcher: IAggregateEventDispatcher): void {
-    this.events().forEach((event) => {
-      dispatcher.dispatch(event);
-    });
+  publishEvents(publisher: IAggregateEventPublisher): void {
+    publisher.publish(this.events());
 
     this.archiveEvents();
   }

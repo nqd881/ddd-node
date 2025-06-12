@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Enum, EnumBase, EnumBuilder } from "../src";
+import { Enum, EnumBase } from "../src";
 
 class Status extends EnumBase {
   @Enum()

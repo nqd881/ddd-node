@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe } from "mocha";
-import { EntityBase, EntityBuilder, Prop } from "../src";
+import { EntityBase, Prop } from "../src";
 
 interface UserProps {
   name: string;

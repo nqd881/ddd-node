@@ -1,14 +1,14 @@
 import _ from "lodash";
-import { AnyModel, ModelClass } from "../model";
-import { Domain, domainManager } from "../domain";
+import { Domain, DomainManager } from "../domain";
 import {
   ModelPropsValidator,
   defineModelDomain,
   defineModelName,
-  defineModelVersion,
   defineModelPropsValidator,
+  defineModelVersion,
   getModelDomain,
 } from "../meta";
+import { AnyModel, ModelClass } from "../model";
 
 export type ModelOptions<T extends AnyModel = AnyModel> = {
   name?: string;
@@ -16,6 +16,10 @@ export type ModelOptions<T extends AnyModel = AnyModel> = {
   domain?: string;
   propsValidator?: ModelPropsValidator<T>;
   autoRegisterModel?: boolean;
+};
+
+export const DEFAULT_MODEL_OPTIONS: ModelOptions = {
+  autoRegisterModel: true,
 };
 
 export function Model<
@@ -38,9 +42,7 @@ export function Model<
   p2?: number | ModelOptions<I>,
   p3?: ModelOptions<I>
 ): any {
-  const defaultModelOptions: ModelOptions = {
-    autoRegisterModel: true,
-  };
+  const defaultModelOptions = _.clone(DEFAULT_MODEL_OPTIONS);
 
   let modelOptions: ModelOptions = {};
 
@@ -70,6 +72,8 @@ export function Model<
 
     if (modelOptions?.autoRegisterModel) {
       const domainName = getModelDomain(target);
+
+      const domainManager = DomainManager.instance();
 
       if (!domainManager.hasDomain(domainName)) {
         domainManager.addDomain(new Domain(domainName));

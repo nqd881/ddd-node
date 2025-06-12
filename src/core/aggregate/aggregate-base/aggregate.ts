@@ -5,7 +5,7 @@ import {
   EventClassWithTypedConstructor,
   EventSource,
 } from "../../message";
-import { IAggregateEventDispatcher } from "./aggregate-event-dispatcher.interface";
+import { IAggregateEventPublisher } from "./aggregate-event-publisher.interface";
 
 export interface AggregateMetadata extends ModelWithIdMetadata {
   version: number;
@@ -50,7 +50,7 @@ export abstract class AggregateBase<P extends Props> extends ModelWithId<P> {
       .build();
   }
 
-  abstract dispatchEvents(dispatcher: IAggregateEventDispatcher): void;
+  abstract publishEvents(publisher: IAggregateEventPublisher): void;
 }
 
 export type AnyAggregate = AggregateBase<Props>;

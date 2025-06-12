@@ -1,9 +1,12 @@
 import fs from "fs";
-import packageJson from "./package.json" assert { type: "json" };
+// import packageJson from "./package.json" with { type: "json" };
 
 const createCjsPackageJson = () => {
+  const packageJsonContent = fs.readFileSync("./package.json", "utf-8");
+  const packageJsonObj = JSON.parse(packageJsonContent);
+
   const packageJsonFileContent = () => {
-    const result = packageJson;
+    const result = packageJsonObj;
 
     result.type = "commonjs";
     result.main = "index.js";

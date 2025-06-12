@@ -2,12 +2,10 @@ import { expect } from "chai";
 import { beforeEach, describe } from "mocha";
 import {
   EntityBase,
-  EntityBuilder,
   Id,
   Model,
   Prop,
   StateAggregateBase,
-  StateAggregateBuilder,
   ValueObjectBase,
 } from "../src";
 

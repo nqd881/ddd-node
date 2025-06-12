@@ -16,9 +16,11 @@ export class DomainManager {
   static _instance: DomainManager;
 
   static instance() {
-    if (!this._instance) this._instance = new DomainManager();
+    if (!this._instance) {
+      this._instance = new DomainManager();
 
-    this._instance.addDomain(new Domain(DEFAULT_DOMAIN));
+      this._instance.addDomain(new Domain(DEFAULT_DOMAIN));
+    }
 
     return this._instance;
   }

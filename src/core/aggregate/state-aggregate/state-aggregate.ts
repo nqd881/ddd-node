@@ -5,7 +5,7 @@ import { AnyEvent, EventClassWithTypedConstructor } from "../../message";
 import {
   AggregateBase,
   AggregateMetadata,
-  IAggregateEventDispatcher,
+  IAggregateEventPublisher,
 } from "../aggregate-base";
 import { StateAggregateBuilder } from ".";
 
@@ -62,10 +62,8 @@ export class StateAggregateBase<P extends Props> extends AggregateBase<P> {
     this._events = [];
   }
 
-  dispatchEvents(dispatcher: IAggregateEventDispatcher) {
-    this.events().forEach((event) => {
-      dispatcher.dispatch(event);
-    });
+  publishEvents(publisher: IAggregateEventPublisher) {
+    publisher.publish(this.events());
 
     this.clearEvents();
   }

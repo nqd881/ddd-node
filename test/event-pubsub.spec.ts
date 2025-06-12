@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import { afterEach, describe } from "mocha";
 import {
   AnyEvent,
@@ -8,10 +9,8 @@ import {
   EventSubscriberRegistry,
   IGlobalEventSubscriber,
   StateAggregateBase,
-  StateAggregateBuilder,
   SubscribeToEvents,
 } from "../src";
-import { expect } from "chai";
 
 const count = { value: 0 };
 
