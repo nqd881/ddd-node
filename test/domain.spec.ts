@@ -88,6 +88,6 @@ describe("Domain", function () {
 
     const testDomain = domainManager.getDomain("uncreated_domain");
 
-    expect(testDomain).to.be.undefined;
+    expect(testDomain).not.be.undefined;
   });
 });

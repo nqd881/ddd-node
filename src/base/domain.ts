@@ -13,7 +13,7 @@ export class Domain {
 export class DomainMap extends Map<DomainName, Domain> {}
 
 export class DomainManager {
-  static _instance: DomainManager;
+  private static _instance: DomainManager;
 
   static instance() {
     if (!this._instance) {
@@ -37,13 +37,14 @@ export class DomainManager {
     return this._domains.has(domainName);
   }
 
-  getDomain(): Domain;
-  getDomain(domainName: typeof DEFAULT_DOMAIN): Domain;
-  getDomain(domainName: DomainName): Domain | undefined;
-  getDomain(domainName?: DomainName): Domain | undefined {
-    if (domainName) return this._domains.get(domainName);
+  getDomain(domainName?: DomainName): Domain {
+    if (domainName) {
+      if (!this.hasDomain(domainName)) this.addDomain(new Domain(domainName));
 
-    if (!domainName) return this._domains.get(DEFAULT_DOMAIN)!;
+      return this._domains.get(domainName)!;
+    }
+
+    return this.getDomain(DEFAULT_DOMAIN);
   }
 
   addDomain(domain: Domain) {
