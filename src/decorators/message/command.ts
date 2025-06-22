@@ -8,6 +8,6 @@ export const Command = (
 ) => {
   return <T extends AnyCommand>(target: CommandClass<T>) => {
     defineCommandType(target, commandType);
-    Model(modelOptions);
+    Model(modelOptions)(target);
   };
 };
