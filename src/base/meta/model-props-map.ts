@@ -1,14 +1,13 @@
-import { AnyModel, ModelBase, InferredProps } from "../model";
+import { AnyDomainModel, DomainModel, InferredProps } from "../model";
 
 const OwnModelPropsMapMetaKey = Symbol.for("OWN_MODEL_PROPS_MAP");
 
-export class ModelPropsMap<T extends AnyModel = AnyModel> extends Map<
-  PropertyKey,
-  keyof InferredProps<T>
-> {}
+export class ModelPropsMap<
+  T extends AnyDomainModel = AnyDomainModel
+> extends Map<PropertyKey, keyof InferredProps<T>> {}
 
 // target is prototype
-export const getOwnModelPropsMap = <T extends AnyModel = AnyModel>(
+export const getOwnModelPropsMap = <T extends AnyDomainModel = AnyDomainModel>(
   target: object
 ): ModelPropsMap<T> => {
   if (!Reflect.hasOwnMetadata(OwnModelPropsMapMetaKey, target))
@@ -24,7 +23,7 @@ export const getOwnModelPropsMap = <T extends AnyModel = AnyModel>(
   )!;
 };
 
-export const defineModelProp = <T extends AnyModel = AnyModel>(
+export const defineModelProp = <T extends AnyDomainModel = AnyDomainModel>(
   target: object,
   key: PropertyKey,
   propTargetKey?: keyof InferredProps<T>
@@ -36,7 +35,7 @@ export const defineModelProp = <T extends AnyModel = AnyModel>(
 
 const ModelPropsMapMetaKey = Symbol.for("MODEL_PROPS_MAP");
 
-export const getModelPropsMap = <T extends AnyModel = AnyModel>(
+export const getModelPropsMap = <T extends AnyDomainModel = AnyDomainModel>(
   target: object
 ): ModelPropsMap<T> => {
   if (!Reflect.hasOwnMetadata(ModelPropsMapMetaKey, target)) {
@@ -48,7 +47,7 @@ export const getModelPropsMap = <T extends AnyModel = AnyModel>(
       const ownPropsMapList = [];
 
       do {
-        if (ModelBase.isModel(_target)) {
+        if (DomainModel.isDomainModel(_target)) {
           const ownModelPropsMap = getOwnModelPropsMap(_target);
 
           ownPropsMapList.unshift(ownModelPropsMap);

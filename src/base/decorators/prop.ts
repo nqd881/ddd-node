@@ -1,7 +1,7 @@
-import { AnyModel, InferredProps } from "../model";
+import { AnyDomainModel, InferredProps } from "../model";
 import { defineModelProp } from "../meta";
 
-export const Prop = <T extends AnyModel>(
+export const Prop = <T extends AnyDomainModel>(
   propTargetKey?: keyof InferredProps<T>
 ) => {
   return (target: T, key: PropertyKey) => {

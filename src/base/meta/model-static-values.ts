@@ -1,8 +1,9 @@
-import { AnyModel, ModelClass } from "../model";
+import { AnyDomainModel, DomainModelClass } from "../model";
 
-export type ModelStaticValueBuilder<T extends AnyModel = AnyModel> = () => T;
+export type ModelStaticValueBuilder<T extends AnyDomainModel = AnyDomainModel> =
+  () => T;
 
-export class ModelStaticValue<T extends AnyModel = AnyModel> {
+export class ModelStaticValue<T extends AnyDomainModel = AnyDomainModel> {
   private _value: T | ModelStaticValueBuilder<T>;
 
   constructor(value: T | ModelStaticValueBuilder<T>) {
@@ -20,12 +21,13 @@ export class ModelStaticValue<T extends AnyModel = AnyModel> {
 
 const OwnModelStaticValuesMetaKey = Symbol.for("OWN_MODEL_STATIC_VALUES");
 
-export class ModelStaticValuesMap<T extends AnyModel = AnyModel> extends Map<
-  PropertyKey,
-  ModelStaticValue<T>
-> {}
+export class ModelStaticValuesMap<
+  T extends AnyDomainModel = AnyDomainModel
+> extends Map<PropertyKey, ModelStaticValue<T>> {}
 
-export const getOwnModelStaticValues = <T extends AnyModel>(target: object) => {
+export const getOwnModelStaticValues = <T extends AnyDomainModel>(
+  target: object
+) => {
   if (!Reflect.hasOwnMetadata(OwnModelStaticValuesMetaKey, target))
     Reflect.defineMetadata(
       OwnModelStaticValuesMetaKey,
@@ -39,7 +41,7 @@ export const getOwnModelStaticValues = <T extends AnyModel>(target: object) => {
   )!;
 };
 
-export const setModelStaticValue = <T extends AnyModel>(
+export const setModelStaticValue = <T extends AnyDomainModel>(
   target: object,
   key: PropertyKey,
   value: T | ModelStaticValueBuilder<T>
@@ -64,7 +66,7 @@ export const getModelStaticValue = (target: object, key: PropertyKey) => {
 };
 
 export const defineModelStaticValueProperty = (
-  target: ModelClass,
+  target: DomainModelClass,
   key: PropertyKey
 ) => {
   Object.defineProperty(target, key, {

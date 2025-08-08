@@ -1,39 +1,40 @@
 import { expect } from "chai";
 import { describe } from "mocha";
 import {
+  IsCommand,
   Command,
-  CommandBase,
-  CommandBuilder,
+  IsEvent,
   Event,
-  EventBase,
-  EventSourcedAggregateBase,
-  EventSourcedAggregateBuilder,
+  ESAggregate,
   Handle,
+  Model,
   Prop,
   When,
 } from "../src";
 import { v4 } from "uuid";
 
+const DOMAIN = "event-source-aggregate.test";
+
 interface PersonCreatedEventProps {
   name: string;
 }
 
-@Event("PERSON_CREATED")
-class PersonCreatedEvent extends EventBase<PersonCreatedEventProps> {}
+@IsEvent("PERSON_CREATED", { domain: DOMAIN })
+class PersonCreatedEvent extends Event<PersonCreatedEventProps> {}
 
 interface ChangeNameCommandProps {
   name: string;
 }
 
-@Command("CHANGE_PERSON_NAME")
-class ChangePersonNameCommand extends CommandBase<ChangeNameCommandProps> {}
+@IsCommand("CHANGE_PERSON_NAME", { domain: DOMAIN })
+class ChangePersonNameCommand extends Command<ChangeNameCommandProps> {}
 
 interface PersonNameChangedEventProps {
   name: string;
 }
 
-@Event("PERSON_NAME_CHANGED")
-class PersonNameChangedEvent extends EventBase<PersonNameChangedEventProps> {}
+@IsEvent("PERSON_NAME_CHANGED", { domain: DOMAIN })
+class PersonNameChangedEvent extends Event<PersonNameChangedEventProps> {}
 
 interface PersonProps {
   name: string;
@@ -45,9 +46,10 @@ class InvalidPersonNameError extends Error {
   }
 }
 
-class Person extends EventSourcedAggregateBase<PersonProps> {
+@Model({ domain: DOMAIN })
+class Person extends ESAggregate<PersonProps> {
   static createPerson(props: PersonProps) {
-    const person = Person.builder().build();
+    const person = Person.newStream();
 
     person.applyNewEvent(PersonCreatedEvent, { name: props.name });
 
@@ -84,9 +86,8 @@ class Person extends EventSourcedAggregateBase<PersonProps> {
 }
 
 // The ExtendablePerson will almost like Person, but it must not to call initializeProps
-class ExtendablePerson<
-  P extends PersonProps
-> extends EventSourcedAggregateBase<P> {
+@Model({ domain: DOMAIN })
+class ExtendablePerson<P extends PersonProps> extends ESAggregate<P> {
   @Prop()
   declare name: string;
 
@@ -114,8 +115,8 @@ interface StudentCreatedEventProps {
   school: string;
 }
 
-@Event("STUDENT_CREATED")
-class StudentCreatedEvent extends EventBase<StudentCreatedEventProps> {}
+@IsEvent("STUDENT_CREATED", { domain: DOMAIN })
+class StudentCreatedEvent extends Event<StudentCreatedEventProps> {}
 
 interface StudentProps extends PersonProps {
   school: string;
@@ -125,21 +126,20 @@ interface ChangeStudentSchoolCommandProps {
   school: string;
 }
 
-@Command("CHANGE_STUDENT_SCHOOL")
-class ChangeStudentSchoolCommand extends CommandBase<ChangeStudentSchoolCommandProps> {}
+@IsCommand("CHANGE_STUDENT_SCHOOL", { domain: DOMAIN })
+class ChangeStudentSchoolCommand extends Command<ChangeStudentSchoolCommandProps> {}
 
 interface StudentSchoolChangedEventProps {
   school: string;
 }
 
-@Event("STUDENT_SCHOOL_CHANGED")
-class StudentSchoolChangedEvent extends EventBase<StudentSchoolChangedEventProps> {}
+@IsEvent("STUDENT_SCHOOL_CHANGED", { domain: DOMAIN })
+class StudentSchoolChangedEvent extends Event<StudentSchoolChangedEventProps> {}
 
+@Model({ domain: DOMAIN })
 class Student extends ExtendablePerson<StudentProps> {
   static createStudent(props: StudentProps) {
-    const builder = new EventSourcedAggregateBuilder(Student);
-
-    const student = builder.build();
+    const student = Student.newStream();
 
     student.applyNewEvent(StudentCreatedEvent, {
       name: props.name,
@@ -174,10 +174,10 @@ class Student extends ExtendablePerson<StudentProps> {
   }
 }
 
-describe("Event sourced aggregate", function () {
+describe("IsEvent sourced aggregate", function () {
   describe("Building", function () {
     it("create instance with new stream", () => {
-      const person = Person.builder().build();
+      const person = Person.newStream();
 
       expect(person.props()).to.be.null;
     });
@@ -187,12 +187,14 @@ describe("Event sourced aggregate", function () {
 
       const requestId = v4();
 
-      const command1 = new CommandBuilder(ChangePersonNameCommand)
-        .withProps({ name: "Duong" })
-        .withCorrelationIds({
-          requestId,
-        })
-        .build();
+      const command1 = ChangePersonNameCommand.build(
+        { name: "Duong" },
+        {
+          correlationIds: {
+            requestId,
+          },
+        }
+      );
 
       const [event1] = personA.handleCommand(command1);
 
@@ -201,16 +203,9 @@ describe("Event sourced aggregate", function () {
 
       const pastEvents = personA.events();
 
-      personA.handleCommand(
-        new CommandBuilder(ChangePersonNameCommand)
-          .withProps({ name: "Vu" })
-          .build()
-      );
+      personA.handleCommand(ChangePersonNameCommand.build({ name: "Vu" }));
 
-      const personB = Person.builder()
-        .withId(personA.id())
-        .withPastEvents(pastEvents)
-        .build();
+      const personB = Person.fromStream(pastEvents, personA.id());
 
       expect(personB.name).to.equal("Duong");
       expect(personB.version()).to.equal(2);
@@ -219,30 +214,21 @@ describe("Event sourced aggregate", function () {
     it("create instance with snapshot", () => {
       const personA = Person.createPerson({ name: "Dai" });
 
-      personA.handleCommand(
-        new CommandBuilder(ChangePersonNameCommand)
-          .withProps({ name: "Duong" })
-          .build()
-      );
+      personA.handleCommand(ChangePersonNameCommand.build({ name: "Duong" }));
 
-      const snapshot = personA.snap();
+      const snapshot = personA.takeSnapshot();
 
       const eventsAfterSnapshot = personA.handleCommand(
-        new CommandBuilder(ChangePersonNameCommand)
-          .withProps({ name: "Vu" })
-          .build()
+        ChangePersonNameCommand.build({ name: "Vu" })
       );
 
-      const personB = Person.builder().withSnapshot(snapshot).build();
+      const personB = Person.fromSnapshot(snapshot);
 
       expect(personB.name).to.equal("Duong");
       expect(personB.pastEvents().length).to.equal(0);
       expect(personB.version()).to.equal(2);
 
-      const personC = Person.builder()
-        .withSnapshot(snapshot)
-        .withPastEvents(eventsAfterSnapshot)
-        .build();
+      const personC = Person.fromSnapshot(snapshot, eventsAfterSnapshot);
 
       expect(personC.name).to.equal("Vu");
       expect(personC.pastEvents().length).to.equal(1);
@@ -260,11 +246,7 @@ describe("Event sourced aggregate", function () {
     it("change person name", () => {
       const person = Person.createPerson({ name: "Dai" });
 
-      person.handleCommand(
-        new CommandBuilder(ChangePersonNameCommand)
-          .withProps({ name: "Duong" })
-          .build()
-      );
+      person.handleCommand(ChangePersonNameCommand.build({ name: "Duong" }));
 
       expect(person.name).to.equal("Duong");
     });
@@ -285,11 +267,7 @@ describe("Event sourced aggregate", function () {
       const student = Student.createStudent({ name: "Dai", school: "NEU" });
 
       const changeStudentName = () =>
-        student.handleCommand(
-          new CommandBuilder(ChangePersonNameCommand)
-            .withProps({ name: "Duong" })
-            .build()
-        );
+        student.handleCommand(ChangePersonNameCommand.build({ name: "Duong" }));
 
       expect(changeStudentName).not.throw();
 

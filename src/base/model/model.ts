@@ -1,23 +1,6 @@
 import _ from "lodash";
 import { AbstractClass, Class } from "type-fest";
 import { ClassStatic } from "../../types";
-import {
-  ModelId,
-  ModelName,
-  ModelPropsMap,
-  ModelPropsValidator,
-  ModelStaticValuesMap,
-  ModelVersion,
-  getModelId,
-  getModelMutable,
-  getModelName,
-  getModelPropsMap,
-  getModelPropsValidators,
-  getModelVersion,
-  getOwnModelPropsMap,
-  getOwnModelPropsValidator,
-  getOwnModelStaticValues,
-} from "../meta";
 import { PropsInitializedError } from "./errors";
 import { ModelDescriptor } from "./model-descriptor";
 
@@ -25,73 +8,35 @@ export interface Props {
   [key: PropertyKey]: any;
 }
 
+export type PropsBuilder<T extends AnyDomainModel> = () => InferredProps<T>;
+
 export type EmptyProps = {
   [key: PropertyKey]: never;
 };
 
-export class ModelBase<P extends Props> {
+export class DomainModel<P extends Props> {
   public static readonly EMPTY_PROPS: EmptyProps = {};
 
-  protected _props: P = ModelBase.EMPTY_PROPS as any;
-
-  static isModel(model: any): model is AnyModel {
-    return model instanceof ModelBase;
+  static modelDescriptor<T extends AnyDomainModel>(this: DomainModelClass<T>) {
+    return new ModelDescriptor(this);
   }
 
-  static modelMutable<T extends AnyModel>(this: ModelClass<T>) {
-    return getModelMutable(this) ?? false;
+  static isDomainModel(model: any): model is AnyDomainModel {
+    return model instanceof DomainModel;
   }
 
-  static modelName<T extends AnyModel>(this: ModelClass<T>): ModelName {
-    return getModelName(this);
-  }
-
-  static modelVersion<T extends AnyModel>(this: ModelClass<T>): ModelVersion {
-    return getModelVersion(this);
-  }
-
-  static modelId<T extends AnyModel>(this: ModelClass<T>): ModelId {
-    return getModelId(this);
-  }
-
-  static ownModelPropsValidator<T extends AnyModel>(
-    this: ModelClass<T>
-  ): ModelPropsValidator<T> | undefined {
-    return getOwnModelPropsValidator<T>(this);
-  }
-
-  static modelPropsValidators<T extends AnyModel>(
-    this: ModelClass<T>
-  ): ModelPropsValidator[] {
-    return getModelPropsValidators(this);
-  }
-
-  static ownModelStaticValues<T extends AnyModel>(
-    this: ModelClass<T>
-  ): ModelStaticValuesMap<T> {
-    return getOwnModelStaticValues<T>(this);
-  }
-
-  static ownModelPropsMap<T extends AnyModel>(
-    this: ModelClass<T>
-  ): ModelPropsMap<T> {
-    return getOwnModelPropsMap<T>(this.prototype);
-  }
-
-  static modelPropsMap<T extends AnyModel>(
-    this: ModelClass<T>
-  ): ModelPropsMap<T> {
-    return getModelPropsMap<T>(this.prototype);
-  }
+  protected _props: P = DomainModel.EMPTY_PROPS as any;
 
   constructor() {
     this.redefineModel();
   }
 
   redefineModel() {
-    this.modelDescriptor().modelPropsMap.forEach((propTargetKey, key) => {
-      this.redefineProp(key as keyof this, propTargetKey);
-    });
+    this.modelDescriptor()
+      .modelPropsMap()
+      .forEach((propTargetKey, key) => {
+        this.redefineProp(key as keyof this, propTargetKey);
+      });
   }
 
   protected redefineProp<K extends keyof P>(key: keyof this, propTargetKey: K) {
@@ -105,24 +50,12 @@ export class ModelBase<P extends Props> {
     });
   }
 
-  modelDescriptor(): ModelDescriptor<typeof this> {
-    const modelClass = this.constructor as unknown as ModelClass<typeof this>;
-
-    return {
-      modelMutable: modelClass.modelMutable(),
-      modelId: modelClass.modelId(),
-      modelName: modelClass.modelName(),
-      modelVersion: modelClass.modelVersion(),
-      ownModelPropsValidator: modelClass.ownModelPropsValidator(),
-      modelPropsValidators: modelClass.modelPropsValidators(),
-      ownModelStaticValues: modelClass.ownModelStaticValues(),
-      ownModelPropsMap: modelClass.ownModelPropsMap(),
-      modelPropsMap: modelClass.modelPropsMap(),
-    };
+  modelDescriptor() {
+    return new ModelDescriptor(this.constructor as any);
   }
 
   validateProps(props: P): void {
-    const modelPropsValidators = this.modelDescriptor().modelPropsValidators;
+    const modelPropsValidators = this.modelDescriptor().modelPropsValidators();
 
     modelPropsValidators.forEach((propsValidator) =>
       propsValidator.call(this.constructor, props)
@@ -134,14 +67,14 @@ export class ModelBase<P extends Props> {
   }
 
   propsIsEmpty() {
-    return this._props === (ModelBase.EMPTY_PROPS as any);
+    return this._props === (DomainModel.EMPTY_PROPS as any);
   }
 
   props(): P | null {
     if (this.propsIsEmpty()) return null;
 
     return _.cloneDeepWith(this._props, (value) => {
-      if (ModelBase.isModel(value)) {
+      if (DomainModel.isDomainModel(value)) {
         value.redefineModel();
 
         return value;
@@ -153,8 +86,13 @@ export class ModelBase<P extends Props> {
     return {};
   }
 
-  protected initializeProps(props: P) {
+  protected initializeProps(propsOrBuilder: P | PropsBuilder<typeof this>) {
     if (!this.propsIsEmpty()) throw new PropsInitializedError();
+
+    let props: P;
+
+    if (typeof propsOrBuilder === "function") props = propsOrBuilder.call(this);
+    else props = propsOrBuilder;
 
     if (!this.modelDescriptor().modelMutable) {
       this._props = props;
@@ -180,16 +118,17 @@ export class ModelBase<P extends Props> {
   }
 }
 
-export type AnyModel = ModelBase<Props>;
+export type AnyDomainModel = DomainModel<Props>;
 
-export type InferredProps<T extends AnyModel> = T extends ModelBase<infer P>
+export type InferredProps<T extends AnyDomainModel> = T extends DomainModel<
+  infer P
+>
   ? P
   : never;
 
-export interface ModelClass<T extends AnyModel = AnyModel>
-  extends Class<T>,
-    ClassStatic<typeof ModelBase<InferredProps<T>>> {}
+export type DomainModelClass<T extends AnyDomainModel = AnyDomainModel> =
+  Class<T> & ClassStatic<typeof DomainModel<InferredProps<T>>>;
 
-export interface AbstractModelClass<T extends AnyModel = AnyModel>
-  extends AbstractClass<T>,
-    ClassStatic<typeof ModelBase<InferredProps<T>>> {}
+export type AbstractDomainModelClass<
+  T extends AnyDomainModel = AnyDomainModel
+> = AbstractClass<T> & ClassStatic<typeof DomainModel<InferredProps<T>>>;

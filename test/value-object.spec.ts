@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { Prop, ValueObjectBase } from "../src";
+import { Prop, Props, PropsBuilder, ValueObjectBase } from "../src";
 
 interface NicknameProps {
   value: string;
@@ -30,6 +30,43 @@ class Name extends ValueObjectBase<NameProps> {
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
+}
+
+enum MessageContentType {
+  Text = "text",
+  Photo = "photo",
+}
+
+abstract class MessageContent<
+  TType extends MessageContentType,
+  TProps extends Props
+> extends ValueObjectBase<TProps & { type: TType }> {
+  constructor(props: TProps) {
+    super();
+
+    this.initializeProps({ ...props, type: this.type$() });
+  }
+
+  abstract type$(): TType;
+
+  @Prop()
+  declare type: TType;
+}
+
+interface MessageContentTextProps {
+  text: string;
+}
+
+class MessageContentText extends MessageContent<
+  MessageContentType.Text,
+  MessageContentTextProps
+> {
+  type$(): MessageContentType.Text {
+    return MessageContentType.Text;
+  }
+
+  @Prop()
+  declare text: string;
 }
 
 describe("Value Object", function () {
@@ -68,5 +105,12 @@ describe("Value Object", function () {
     expect(nameA).to.not.equal(nameB);
     expect(nameB.firstName).to.equal("Cuong");
     expect(nameB.lastName).to.equal(nameA.lastName);
+  });
+
+  it("with props builder", () => {
+    const contentText = new MessageContentText({ text: "abc" });
+
+    expect(contentText.type).to.equal(MessageContentType.Text);
+    expect(contentText.text).to.equal("abc");
   });
 });

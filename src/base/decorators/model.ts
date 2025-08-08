@@ -8,9 +8,9 @@ import {
   defineModelVersion,
   getModelDomain,
 } from "../meta";
-import { AnyModel, ModelClass } from "../model";
+import { AnyDomainModel, DomainModelClass } from "../model";
 
-export type ModelOptions<T extends AnyModel = AnyModel> = {
+export type ModelOptions<T extends AnyDomainModel = AnyDomainModel> = {
   name?: string;
   version?: number;
   domain?: string;
@@ -23,19 +23,19 @@ export const DEFAULT_MODEL_OPTIONS: ModelOptions = {
 };
 
 export function Model<
-  T extends ModelClass,
+  T extends DomainModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(options?: ModelOptions<I>): any;
 export function Model<
-  T extends ModelClass,
+  T extends DomainModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(name: string, options?: ModelOptions<I>): any;
 export function Model<
-  T extends ModelClass,
+  T extends DomainModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(name: string, version: number, options?: ModelOptions<I>): any;
 export function Model<
-  T extends ModelClass,
+  T extends DomainModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(
   p1?: string | ModelOptions<I>,

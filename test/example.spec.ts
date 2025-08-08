@@ -1,11 +1,11 @@
 import { expect } from "chai";
 import { beforeEach, describe } from "mocha";
 import {
-  EntityBase,
+  Entity,
   Id,
   Model,
   Prop,
-  StateAggregateBase,
+  StateAggregate,
   ValueObjectBase,
 } from "../src";
 
@@ -55,7 +55,7 @@ interface PhoneProps {
   batteryLevel: BatteryLevel;
 }
 
-class Phone extends EntityBase<PhoneProps> {
+class Phone extends Entity<PhoneProps> {
   @Prop()
   declare brand: string;
 
@@ -74,7 +74,7 @@ interface PersonProps {
   phones: Phone[];
 }
 
-class Person extends StateAggregateBase<PersonProps> {
+class Person extends StateAggregate<PersonProps> {
   @Prop()
   declare name: Name;
 
@@ -99,26 +99,20 @@ describe("Example", function () {
   let applePhone: Phone, samsungPhone: Phone;
 
   beforeEach(() => {
-    applePhone = Phone.builder()
-      .withProps({
-        brand: "Apple",
-        batteryLevel: new BatteryLevel(50),
-      })
-      .build();
+    applePhone = Phone.build({
+      brand: "Apple",
+      batteryLevel: new BatteryLevel(50),
+    });
 
-    samsungPhone = Phone.builder()
-      .withProps({
-        brand: "Samsung",
-        batteryLevel: new BatteryLevel(75),
-      })
-      .build();
+    samsungPhone = Phone.build({
+      brand: "Samsung",
+      batteryLevel: new BatteryLevel(75),
+    });
 
-    person = Person.builder()
-      .withProps({
-        name: new Name("Dai", "Nguyen Quoc"),
-        phones: [applePhone, samsungPhone],
-      })
-      .build();
+    person = Person.build({
+      name: new Name("Dai", "Nguyen Quoc"),
+      phones: [applePhone, samsungPhone],
+    });
   });
 
   it("expect deep getter working", () => {

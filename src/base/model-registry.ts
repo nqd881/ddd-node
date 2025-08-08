@@ -1,77 +1,107 @@
-import { AnyModel, ModelClass } from "./model";
+import { AnyDomainModel, DomainModelClass } from "./model";
 import { $ModelId, ModelId, ModelName, ModelVersion } from "./meta";
 
-export class ModelVersionMap<T extends AnyModel = AnyModel> extends Map<
-  ModelVersion,
-  ModelClass<T>
-> {
+export class ModelVersions<
+  T extends AnyDomainModel = AnyDomainModel
+> extends Map<ModelVersion, DomainModelClass<T>> {
   constructor(public readonly modelName: ModelName) {
     super();
   }
 }
 
-export class ModelMap<T extends AnyModel = AnyModel> extends Map<
+export class ModelStore<T extends AnyDomainModel = AnyDomainModel> extends Map<
   ModelName,
-  ModelVersionMap<T>
+  ModelVersions<T>
 > {}
 
 export class ModelRegistry {
-  private readonly modelMap: ModelMap = new ModelMap();
+  private store: ModelStore = new ModelStore();
 
-  getModelVersionMap<T extends AnyModel = AnyModel>(modelName: ModelName) {
-    const modelVersionMap = () =>
-      this.modelMap.get(modelName) as ModelVersionMap<T> | undefined;
+  getModelVersions<T extends AnyDomainModel = AnyDomainModel>(
+    modelName: ModelName
+  ) {
+    const current = () =>
+      this.store.get(modelName) as ModelVersions<T> | undefined;
 
-    if (!modelVersionMap())
-      this.modelMap.set(modelName, new ModelVersionMap(modelName));
+    if (!current()) this.store.set(modelName, new ModelVersions(modelName));
 
-    return modelVersionMap()!;
+    return current()!;
   }
 
-  getModel<T extends AnyModel = AnyModel>(
+  private resolveModelId(
+    p1: ModelName | DomainModelClass,
+    p2?: ModelVersion
+  ): $ModelId {
+    if (typeof p1 === "string") {
+      return new $ModelId(p1, p2 as ModelVersion);
+    }
+
+    return $ModelId.fromValue(p1.modelDescriptor().modelId());
+  }
+
+  getModel<T extends AnyDomainModel = AnyDomainModel>(
     modelName: ModelName,
     modelVersion: ModelVersion = 0
-  ): ModelClass<T> | undefined {
-    const modelVersionMap = this.getModelVersionMap<T>(modelName);
+  ) {
+    const versions = this.getModelVersions<T>(modelName);
 
-    return modelVersionMap.get(modelVersion);
+    return versions.get(modelVersion);
   }
 
-  getModelByModelId<T extends AnyModel = AnyModel>(modelId: ModelId) {
+  getModelByModelId<T extends AnyDomainModel = AnyDomainModel>(
+    modelId: ModelId
+  ) {
     const { modelName, modelVersion } = $ModelId.fromValue(modelId);
 
     return this.getModel<T>(modelName, modelVersion);
   }
 
-  hasRegisteredModel(modelName: ModelName, modelVersion: ModelVersion): boolean;
-  hasRegisteredModel(model: ModelClass): boolean;
-  hasRegisteredModel(p1: ModelName | ModelClass, p2?: ModelVersion): boolean {
-    let modelName: ModelName, modelVersion: ModelVersion;
-
-    if (typeof p1 === "string") {
-      modelName = p1;
-      modelVersion = p2 as ModelVersion;
-    } else {
-      modelName = p1.modelName();
-      modelVersion = p1.modelVersion();
-    }
+  hasRegisteredModel(
+    p1: ModelName | DomainModelClass,
+    p2?: ModelVersion
+  ): boolean {
+    const { modelName, modelVersion } = this.resolveModelId(p1, p2);
 
     return Boolean(this.getModel(modelName, modelVersion));
   }
 
-  registerModel(modelClass: ModelClass) {
-    const modelName = modelClass.modelName();
-    const modelVersion = modelClass.modelVersion();
+  hasRegisteredModelWithId(modelId: ModelId) {
+    const { modelName, modelVersion } = $ModelId.fromValue(modelId);
+
+    return Boolean(this.getModel(modelName, modelVersion));
+  }
+
+  registerModel(modelClass: DomainModelClass) {
+    const modelName = modelClass.modelDescriptor().modelName();
+    const modelVersion = modelClass.modelDescriptor().modelVersion();
 
     if (this.hasRegisteredModel(modelName, modelVersion))
       throw new Error(
-        `Model ${modelName} with version ${modelVersion} has been registered`
+        `Cannot register: Model ${modelName} with version ${modelVersion} is already registered.`
       );
 
-    const modelVersionMap = this.getModelVersionMap(modelName);
+    const versions = this.getModelVersions(modelName);
 
-    modelVersionMap.set(modelVersion, modelClass);
+    versions.set(modelVersion, modelClass);
 
     return this;
+  }
+
+  deregisterModel(p1: ModelName | DomainModelClass, p2?: ModelVersion) {
+    const { modelName, modelVersion } = this.resolveModelId(p1, p2);
+
+    if (!this.hasRegisteredModel(modelName, modelVersion)) return;
+
+    const versions = this.getModelVersions(modelName);
+
+    versions.delete(modelVersion);
+  }
+
+  clearModelVersions(modelName: ModelName) {
+    this.store.delete(modelName);
+  }
+
+  clearAll() {
+    this.store = new ModelStore();
   }
 }

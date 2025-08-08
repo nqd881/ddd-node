@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "../model";
+import { AnyDomainModel, DomainModelClass } from "../model";
 import { ModelName, getModelName } from "./model-name";
 import { ModelVersion, getModelVersion } from "./model-version";
 
@@ -36,15 +36,15 @@ export class $ModelId extends String {
 
 const ModelIdMetaKey = Symbol.for("MODEL_ID");
 
-export const setModelId = <T extends AnyModel>(
-  target: ModelClass<T>,
+export const setModelId = <T extends AnyDomainModel>(
+  target: DomainModelClass<T>,
   modelId: $ModelId
 ) => {
   Reflect.defineMetadata(ModelIdMetaKey, modelId, target);
 };
 
-export const getModelId = <T extends AnyModel>(
-  target: ModelClass<T>
+export const getModelId = <T extends AnyDomainModel>(
+  target: DomainModelClass<T>
 ): ModelId => {
   if (!Reflect.hasOwnMetadata(ModelIdMetaKey, target)) {
     const modelName = getModelName(target);

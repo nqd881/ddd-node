@@ -1,4 +1,4 @@
-import { AnyModel, ModelClass } from "../model";
+import { AnyDomainModel, DomainModelClass } from "../model";
 
 export type ModelVersion = number;
 
@@ -17,8 +17,8 @@ export class $ModelVersion extends Number {
 
 const ModelVersionMetaKey = Symbol.for("MODEL_VERSION");
 
-export const defineModelVersion = <T extends AnyModel>(
-  target: ModelClass<T>,
+export const defineModelVersion = <T extends AnyDomainModel>(
+  target: DomainModelClass<T>,
   modelVersion: ModelVersion
 ) => {
   Reflect.defineMetadata(
@@ -28,8 +28,8 @@ export const defineModelVersion = <T extends AnyModel>(
   );
 };
 
-export const getModelVersion = <T extends AnyModel>(
-  target: ModelClass<T>
+export const getModelVersion = <T extends AnyDomainModel>(
+  target: DomainModelClass<T>
 ): ModelVersion => {
   if (!Reflect.hasOwnMetadata(ModelVersionMetaKey, target))
     defineModelVersion(target, 0);

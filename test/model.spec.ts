@@ -6,7 +6,7 @@ import chaiDeepMatch from "chai-deep-match";
 import { beforeEach, describe, it } from "mocha";
 import {
   Model,
-  ModelBase,
+  DomainModel,
   Mutable,
   Prop,
   ModelPropsValidator,
@@ -54,7 +54,7 @@ class InvalidPersonAgeError extends Error {
 @Model({
   propsValidator: Person.Validator,
 })
-class Person<P extends PersonProps = PersonProps> extends ModelBase<P> {
+class Person<P extends PersonProps = PersonProps> extends DomainModel<P> {
   static readonly Validator: ModelPropsValidator<Person> = (props) => {
     if (props?.age && (props.age < 0 || props.age > 200))
       throw new InvalidPersonAgeError();
@@ -128,11 +128,13 @@ class Student extends Person<StudentProps> {
 describe("Model", function () {
   describe("Model name", function () {
     it("using default model name", () => {
-      expect(Person.modelName()).to.equals(Person.name);
+      expect(Person.modelDescriptor().modelName()).to.equals(Person.name);
     });
 
     it("using decorated model name", () => {
-      expect(Student.modelName()).to.equal(STUDENT_MODEL_NAME);
+      expect(Student.modelDescriptor().modelName()).to.equal(
+        STUDENT_MODEL_NAME
+      );
     });
   });
 
@@ -140,7 +142,9 @@ describe("Model", function () {
     it("get own props map", () => {
       const expectOwnPropsMap = { school: "school" };
 
-      const ownModelPropsMap = Object.fromEntries(Student.ownModelPropsMap());
+      const ownModelPropsMap = Object.fromEntries(
+        Student.modelDescriptor().ownModelPropsMap()
+      );
 
       expect(ownModelPropsMap).to.deep.match(expectOwnPropsMap);
     });
@@ -152,7 +156,9 @@ describe("Model", function () {
         school: "school",
       };
 
-      const modelPropsMap = Object.fromEntries(Student.modelPropsMap());
+      const modelPropsMap = Object.fromEntries(
+        Student.modelDescriptor().modelPropsMap()
+      );
 
       expect(modelPropsMap).to.deep.match(expectPropsMap);
     });
@@ -276,8 +282,12 @@ describe("Model", function () {
       const student = () =>
         new Student({ name: new Name("Dai"), age: 201, school: "NEU" });
 
-      expect(Person.modelPropsValidators().length).to.equal(1);
-      expect(Student.modelPropsValidators().length).to.equal(2);
+      expect(Person.modelDescriptor().modelPropsValidators().length).to.equal(
+        1
+      );
+      expect(Student.modelDescriptor().modelPropsValidators().length).to.equal(
+        2
+      );
 
       expect(student).to.throw(InvalidPersonAgeError);
     });

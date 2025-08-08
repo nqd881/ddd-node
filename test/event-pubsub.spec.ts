@@ -2,15 +2,16 @@ import { expect } from "chai";
 import { afterEach, describe } from "mocha";
 import {
   AnyEvent,
+  IsEvent,
   Event,
-  EventBase,
-  EventPublisher,
+  EventDispatcher,
   EventSubscriber,
   EventSubscriberRegistry,
   IGlobalEventSubscriber,
-  StateAggregateBase,
+  StateAggregate,
   SubscribeToEvents,
 } from "../src";
+import { v4 } from "uuid";
 
 const count = { value: 0 };
 
@@ -18,15 +19,17 @@ interface TestEventProps {
   propX: string;
 }
 
-@Event("TEST")
-class TestEvent extends EventBase<TestEventProps> {}
+@IsEvent("TEST")
+class TestEvent extends Event<TestEventProps> {}
+
+const x = TestEvent.modelDescriptor();
 
 interface Test2EventProps {
   propY: string;
 }
 
-@Event("TEST2")
-class Test2Event extends EventBase<Test2EventProps> {}
+@IsEvent("TEST2")
+class Test2Event extends Event<Test2EventProps> {}
 
 class TestGlobalEventSubscriber implements IGlobalEventSubscriber {
   async handleEvent(event: AnyEvent): Promise<void> {
@@ -53,7 +56,7 @@ class CompositeTestEventSubscriber extends EventSubscriber<
 
 interface TestAggregateProps {}
 
-class TestAggregate extends StateAggregateBase<TestAggregateProps> {
+class TestAggregate extends StateAggregate<TestAggregateProps> {
   action1() {
     this.recordEvent(TestEvent, {
       propX: "Test event value",
@@ -76,10 +79,10 @@ eventSubscriberRegistry.registerGlobalSubscriber(
 eventSubscriberRegistry.registerSubscriber(new TestEventSubscriber());
 eventSubscriberRegistry.registerSubscriber(new CompositeTestEventSubscriber());
 
-const eventPublisher = new EventPublisher(eventSubscriberRegistry);
+const eventDispatcher = new EventDispatcher(eventSubscriberRegistry);
 
-describe("Event Pubsub", function () {
-  const aggregate = TestAggregate.builder().withProps({}).build();
+describe("IsEvent Pubsub", function () {
+  const aggregate = new TestAggregate({ id: v4(), version: 0 }, {});
 
   afterEach(() => {
     count.value = 0;
@@ -91,7 +94,7 @@ describe("Event Pubsub", function () {
 
     const events = aggregate.events();
 
-    await Promise.all(events.map((event) => eventPublisher.publish(event)));
+    await Promise.all(events.map((event) => eventDispatcher.dispatch(event)));
 
     expect(count.value).equals(4);
   });
@@ -101,7 +104,7 @@ describe("Event Pubsub", function () {
 
     const events = aggregate.events();
 
-    await Promise.all(events.map((event) => eventPublisher.publish(event)));
+    await Promise.all(events.map((event) => eventDispatcher.dispatch(event)));
 
     expect(count.value).equals(5);
   });
@@ -112,7 +115,7 @@ describe("Event Pubsub", function () {
 
     const events = aggregate.events();
 
-    await Promise.all(events.map((event) => eventPublisher.publish(event)));
+    await Promise.all(events.map((event) => eventDispatcher.dispatch(event)));
 
     expect(count.value).equals(9);
   });

@@ -1,4 +1,4 @@
-import { ModelClass } from "../model";
+import { DomainModelClass } from "../model";
 import {
   ModelStaticValueBuilder,
   defineModelStaticValueProperty,
@@ -6,7 +6,7 @@ import {
 } from "../meta";
 
 export const Static = <
-  T extends ModelClass,
+  T extends DomainModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(
   builder: ModelStaticValueBuilder<I>

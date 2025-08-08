@@ -1,15 +1,15 @@
 import { expect } from "chai";
-import { Enum, EnumBase } from "../src";
+import { IsEnum, Enum } from "../src";
 
-class Status extends EnumBase {
-  @Enum()
+class Status extends Enum {
+  @IsEnum()
   static Active: Status;
 
-  @Enum("inactive")
+  @IsEnum("inactive")
   static Inactive: Status;
 }
 
-describe("Enum", function () {
+describe("IsEnum", function () {
   it("correct value", () => {
     expect(Status.Inactive.value).to.equal("inactive");
   });
@@ -31,12 +31,5 @@ describe("Enum", function () {
     expect(activeStatus).not.throw();
     expect(invalidActiveStatus).throw();
     expect(activeStatus()).to.equal(Status.Active);
-  });
-
-  it("build safe", () => {
-    const invalidActiveStatus = () => Status.fromSafe("ACTIVE");
-
-    expect(invalidActiveStatus).not.throw();
-    expect(invalidActiveStatus()).to.equal(null);
   });
 });

@@ -1,20 +1,20 @@
 import { expect } from "chai";
 import { describe } from "mocha";
-import { Event, EventBase, Prop, StateAggregateBase } from "../src";
+import { IsEvent, Event, Prop, StateAggregate } from "../src";
 
 interface PersonNameChangedEventProps {
   oldName: string;
   newName: string;
 }
 
-@Event("PERSON_NAME_CHANGED")
-class PersonNameChangedEvent extends EventBase<PersonNameChangedEventProps> {}
+@IsEvent("PERSON_NAME_CHANGED")
+class PersonNameChangedEvent extends Event<PersonNameChangedEventProps> {}
 
 interface PersonProps {
   name: string;
 }
 
-class Person extends StateAggregateBase<PersonProps> {
+class Person extends StateAggregate<PersonProps> {
   @Prop()
   declare name: string;
 
@@ -30,7 +30,7 @@ class Person extends StateAggregateBase<PersonProps> {
 describe("State aggregate", function () {
   describe("Static methods", function () {
     it("create new instance using newAggregate", () => {
-      const person = Person.builder().withProps({ name: "Dai" }).build();
+      const person = Person.build({ name: "Dai" });
 
       expect(person.name).to.equal("Dai");
     });
@@ -38,7 +38,7 @@ describe("State aggregate", function () {
 
   describe("Instance method", function () {
     it("record an event and then clear all", () => {
-      const person = Person.builder().withProps({ name: "Dai" }).build();
+      const person = Person.build({ name: "Dai" });
 
       person.changeName("Nam");
 

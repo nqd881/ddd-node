@@ -8,6 +8,10 @@ export class Domain {
   public readonly modelRegistry: ModelRegistry = new ModelRegistry();
 
   constructor(public readonly name: DomainName) {}
+
+  reset() {
+    this.modelRegistry.clearAll();
+  }
 }
 
 export class DomainMap extends Map<DomainName, Domain> {}

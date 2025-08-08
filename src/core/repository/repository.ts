@@ -1,5 +1,4 @@
-import { Id } from "../model-with-id";
-import { AnyAggregate } from "../aggregate";
+import { AnyAggregate, Id } from "../model";
 
 export interface IRepository<T extends AnyAggregate> {
   id(id: Id): Promise<T | null>;

@@ -4,7 +4,7 @@ import {
   Model,
   ModelRegistry,
   Prop,
-  StateAggregateBase,
+  StateAggregate,
   domainManager,
 } from "../src";
 
@@ -15,7 +15,7 @@ interface PersonProps {
 }
 
 @Model(PERSON_MODEL_NAME)
-class Person extends StateAggregateBase<PersonProps> {
+class Person extends StateAggregate<PersonProps> {
   @Prop()
   declare name: string;
 }
@@ -26,7 +26,7 @@ interface Person1Props {
 }
 
 @Model(PERSON_MODEL_NAME, 1)
-class Person1 extends StateAggregateBase<Person1Props> {
+class Person1 extends StateAggregate<Person1Props> {
   @Prop()
   declare name: string;
 
@@ -40,7 +40,7 @@ interface Person2Props {
 }
 
 @Model(PERSON_MODEL_NAME, 2)
-class Person2 extends StateAggregateBase<Person2Props> {
+class Person2 extends StateAggregate<Person2Props> {
   @Prop()
   declare name: string;
 
@@ -54,9 +54,7 @@ describe("Domain", function () {
   it("Model registry", () => {
     modelRegistry.registerModel(Person);
 
-    expect(modelRegistry.getModelVersionMap(PERSON_MODEL_NAME).size).to.equal(
-      1
-    );
+    expect(modelRegistry.getModelVersions(PERSON_MODEL_NAME).size).to.equal(1);
 
     expect(modelRegistry.getModel(PERSON_MODEL_NAME, 0)).to.equal(Person);
 
@@ -64,9 +62,7 @@ describe("Domain", function () {
 
     modelRegistry.registerModel(Person1);
 
-    expect(modelRegistry.getModelVersionMap(PERSON_MODEL_NAME).size).to.equal(
-      2
-    );
+    expect(modelRegistry.getModelVersions(PERSON_MODEL_NAME).size).to.equal(2);
 
     expect(modelRegistry.getModel(PERSON_MODEL_NAME, 1)).to.equal(Person1);
 
@@ -79,7 +75,7 @@ describe("Domain", function () {
     expect(defaultDomain).not.be.undefined;
 
     expect(
-      defaultDomain.modelRegistry.getModelVersionMap(PERSON_MODEL_NAME).size
+      defaultDomain.modelRegistry.getModelVersions(PERSON_MODEL_NAME).size
     ).to.equal(3);
 
     expect(defaultDomain.modelRegistry.getModel(PERSON_MODEL_NAME, 2)).to.equal(

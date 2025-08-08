@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 const ModelMutableMetaKey = Symbol.for("MODEL_MUTABLE");
 
 export const defineModelMutable = (target: object, mutable: boolean) => {

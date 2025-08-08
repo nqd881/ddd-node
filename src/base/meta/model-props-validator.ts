@@ -1,20 +1,20 @@
 import _ from "lodash";
-import { AnyModel, InferredProps } from "../model";
+import { AnyDomainModel, InferredProps } from "../model";
 
-export type ModelPropsValidator<T extends AnyModel = AnyModel> = (
+export type ModelPropsValidator<T extends AnyDomainModel = AnyDomainModel> = (
   props: InferredProps<T>
 ) => void;
 
 const OwnPropsValidatorMetaKey = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
 
-export const defineModelPropsValidator = <T extends AnyModel>(
+export const defineModelPropsValidator = <T extends AnyDomainModel>(
   target: object,
   validator: ModelPropsValidator<T>
 ) => {
   Reflect.defineMetadata(OwnPropsValidatorMetaKey, validator, target);
 };
 
-export const getOwnModelPropsValidator = <T extends AnyModel>(
+export const getOwnModelPropsValidator = <T extends AnyDomainModel>(
   target: object
 ) => {
   return Reflect.getOwnMetadata<ModelPropsValidator<T>>(

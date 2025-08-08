@@ -1,8 +1,8 @@
-import { AbstractModelClass, ModelClass } from "../model";
+import { AbstractDomainModelClass, DomainModelClass } from "../model";
 import { defineModelMutable } from "../meta";
 
 export const Mutable = (mutable: boolean = true) => {
-  return <T extends ModelClass | AbstractModelClass>(target: T) => {
+  return <T extends DomainModelClass | AbstractDomainModelClass>(target: T) => {
     defineModelMutable(target, mutable);
   };
 };
