@@ -1,12 +1,12 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { Prop, Props, PropsBuilder, ValueObjectBase } from "../src";
+import { Prop, Props, PropsBuilder, ValueObject } from "../src";
 
 interface NicknameProps {
   value: string;
 }
 
-class Nickname extends ValueObjectBase<NicknameProps> {
+class Nickname extends ValueObject<NicknameProps> {
   @Prop()
   declare value: string;
 }
@@ -17,7 +17,7 @@ interface NameProps {
   nicknames: Nickname[];
 }
 
-class Name extends ValueObjectBase<NameProps> {
+class Name extends ValueObject<NameProps> {
   @Prop()
   declare firstName: string;
 
@@ -40,7 +40,7 @@ enum MessageContentType {
 abstract class MessageContent<
   TType extends MessageContentType,
   TProps extends Props
-> extends ValueObjectBase<TProps & { type: TType }> {
+> extends ValueObject<TProps & { type: TType }> {
   constructor(props: TProps) {
     super();
 

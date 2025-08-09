@@ -1,20 +1,13 @@
 import { expect } from "chai";
 import { beforeEach, describe } from "mocha";
-import {
-  Entity,
-  Id,
-  Model,
-  Prop,
-  StateAggregate,
-  ValueObjectBase,
-} from "../src";
+import { Entity, Id, Model, Prop, StateAggregate, ValueObject } from "../src";
 
 interface NameProps {
   firstName: string;
   lastName: string;
 }
 
-export class Name extends ValueObjectBase<NameProps> {
+export class Name extends ValueObject<NameProps> {
   @Prop()
   declare firstName: string;
 
@@ -41,7 +34,7 @@ interface BatteryLevelProps {
       throw new Error("Battery percentage cannot greater than 100");
   },
 })
-class BatteryLevel extends ValueObjectBase<BatteryLevelProps> {
+class BatteryLevel extends ValueObject<BatteryLevelProps> {
   @Prop()
   declare percentage: number;
 

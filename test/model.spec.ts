@@ -11,7 +11,7 @@ import {
   Prop,
   ModelPropsValidator,
   Static,
-  ValueObjectBase,
+  ValueObject,
   PropsValidator,
 } from "../src";
 
@@ -22,7 +22,7 @@ interface NameProps {
   lastName: string;
 }
 
-export class Name extends ValueObjectBase<NameProps> {
+export class Name extends ValueObject<NameProps> {
   @Static(() => new Name("Dai", "Quoc"))
   static QUOCDAI: Name;
 

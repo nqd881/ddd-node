@@ -10,8 +10,8 @@ import {
 import { ClassStatic } from "../../../types";
 
 @Mutable(false)
-export class ValueObjectBase<P extends Props> extends DomainModel<P> {
-  constructor(props?: P | PropsBuilder<ValueObjectBase<P>>) {
+export class ValueObject<P extends Props> extends DomainModel<P> {
+  constructor(props?: P | PropsBuilder<ValueObject<P>>) {
     super();
 
     if (props) this.initializeProps(props);
@@ -53,7 +53,7 @@ export class ValueObjectBase<P extends Props> extends DomainModel<P> {
     const props = this.props();
 
     const valueOf = (v: any) =>
-      v instanceof ValueObjectBase ? v.getEqualityObject() : v;
+      v instanceof ValueObject ? v.getEqualityObject() : v;
 
     for (let [key, value] of Object.entries(props)) {
       if (Array.isArray(value)) {
@@ -75,15 +75,15 @@ export class ValueObjectBase<P extends Props> extends DomainModel<P> {
   }
 }
 
-export type AnyValueObject = ValueObjectBase<Props>;
+export type AnyValueObject = ValueObject<Props>;
 
 export interface ValueObjectClass<T extends AnyValueObject = AnyValueObject>
   extends Class<T>,
-    ClassStatic<typeof ValueObjectBase<InferredProps<T>>> {}
+    ClassStatic<typeof ValueObject<InferredProps<T>>> {}
 
 export interface ValueObjectClassWithTypedConstructor<
   T extends AnyValueObject = AnyValueObject
 > extends Class<
     T,
-    ConstructorParameters<typeof ValueObjectBase<InferredProps<T>>>
+    ConstructorParameters<typeof ValueObject<InferredProps<T>>>
   > {}
