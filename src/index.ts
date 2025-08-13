@@ -4,5 +4,5 @@ export * from "./base";
 export * from "./types";
 
 export * from "./core";
-export * from "./event-pubsub";
+export * from "./handling-event";
 export * from "./utils";
