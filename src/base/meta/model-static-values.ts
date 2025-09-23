@@ -19,7 +19,7 @@ export class ModelStaticValue<T extends AnyDomainModel = AnyDomainModel> {
   }
 }
 
-const OwnModelStaticValuesMetaKey = Symbol.for("OWN_MODEL_STATIC_VALUES");
+const OWN_MODEL_STATIC_VALUES = Symbol.for("OWN_MODEL_STATIC_VALUES");
 
 export class ModelStaticValuesMap<
   T extends AnyDomainModel = AnyDomainModel
@@ -28,15 +28,15 @@ export class ModelStaticValuesMap<
 export const getOwnModelStaticValues = <T extends AnyDomainModel>(
   target: object
 ) => {
-  if (!Reflect.hasOwnMetadata(OwnModelStaticValuesMetaKey, target))
+  if (!Reflect.hasOwnMetadata(OWN_MODEL_STATIC_VALUES, target))
     Reflect.defineMetadata(
-      OwnModelStaticValuesMetaKey,
+      OWN_MODEL_STATIC_VALUES,
       new ModelStaticValuesMap(),
       target
     );
 
   return Reflect.getOwnMetadata<ModelStaticValuesMap<T>>(
-    OwnModelStaticValuesMetaKey,
+    OWN_MODEL_STATIC_VALUES,
     target
   )!;
 };

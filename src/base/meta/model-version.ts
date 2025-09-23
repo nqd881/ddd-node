@@ -15,14 +15,14 @@ export class $ModelVersion extends Number {
   }
 }
 
-const ModelVersionMetaKey = Symbol.for("MODEL_VERSION");
+const MODEL_VERSION = Symbol.for("MODEL_VERSION");
 
 export const defineModelVersion = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,
   modelVersion: ModelVersion
 ) => {
   Reflect.defineMetadata(
-    ModelVersionMetaKey,
+    MODEL_VERSION,
     new $ModelVersion(modelVersion),
     target
   );
@@ -31,11 +31,11 @@ export const defineModelVersion = <T extends AnyDomainModel>(
 export const getModelVersion = <T extends AnyDomainModel>(
   target: DomainModelClass<T>
 ): ModelVersion => {
-  if (!Reflect.hasOwnMetadata(ModelVersionMetaKey, target))
+  if (!Reflect.hasOwnMetadata(MODEL_VERSION, target))
     defineModelVersion(target, 0);
 
   return Reflect.getOwnMetadata<$ModelVersion>(
-    ModelVersionMetaKey,
+    MODEL_VERSION,
     target
   )!.valueOf();
 };

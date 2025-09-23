@@ -2,7 +2,7 @@ import { AnyDomainModel, DomainModelClass } from ".";
 import {
   ModelId,
   ModelName,
-  ModelPropsMap,
+  ModelPropertyAccessorMap,
   ModelPropsValidator,
   ModelStaticValuesMap,
   ModelVersion,
@@ -10,10 +10,10 @@ import {
   getModelId,
   getModelMutable,
   getModelName,
-  getModelPropsMap,
+  getDeclaredPropertyAccessors,
   getModelPropsValidators,
   getModelVersion,
-  getOwnModelPropsMap,
+  getResolvedPropertyAccessors,
   getOwnModelPropsValidator,
   getOwnModelStaticValues,
 } from "../meta";
@@ -53,11 +53,11 @@ export class ModelDescriptor<T extends AnyDomainModel = AnyDomainModel> {
     return getOwnModelStaticValues<T>(this.modelClass);
   }
 
-  ownModelPropsMap(): ModelPropsMap<T> {
-    return getOwnModelPropsMap<T>(this.modelClass.prototype);
+  declaredPropertyAccessors(): ModelPropertyAccessorMap<T> {
+    return getDeclaredPropertyAccessors<T>(this.modelClass.prototype);
   }
 
-  modelPropsMap(): ModelPropsMap<T> {
-    return getModelPropsMap<T>(this.modelClass.prototype);
+  resolvedPropertyAccessors(): ModelPropertyAccessorMap<T> {
+    return getResolvedPropertyAccessors<T>(this.modelClass.prototype);
   }
 }

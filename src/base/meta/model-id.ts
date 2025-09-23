@@ -34,24 +34,24 @@ export class $ModelId extends String {
   }
 }
 
-const ModelIdMetaKey = Symbol.for("MODEL_ID");
+const MODEL_ID = Symbol.for("MODEL_ID");
 
 export const setModelId = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,
   modelId: $ModelId
 ) => {
-  Reflect.defineMetadata(ModelIdMetaKey, modelId, target);
+  Reflect.defineMetadata(MODEL_ID, modelId, target);
 };
 
 export const getModelId = <T extends AnyDomainModel>(
   target: DomainModelClass<T>
 ): ModelId => {
-  if (!Reflect.hasOwnMetadata(ModelIdMetaKey, target)) {
+  if (!Reflect.hasOwnMetadata(MODEL_ID, target)) {
     const modelName = getModelName(target);
     const modelVersion = getModelVersion(target);
 
     setModelId(target, new $ModelId(modelName, modelVersion));
   }
 
-  return Reflect.getOwnMetadata<$ModelId>(ModelIdMetaKey, target)!.valueOf();
+  return Reflect.getOwnMetadata<$ModelId>(MODEL_ID, target)!.valueOf();
 };

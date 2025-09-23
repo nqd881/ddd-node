@@ -5,30 +5,30 @@ export type ModelPropsValidator<T extends AnyDomainModel = AnyDomainModel> = (
   props: InferredProps<T>
 ) => void;
 
-const OwnPropsValidatorMetaKey = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
+const OWN_MODEL_PROPS_VALIDATOR = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
 
-export const defineModelPropsValidator = <T extends AnyDomainModel>(
+export const defineModelPropGettersValidator = <T extends AnyDomainModel>(
   target: object,
   validator: ModelPropsValidator<T>
 ) => {
-  Reflect.defineMetadata(OwnPropsValidatorMetaKey, validator, target);
+  Reflect.defineMetadata(OWN_MODEL_PROPS_VALIDATOR, validator, target);
 };
 
 export const getOwnModelPropsValidator = <T extends AnyDomainModel>(
   target: object
 ) => {
   return Reflect.getOwnMetadata<ModelPropsValidator<T>>(
-    OwnPropsValidatorMetaKey,
+    OWN_MODEL_PROPS_VALIDATOR,
     target
   );
 };
 
-export const ModelPropsValidatorsMetaKey = Symbol.for("MODEL_PROPS_VALIDATORS");
+export const MODEL_PROPS_VALIDATORS = Symbol.for("MODEL_PROPS_VALIDATORS");
 
 export const getModelPropsValidators = (
   target: object
 ): ModelPropsValidator[] => {
-  if (!Reflect.hasOwnMetadata(ModelPropsValidatorsMetaKey, target)) {
+  if (!Reflect.hasOwnMetadata(MODEL_PROPS_VALIDATORS, target)) {
     let result = [];
     let _target: object | null = target;
 
@@ -42,11 +42,11 @@ export const getModelPropsValidators = (
 
     result = _.uniq(result);
 
-    Reflect.defineMetadata(ModelPropsValidatorsMetaKey, result, target);
+    Reflect.defineMetadata(MODEL_PROPS_VALIDATORS, result, target);
   }
 
   return Reflect.getOwnMetadata<ModelPropsValidator[]>(
-    ModelPropsValidatorsMetaKey,
+    MODEL_PROPS_VALIDATORS,
     target
   )!;
 };

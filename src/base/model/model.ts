@@ -3,6 +3,7 @@ import { AbstractClass, Class } from "type-fest";
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
 import { ModelDescriptor } from "./model-descriptor";
+import { PropertyConverter } from "..";
 
 export interface Props {
   [key: PropertyKey]: any;
@@ -28,24 +29,31 @@ export class DomainModel<P extends Props> {
   protected _props: P = DomainModel.EMPTY_PROPS as any;
 
   constructor() {
-    this.redefineModel();
+    this.definePropertyAccessors();
   }
 
-  redefineModel() {
+  definePropertyAccessors() {
     this.modelDescriptor()
-      .modelPropsMap()
-      .forEach((propTargetKey, key) => {
-        this.redefineProp(key as keyof this, propTargetKey);
+      .resolvedPropertyAccessors()
+      .forEach(({ targetKey, converter }, key) => {
+        this.definePropAccessor(key as keyof this, targetKey, converter);
       });
   }
 
-  protected redefineProp<K extends keyof P>(key: keyof this, propTargetKey: K) {
+  protected definePropAccessor<K extends keyof P>(
+    key: keyof this,
+    propTargetKey: K,
+    propConverter?: PropertyConverter
+  ) {
     Object.defineProperty(this, key, {
-      // must be true because the props() method need to recall redefineModel(-> redefineProp)
-      configurable: true,
+      configurable: false,
       enumerable: true,
       get() {
-        return this._props?.[propTargetKey];
+        const value = this._props?.[propTargetKey];
+
+        if (!propConverter) return value;
+
+        return propConverter(value);
       },
     });
   }
@@ -66,20 +74,14 @@ export class DomainModel<P extends Props> {
     this.validateProps(this._props);
   }
 
-  propsIsEmpty() {
+  isPropsEmpty(): this is InitializedDomainModel<P> {
     return this._props === (DomainModel.EMPTY_PROPS as any);
   }
 
   props(): P | null {
-    if (this.propsIsEmpty()) return null;
+    if (this.isPropsEmpty()) return null;
 
-    return _.cloneDeepWith(this._props, (value) => {
-      if (DomainModel.isDomainModel(value)) {
-        value.redefineModel();
-
-        return value;
-      }
-    });
+    return _.cloneDeep(this._props);
   }
 
   metadata(): any {
@@ -87,7 +89,7 @@ export class DomainModel<P extends Props> {
   }
 
   protected initializeProps(propsOrBuilder: P | PropsBuilder<typeof this>) {
-    if (!this.propsIsEmpty()) throw new PropsInitializedError();
+    if (!this.isPropsEmpty()) throw new PropsInitializedError();
 
     let props: P;
 
@@ -117,6 +119,10 @@ export class DomainModel<P extends Props> {
     this.validate();
   }
 }
+
+export type InitializedDomainModel<P extends Props> = DomainModel<P> & {
+  props(): P;
+};
 
 export type AnyDomainModel = DomainModel<Props>;
 

@@ -4,7 +4,7 @@ import {
   ModelPropsValidator,
   defineModelDomain,
   defineModelName,
-  defineModelPropsValidator,
+  defineModelPropGettersValidator,
   defineModelVersion,
   getModelDomain,
 } from "../meta";
@@ -85,6 +85,6 @@ export function Model<
     }
 
     if (modelOptions?.propsValidator)
-      defineModelPropsValidator(target, modelOptions.propsValidator);
+      defineModelPropGettersValidator(target, modelOptions.propsValidator);
   };
 }

@@ -4,6 +4,6 @@ import { AnyEvent } from "../message";
 
 export type AggregateClass = StateAggregateClass | ESAggregateClass;
 
-export interface IAggregateEventPublisher {
-  publish(events: AnyEvent | AnyEvent[]): void;
+export interface IAggregateEventPublisher<R = any> {
+  publish(events: AnyEvent | AnyEvent[]): R;
 }

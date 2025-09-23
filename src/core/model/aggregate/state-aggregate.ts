@@ -64,10 +64,12 @@ export class StateAggregate<P extends Props> extends Aggregate<P> {
     this._events = [];
   }
 
-  publishEvents(publisher: IAggregateEventPublisher) {
-    publisher.publish(this.events());
+  publishEvents<R = any>(publisher: IAggregateEventPublisher<R>) {
+    const events = this.events();
 
     this.clearEvents();
+
+    return publisher.publish(events);
   }
 }
 

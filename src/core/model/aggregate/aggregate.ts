@@ -57,7 +57,7 @@ export abstract class Aggregate<P extends Props> extends ModelWithId<P> {
     return eventClass.build(props, { source: this.createEventSource() });
   }
 
-  abstract publishEvents(publisher: IAggregateEventPublisher): void;
+  abstract publishEvents<R = any>(publisher: IAggregateEventPublisher<R>): R;
 }
 
 export type AnyAggregate = Aggregate<Props>;

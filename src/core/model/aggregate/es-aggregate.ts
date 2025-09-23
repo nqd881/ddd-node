@@ -207,28 +207,28 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
   }
 
   takeSnapshot() {
-    if (this.propsIsEmpty())
+    if (this.isPropsEmpty())
       throw new Error(
         "Cannot create snapshot when the props is not initialized"
       );
 
     return {
       metadata: this.metadata(),
-      props: this.props()!,
+      props: this.props(),
     } as Snapshot<typeof this>;
   }
 
   protected commitEvents() {
-    const events = this.events();
-
+    this._pastEvents.push(...this.events());
     this._events = [];
-    this._pastEvents.push(...events);
   }
 
-  publishEvents(publisher: IAggregateEventPublisher): void {
-    publisher.publish(this.events());
+  publishEvents<R = any>(publisher: IAggregateEventPublisher<R>) {
+    const events = this.events();
 
     this.commitEvents();
+
+    return publisher.publish(events);
   }
 }
 

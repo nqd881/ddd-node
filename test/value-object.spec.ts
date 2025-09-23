@@ -44,10 +44,10 @@ abstract class MessageContent<
   constructor(props: TProps) {
     super();
 
-    this.initializeProps({ ...props, type: this.type$() });
+    this.initializeProps({ ...props, type: this.$type() });
   }
 
-  abstract type$(): TType;
+  abstract $type(): TType;
 
   @Prop()
   declare type: TType;
@@ -61,7 +61,7 @@ class MessageContentText extends MessageContent<
   MessageContentType.Text,
   MessageContentTextProps
 > {
-  type$(): MessageContentType.Text {
+  $type(): MessageContentType.Text {
     return MessageContentType.Text;
   }
 

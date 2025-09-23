@@ -40,8 +40,35 @@ export class Name extends ValueObject<NameProps> {
     return `${this.firstName} ${this.lastName}`;
   }
 }
+
+interface CityProps {
+  name: string;
+  code: number;
+}
+
+class City extends ValueObject<CityProps> {
+  @Prop()
+  declare name: string;
+
+  @Prop()
+  declare code: number;
+
+  @Prop("name", (value: string) => value.toUpperCase())
+  declare nameUppercase: string;
+}
+
+interface AddressProps {
+  city: City;
+}
+
+class Address extends ValueObject<AddressProps> {
+  @Prop()
+  declare city: City;
+}
+
 interface PersonProps {
   name: Name;
+  address?: Address;
   age?: number;
 }
 
@@ -67,14 +94,16 @@ class Person<P extends PersonProps = PersonProps> extends DomainModel<P> {
   declare nameAlias: Name;
 
   @Prop()
+  declare address?: Address;
+
+  @Prop()
   declare age?: number;
 
   @Prop()
   declare unknownProp: string;
 
-  get uppercaseName() {
-    return this.name.fullName.toUpperCase();
-  }
+  @Prop("name", (value: Name) => value.fullName.toUpperCase())
+  declare uppercaseName: string;
 
   // public method initializeProps
   initializeProps = super.initializeProps;
@@ -138,29 +167,29 @@ describe("Model", function () {
     });
   });
 
-  describe("Props map", function () {
-    it("get own props map", () => {
-      const expectOwnPropsMap = { school: "school" };
+  describe("Property accessors", function () {
+    it("declared property accessors", () => {
+      const expectPropertyAccessors = { school: { targetKey: "school" } };
 
-      const ownModelPropsMap = Object.fromEntries(
-        Student.modelDescriptor().ownModelPropsMap()
+      const declaredPropertyAccessors = Object.fromEntries(
+        Student.modelDescriptor().declaredPropertyAccessors()
       );
 
-      expect(ownModelPropsMap).to.deep.match(expectOwnPropsMap);
+      expect(declaredPropertyAccessors).to.deep.match(expectPropertyAccessors);
     });
 
-    it("get props map", () => {
-      const expectPropsMap = {
-        name: "name",
-        nameAlias: "name",
-        school: "school",
+    it("resolved property accessors", () => {
+      const expectPropertyAccessors = {
+        name: { targetKey: "name" },
+        nameAlias: { targetKey: "name" },
+        school: { targetKey: "school" },
       };
 
-      const modelPropsMap = Object.fromEntries(
-        Student.modelDescriptor().modelPropsMap()
+      const resolvedPropertyAccessors = Object.fromEntries(
+        Student.modelDescriptor().resolvedPropertyAccessors()
       );
 
-      expect(modelPropsMap).to.deep.match(expectPropsMap);
+      expect(resolvedPropertyAccessors).to.deep.match(expectPropertyAccessors);
     });
   });
 
@@ -210,10 +239,16 @@ describe("Model", function () {
     });
   });
 
-  describe("prop()", function () {
+  describe("props()", function () {
     it("getter working", () => {
       const student = new Student({
         name: new Name("Dai"),
+        address: new Address({
+          city: new City({
+            name: "Hanoi",
+            code: 1,
+          }),
+        }),
         school: "NEU",
       });
 
@@ -221,6 +256,11 @@ describe("Model", function () {
 
       expect(props.name.firstName).to.equal("Dai");
       expect(props.school).to.equal("NEU");
+
+      expect(props.address?.city.name).to.equal("Hanoi");
+      expect(props.address?.city.code).to.equal(1);
+
+      expect(props.address?.city.nameUppercase).to.equal("HANOI");
     });
   });
 

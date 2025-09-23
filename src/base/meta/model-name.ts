@@ -15,23 +15,20 @@ export class $ModelName extends String {
   }
 }
 
-const ModelNameMetaKey = Symbol.for("MODEL_NAME");
+const MODEL_NAME = Symbol.for("MODEL_NAME");
 
 export const defineModelName = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,
   modelName: ModelName
 ) => {
-  Reflect.defineMetadata(ModelNameMetaKey, new $ModelName(modelName), target);
+  Reflect.defineMetadata(MODEL_NAME, new $ModelName(modelName), target);
 };
 
 export const getModelName = <T extends AnyDomainModel>(
   target: DomainModelClass<T>
 ): ModelName => {
-  if (!Reflect.hasOwnMetadata(ModelNameMetaKey, target))
+  if (!Reflect.hasOwnMetadata(MODEL_NAME, target))
     defineModelName(target, target.name);
 
-  return Reflect.getOwnMetadata<$ModelName>(
-    ModelNameMetaKey,
-    target
-  )!.valueOf();
+  return Reflect.getOwnMetadata<$ModelName>(MODEL_NAME, target)!.valueOf();
 };
