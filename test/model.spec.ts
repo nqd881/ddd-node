@@ -82,7 +82,9 @@ class InvalidPersonAgeError extends Error {
   propsValidator: Person.Validator,
 })
 class Person<P extends PersonProps = PersonProps> extends DomainModel<P> {
-  static readonly Validator: ModelPropsValidator<Person> = (props) => {
+  static readonly Validator: ModelPropsValidator<Person>["validate"] = (
+    props
+  ) => {
     if (props?.age && (props.age < 0 || props.age > 200))
       throw new InvalidPersonAgeError();
   };

@@ -1,9 +1,14 @@
 import _ from "lodash";
 import { AnyDomainModel, InferredProps } from "../model";
 
-export type ModelPropsValidator<T extends AnyDomainModel = AnyDomainModel> = (
-  props: InferredProps<T>
-) => void;
+export interface ModelPropsValidator<
+  T extends AnyDomainModel = AnyDomainModel
+> {
+  validate(props: InferredProps<T>): void;
+}
+
+export type ModelPropsValidateFn<T extends AnyDomainModel> =
+  ModelPropsValidator<T>["validate"];
 
 const OWN_MODEL_PROPS_VALIDATOR = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
 

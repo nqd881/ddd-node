@@ -65,8 +65,9 @@ export class DomainModel<P extends Props> {
   validateProps(props: P): void {
     const modelPropsValidators = this.modelDescriptor().modelPropsValidators();
 
-    modelPropsValidators.forEach((propsValidator) =>
-      propsValidator.call(this.constructor, props)
+    modelPropsValidators.forEach(
+      (propsValidator) => propsValidator.validate(props)
+      // propsValidator.call(this.constructor, props)
     );
   }
 

@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Domain, DomainManager } from "../domain";
 import {
+  ModelPropsValidateFn,
   ModelPropsValidator,
   defineModelDomain,
   defineModelName,
@@ -14,7 +15,7 @@ export type ModelOptions<T extends AnyDomainModel = AnyDomainModel> = {
   name?: string;
   version?: number;
   domain?: string;
-  propsValidator?: ModelPropsValidator<T>;
+  propsValidator?: ModelPropsValidator<T> | ModelPropsValidateFn<T>;
   autoRegisterModel?: boolean;
 };
 
@@ -84,7 +85,12 @@ export function Model<
       domain.modelRegistry.registerModel(target);
     }
 
-    if (modelOptions?.propsValidator)
-      defineModelPropGettersValidator(target, modelOptions.propsValidator);
+    if (modelOptions?.propsValidator) {
+      if (typeof modelOptions.propsValidator === "function")
+        defineModelPropGettersValidator(target, {
+          validate: modelOptions.propsValidator,
+        });
+      else defineModelPropGettersValidator(target, modelOptions.propsValidator);
+    }
   };
 }
