@@ -1,5 +1,7 @@
 import { AnyDomainModel, DomainModelClass } from "../model";
 
+const OWN_MODEL_STATIC_VALUES = Symbol.for("OWN_MODEL_STATIC_VALUES");
+
 export type ModelStaticValueBuilder<T extends AnyDomainModel = AnyDomainModel> =
   () => T;
 
@@ -18,8 +20,6 @@ export class ModelStaticValue<T extends AnyDomainModel = AnyDomainModel> {
     return this._value;
   }
 }
-
-const OWN_MODEL_STATIC_VALUES = Symbol.for("OWN_MODEL_STATIC_VALUES");
 
 export class ModelStaticValuesMap<
   T extends AnyDomainModel = AnyDomainModel

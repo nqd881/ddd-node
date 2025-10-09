@@ -2,7 +2,8 @@ import {
   AnyDomainModel,
   DomainModelClass,
   ModelPropsValidateFn,
-  defineModelPropGettersValidator,
+  ModelPropsValidatorWrapper,
+  defineModelPropsValidator,
 } from "..";
 
 export const PropsValidator = <T extends AnyDomainModel>(
@@ -10,7 +11,8 @@ export const PropsValidator = <T extends AnyDomainModel>(
   key: string,
   propertyDescriptor: TypedPropertyDescriptor<ModelPropsValidateFn<T>>
 ) => {
-  defineModelPropGettersValidator(target, {
-    validate: propertyDescriptor.value!.bind(target),
-  });
+  defineModelPropsValidator(
+    target,
+    new ModelPropsValidatorWrapper(propertyDescriptor.value!.bind(target))
+  );
 };

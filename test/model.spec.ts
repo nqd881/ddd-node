@@ -3,25 +3,34 @@
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiDeepMatch from "chai-deep-match";
+import { IsNotEmpty } from "class-validator";
 import { beforeEach, describe, it } from "mocha";
 import {
-  Model,
+  ClassValidatorError,
   DomainModel,
+  Model,
+  ModelPropsValidator,
   Mutable,
   Prop,
-  ModelPropsValidator,
-  Static,
-  ValueObject,
   PropsValidator,
+  Static,
+  UseClassValidator,
+  ValueObject,
 } from "../src";
 
 chai.use(chaiDeepMatch);
 
-interface NameProps {
+class NameProps {
+  @IsNotEmpty()
   firstName: string;
+
   lastName: string;
 }
 
+@UseClassValidator()
+@Model({
+  propsType: NameProps,
+})
 export class Name extends ValueObject<NameProps> {
   @Static(() => new Name("Dai", "Quoc"))
   static QUOCDAI: Name;
@@ -78,17 +87,23 @@ class InvalidPersonAgeError extends Error {
   }
 }
 
+class PersonPropsValidator implements ModelPropsValidator<Person> {
+  constructor(private max: number) {}
+
+  validate(props: PersonProps): void {
+    if (props?.age && (props.age < 0 || props.age > this.max))
+      throw new InvalidPersonAgeError();
+  }
+}
+
 @Model({
-  propsValidator: Person.Validator,
+  propsValidator: class extends PersonPropsValidator {
+    constructor() {
+      super(200);
+    }
+  },
 })
 class Person<P extends PersonProps = PersonProps> extends DomainModel<P> {
-  static readonly Validator: ModelPropsValidator<Person>["validate"] = (
-    props
-  ) => {
-    if (props?.age && (props.age < 0 || props.age > 200))
-      throw new InvalidPersonAgeError();
-  };
-
   @Prop()
   declare name: Name;
 
@@ -303,13 +318,16 @@ describe("Model", function () {
   });
 
   describe("Validator", function () {
-    const invalidStudent = () =>
+    const invalidSchoolStudent = () =>
       new Student({ name: new Name("Huy"), school: "HUST" });
+    const invalidNameStudent = () =>
+      new Student({ name: new Name(""), school: "NEU" });
     const validStudent = () =>
       new Student({ name: new Name("Dai"), school: "NEU" });
 
-    it("validate after initialize props", () => {
-      expect(invalidStudent).to.throw(InvalidStudentSchoolError);
+    it("validate throw correct error", () => {
+      expect(invalidSchoolStudent).to.throw(InvalidStudentSchoolError);
+      expect(invalidNameStudent).to.throw(ClassValidatorError);
     });
 
     it("validate on update props", () => {

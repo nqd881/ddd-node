@@ -1,5 +1,7 @@
 import { AnyDomainModel, DomainModelClass } from "../model";
 
+const MODEL_VERSION = Symbol.for("MODEL_VERSION");
+
 export type ModelVersion = number;
 
 export class $ModelVersion extends Number {
@@ -14,8 +16,6 @@ export class $ModelVersion extends Number {
     super(modelVersion);
   }
 }
-
-const MODEL_VERSION = Symbol.for("MODEL_VERSION");
 
 export const defineModelVersion = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,

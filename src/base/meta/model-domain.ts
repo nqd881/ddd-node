@@ -1,7 +1,7 @@
 import { DEFAULT_DOMAIN, DomainName } from "../domain";
 import { AnyDomainModel, DomainModelClass } from "../model";
 
-export const MODEL_DOMAIN = Symbol.for("MODEL_DOMAIN");
+const MODEL_DOMAIN = Symbol.for("MODEL_DOMAIN");
 
 export const defineModelDomain = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,

@@ -1,5 +1,7 @@
 import { AnyDomainModel, DomainModelClass } from "../model";
 
+const MODEL_NAME = Symbol.for("MODEL_NAME");
+
 export type ModelName = string;
 
 export class $ModelName extends String {
@@ -14,8 +16,6 @@ export class $ModelName extends String {
     super(modelName);
   }
 }
-
-const MODEL_NAME = Symbol.for("MODEL_NAME");
 
 export const defineModelName = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,

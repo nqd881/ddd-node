@@ -1,4 +1,5 @@
-import { AnyDomainModel, DomainModelClass } from ".";
+import { Class } from "type-fest";
+import { AnyDomainModel, DomainModelClass, InferredProps } from ".";
 import {
   ModelId,
   ModelName,
@@ -16,6 +17,7 @@ import {
   getResolvedPropertyAccessors,
   getOwnModelPropsValidator,
   getOwnModelStaticValues,
+  getModelPropsType,
 } from "../meta";
 
 export class ModelDescriptor<T extends AnyDomainModel = AnyDomainModel> {
@@ -59,5 +61,9 @@ export class ModelDescriptor<T extends AnyDomainModel = AnyDomainModel> {
 
   resolvedPropertyAccessors(): ModelPropertyAccessorMap<T> {
     return getResolvedPropertyAccessors<T>(this.modelClass.prototype);
+  }
+
+  propsType(): Class<InferredProps<T>> | undefined {
+    return getModelPropsType(this.modelClass);
   }
 }

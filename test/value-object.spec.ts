@@ -1,6 +1,15 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { Prop, Props, PropsBuilder, ValueObject } from "../src";
+import {
+  ClassValidatorError,
+  Model,
+  Prop,
+  Props,
+  PropsBuilder,
+  UseClassValidator,
+  ValueObject,
+} from "../src";
+import { IsNotEmpty } from "class-validator";
 
 interface NicknameProps {
   value: string;
@@ -53,10 +62,12 @@ abstract class MessageContent<
   declare type: TType;
 }
 
-interface MessageContentTextProps {
+class MessageContentTextProps {
+  @IsNotEmpty()
   text: string;
 }
 
+@UseClassValidator(MessageContentTextProps)
 class MessageContentText extends MessageContent<
   MessageContentType.Text,
   MessageContentTextProps
@@ -112,5 +123,11 @@ describe("Value Object", function () {
 
     expect(contentText.type).to.equal(MessageContentType.Text);
     expect(contentText.text).to.equal("abc");
+  });
+
+  it("class validator work properly", () => {
+    const invalidContentText = () => new MessageContentText({ text: "" });
+
+    expect(invalidContentText).to.throw(ClassValidatorError);
   });
 });

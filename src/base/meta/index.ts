@@ -6,3 +6,4 @@ export * from "./model-props-validator";
 export * from "./model-version";
 export * from "./model-domain";
 export * from "./model-mutable";
+export * from "./model-props-type";

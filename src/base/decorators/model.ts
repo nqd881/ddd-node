@@ -1,96 +1,122 @@
-import _ from "lodash";
+import { Class } from "type-fest";
 import { Domain, DomainManager } from "../domain";
 import {
-  ModelPropsValidateFn,
-  ModelPropsValidator,
+  ModelPropsValidatorWrapper,
+  ModelPropsValidatorWrapperInput,
   defineModelDomain,
   defineModelName,
-  defineModelPropGettersValidator,
+  defineModelPropsType,
+  defineModelPropsValidator,
   defineModelVersion,
   getModelDomain,
 } from "../meta";
-import { AnyDomainModel, DomainModelClass } from "../model";
+import { AnyDomainModel, DomainModelClass, InferredProps } from "../model";
 
 export type ModelOptions<T extends AnyDomainModel = AnyDomainModel> = {
   name?: string;
   version?: number;
   domain?: string;
-  propsValidator?: ModelPropsValidator<T> | ModelPropsValidateFn<T>;
+  propsValidator?: ModelPropsValidatorWrapperInput<T>;
+  propsType?: Class<InferredProps<T>>;
   autoRegisterModel?: boolean;
 };
 
-export const DEFAULT_MODEL_OPTIONS: ModelOptions = {
+export const DEFAULT_MODEL_OPTIONS: Required<
+  Pick<ModelOptions, "autoRegisterModel">
+> = {
   autoRegisterModel: true,
 };
 
-export function Model<
-  T extends DomainModelClass,
-  I extends InstanceType<T> = InstanceType<T>
->(options?: ModelOptions<I>): any;
-export function Model<
-  T extends DomainModelClass,
-  I extends InstanceType<T> = InstanceType<T>
->(name: string, options?: ModelOptions<I>): any;
-export function Model<
-  T extends DomainModelClass,
-  I extends InstanceType<T> = InstanceType<T>
->(name: string, version: number, options?: ModelOptions<I>): any;
+/**
+ * @Model decorator — registers a DomainModel with metadata and domain context.
+ *
+ * Usage examples:
+ *  @Model()
+ *  @Model("User")
+ *  @Model("User", 2)
+ *  @Model("User", { domain: "Auth" })
+ *  @Model("User", 2, { domain: "Auth" })
+ */
 export function Model<
   T extends DomainModelClass,
   I extends InstanceType<T> = InstanceType<T>
 >(
-  p1?: string | ModelOptions<I>,
-  p2?: number | ModelOptions<I>,
-  p3?: ModelOptions<I>
-): any {
-  const defaultModelOptions = _.clone(DEFAULT_MODEL_OPTIONS);
-
-  let modelOptions: ModelOptions = {};
-
-  if (p1 && !p2 && !p3) {
-    if (typeof p1 === "string") modelOptions = { name: p1 };
-    else modelOptions = p1;
-  } else if (p1 && p2 && !p3) {
-    if (typeof p2 === "number")
-      modelOptions = { name: p1 as string, version: p2 };
-    else modelOptions = { name: p1 as string, ...p2 };
-  } else if (p1 && p2 && p3) {
-    modelOptions = {
-      name: p1 as string,
-      version: p2 as number,
-      ...p3,
-    };
-  }
-
-  modelOptions = _.merge(defaultModelOptions, modelOptions);
+  nameOrOptions?: string | ModelOptions<I>,
+  versionOrOptions?: number | ModelOptions<I>,
+  options?: ModelOptions<I>
+) {
+  const modelOptions = normalizeModelOptions(
+    nameOrOptions,
+    versionOrOptions,
+    options
+  );
 
   return (target: T) => {
-    if (modelOptions?.name) defineModelName(target, modelOptions.name);
+    defineModel(target, modelOptions);
 
-    if (modelOptions?.version) defineModelVersion(target, modelOptions.version);
-
-    if (modelOptions?.domain) defineModelDomain(target, modelOptions.domain);
-
-    if (modelOptions?.autoRegisterModel) {
-      const domainName = getModelDomain(target);
-
-      const domainManager = DomainManager.instance();
-
-      if (!domainManager.hasDomain(domainName)) {
-        domainManager.addDomain(new Domain(domainName));
-      }
-
-      const domain = domainManager.getDomain(domainName)!;
-
-      domain.modelRegistry.registerModel(target);
-    }
-
-    if (modelOptions?.propsValidator) {
-      if (typeof modelOptions.propsValidator === "function")
-        defineModelPropGettersValidator(target, {
-          validate: modelOptions.propsValidator,
-        });
-      else defineModelPropGettersValidator(target, modelOptions.propsValidator);
+    if (modelOptions.autoRegisterModel) {
+      registerModel(target);
     }
   };
+}
+
+/**
+ * Normalizes decorator overload arguments into a unified ModelOptions object.
+ */
+function normalizeModelOptions<T extends AnyDomainModel>(
+  p1?: string | ModelOptions<T>,
+  p2?: number | ModelOptions<T>,
+  p3?: ModelOptions<T>
+): ModelOptions<T> {
+  let options: ModelOptions<T> = {};
+
+  if (typeof p1 === "string" && typeof p2 === "number") {
+    options = { name: p1, version: p2, ...p3 };
+  } else if (typeof p1 === "string" && typeof p2 === "object") {
+    options = { name: p1, ...p2 };
+  } else if (typeof p1 === "string") {
+    options = { name: p1 };
+  } else if (typeof p1 === "object") {
+    options = { ...p1 };
+  }
+
+  return { ...DEFAULT_MODEL_OPTIONS, ...options };
+}
+
+/**
+ * Defines model metadata such as name, version, domain, propsType, and validator.
+ */
+function defineModel<T extends DomainModelClass>(
+  target: T,
+  options: ModelOptions<InstanceType<T>>
+) {
+  if (options.name) defineModelName(target, options.name);
+  if (options.version) defineModelVersion(target, options.version);
+  if (options.domain) defineModelDomain(target, options.domain);
+
+  if (options.propsValidator) {
+    defineModelPropsValidator(
+      target,
+      new ModelPropsValidatorWrapper(options.propsValidator)
+    );
+  }
+
+  if (options.propsType) {
+    defineModelPropsType(target, options.propsType);
+  }
+}
+
+/**
+ * Registers the model in its associated domain via DomainManager.
+ */
+function registerModel<T extends DomainModelClass>(target: T) {
+  const domainName = getModelDomain(target);
+  const domainManager = DomainManager.instance();
+
+  if (!domainManager.hasDomain(domainName)) {
+    domainManager.addDomain(new Domain(domainName));
+  }
+
+  const domain = domainManager.getDomain(domainName)!;
+  domain.modelRegistry.registerModel(target);
 }

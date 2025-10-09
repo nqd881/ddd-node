@@ -1,4 +1,6 @@
+import isClass from "is-class";
 import _ from "lodash";
+import { Class } from "type-fest";
 import { AnyDomainModel, InferredProps } from "../model";
 
 export interface ModelPropsValidator<
@@ -10,9 +12,46 @@ export interface ModelPropsValidator<
 export type ModelPropsValidateFn<T extends AnyDomainModel> =
   ModelPropsValidator<T>["validate"];
 
+export type ModelPropsValidatorBuilder<T extends AnyDomainModel> =
+  () => ModelPropsValidator<T>;
+
+export type ModelPropsValidatorWrapperInput<T extends AnyDomainModel> =
+  | Class<ModelPropsValidator<T>, []>
+  | ModelPropsValidator<T>
+  | ModelPropsValidateFn<T>
+  | ModelPropsValidatorBuilder<T>;
+
+export class ModelPropsValidatorWrapper<T extends AnyDomainModel>
+  implements ModelPropsValidator<T>
+{
+  constructor(private input: ModelPropsValidatorWrapperInput<T>) {}
+
+  validate(props: InferredProps<T>): void {
+    if (isClass(this.input)) {
+      const instance = new this.input();
+      return instance.validate(props);
+    }
+
+    if (typeof this.input === "function") {
+      const res = this.input(props);
+
+      const resIsValidator =
+        res && typeof res === "object" && "validate" in res;
+
+      if (resIsValidator) {
+        return res.validate(props);
+      }
+
+      return res;
+    }
+
+    return this.input.validate(props);
+  }
+}
+
 const OWN_MODEL_PROPS_VALIDATOR = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
 
-export const defineModelPropGettersValidator = <T extends AnyDomainModel>(
+export const defineModelPropsValidator = <T extends AnyDomainModel>(
   target: object,
   validator: ModelPropsValidator<T>
 ) => {
@@ -28,30 +67,21 @@ export const getOwnModelPropsValidator = <T extends AnyDomainModel>(
   );
 };
 
-export const MODEL_PROPS_VALIDATORS = Symbol.for("MODEL_PROPS_VALIDATORS");
-
 export const getModelPropsValidators = (
   target: object
 ): ModelPropsValidator[] => {
-  if (!Reflect.hasOwnMetadata(MODEL_PROPS_VALIDATORS, target)) {
-    let result = [];
-    let _target: object | null = target;
+  let result: ModelPropsValidator[] = [];
+  let _target: object | null = target;
 
-    do {
-      const ownValidator = getOwnModelPropsValidator(_target);
+  do {
+    const ownValidator = getOwnModelPropsValidator(_target);
 
-      if (ownValidator) result.push(ownValidator);
+    if (ownValidator) result.push(ownValidator);
 
-      _target = Reflect.getPrototypeOf(_target);
-    } while (_target !== null);
+    _target = Reflect.getPrototypeOf(_target);
+  } while (_target !== null);
 
-    result = _.uniq(result);
+  result = _.uniq(result);
 
-    Reflect.defineMetadata(MODEL_PROPS_VALIDATORS, result, target);
-  }
-
-  return Reflect.getOwnMetadata<ModelPropsValidator[]>(
-    MODEL_PROPS_VALIDATORS,
-    target
-  )!;
+  return result;
 };

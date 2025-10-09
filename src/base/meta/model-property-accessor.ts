@@ -1,7 +1,6 @@
 import { AnyDomainModel, DomainModel, InferredProps } from "../model";
 
 const OWN_MODEL_PROPERTY_ACCESSORS = Symbol.for("OWN_MODEL_PROPERTY_ACCESSORS");
-const MODEL_PROPERTY_ACCESSORS = Symbol.for("MODEL_PROPERTY_ACCESSORS");
 
 export type PropertyConverter<T = any> = (value: any) => T;
 
@@ -55,31 +54,18 @@ export const getResolvedPropertyAccessors = <
 >(
   target: object
 ): ModelPropertyAccessorMap<T> => {
-  if (!Reflect.hasOwnMetadata(MODEL_PROPERTY_ACCESSORS, target)) {
-    const buildMap = (target: object) => {
-      const result = new ModelPropertyAccessorMap<T>();
-      const ownMaps: ModelPropertyAccessorMap<T>[] = [];
+  const result = new ModelPropertyAccessorMap<T>();
+  const ownMaps: ModelPropertyAccessorMap<T>[] = [];
 
-      let current: object | null = target;
-      do {
-        if (DomainModel.isDomainModel(current)) {
-          ownMaps.unshift(getDeclaredPropertyAccessors(current));
-        }
-        current = Reflect.getPrototypeOf(current);
-      } while (current !== null);
+  let current: object | null = target;
+  do {
+    if (DomainModel.isDomainModel(current)) {
+      ownMaps.unshift(getDeclaredPropertyAccessors(current));
+    }
+    current = Reflect.getPrototypeOf(current);
+  } while (current !== null);
 
-      ownMaps.forEach((map) =>
-        map.forEach((meta, key) => result.set(key, meta))
-      );
+  ownMaps.forEach((map) => map.forEach((meta, key) => result.set(key, meta)));
 
-      return result;
-    };
-
-    Reflect.defineMetadata(MODEL_PROPERTY_ACCESSORS, buildMap(target), target);
-  }
-
-  return Reflect.getOwnMetadata<ModelPropertyAccessorMap<T>>(
-    MODEL_PROPERTY_ACCESSORS,
-    target
-  )!;
+  return result;
 };
