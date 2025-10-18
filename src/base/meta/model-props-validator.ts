@@ -3,6 +3,8 @@ import _ from "lodash";
 import { Class } from "type-fest";
 import { AnyDomainModel, InferredProps } from "../model";
 
+const OWN_MODEL_PROPS_VALIDATOR = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
+
 export interface ModelPropsValidator<
   T extends AnyDomainModel = AnyDomainModel
 > {
@@ -48,8 +50,6 @@ export class ModelPropsValidatorWrapper<T extends AnyDomainModel>
     return this.input.validate(props);
   }
 }
-
-const OWN_MODEL_PROPS_VALIDATOR = Symbol.for("OWN_MODEL_PROPS_VALIDATOR");
 
 export const defineModelPropsValidator = <T extends AnyDomainModel>(
   target: object,

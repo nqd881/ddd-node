@@ -2,6 +2,8 @@ import { AnyDomainModel, DomainModelClass } from "../model";
 import { ModelName, getModelName } from "./model-name";
 import { ModelVersion, getModelVersion } from "./model-version";
 
+const MODEL_ID = Symbol.for("MODEL_ID");
+
 export type ModelId = string;
 
 export type ModelIdFormat = `${string}${typeof $ModelId.Divider}${number}`;
@@ -33,8 +35,6 @@ export class $ModelId extends String {
     super($ModelId.makeValue(modelName, modelVersion));
   }
 }
-
-const MODEL_ID = Symbol.for("MODEL_ID");
 
 export const setModelId = <T extends AnyDomainModel>(
   target: DomainModelClass<T>,

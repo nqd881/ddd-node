@@ -1,11 +1,13 @@
 import "reflect-metadata";
 
+const COMMAND_TYPE = Symbol.for("COMMAND_TYPE");
+
 export type CommandType = string;
 
 export class $CommandType extends String {
   static validate(commandType: string) {
     if (commandType.trim().length === 0)
-      throw new Error("IsCommand type cannot be an empty string");
+      throw new Error("Command type cannot be an empty string");
   }
 
   constructor(commandType: CommandType) {
@@ -15,19 +17,13 @@ export class $CommandType extends String {
   }
 }
 
-const CommandTypeMetaKey = Symbol.for("COMMAND_TYPE");
-
 export const defineCommandType = (target: object, commandType: CommandType) => {
-  Reflect.defineMetadata(
-    CommandTypeMetaKey,
-    new $CommandType(commandType),
-    target
-  );
+  Reflect.defineMetadata(COMMAND_TYPE, new $CommandType(commandType), target);
 };
 
 export const getCommandType = (target: object): CommandType => {
   const commandType = Reflect.getOwnMetadata<$CommandType>(
-    CommandTypeMetaKey,
+    COMMAND_TYPE,
     target
   );
 

@@ -1,21 +1,18 @@
+import "reflect-metadata";
 import { AnyCommand, CommandHandler } from "../../model";
+
+const OWN_COMMAND_HANDLER_MAP = Symbol.for("OWN_COMMAND_HANDLER_MAP");
+const COMMAND_HANDLER_MAP = Symbol.for("COMMAND_HANDLER_MAP");
 
 export class CommandHandlerMap extends Map<string, CommandHandler> {}
 
-export const OwnCommandHandlerMapMetaKey = Symbol.for(
-  "OWN_COMMAND_HANDLER_MAP"
-);
-
 export const getOwnCommandHandlerMap = (target: object): CommandHandlerMap => {
   const ownCommandHandlerMap = () =>
-    Reflect.getOwnMetadata<CommandHandlerMap>(
-      OwnCommandHandlerMapMetaKey,
-      target
-    );
+    Reflect.getOwnMetadata<CommandHandlerMap>(OWN_COMMAND_HANDLER_MAP, target);
 
   if (!ownCommandHandlerMap())
     Reflect.defineMetadata(
-      OwnCommandHandlerMapMetaKey,
+      OWN_COMMAND_HANDLER_MAP,
       new CommandHandlerMap(),
       target
     );
@@ -33,10 +30,8 @@ export const defineCommandHandler = <T extends AnyCommand>(
   commandHandlersMap.set(commandType, handler as CommandHandler);
 };
 
-export const CommandHandlerMapMetaKey = Symbol.for("COMMAND_HANDLER_MAP");
-
 export const getCommandHandlerMap = (target: object): CommandHandlerMap => {
-  if (!Reflect.hasOwnMetadata(CommandHandlerMapMetaKey, target)) {
+  if (!Reflect.hasOwnMetadata(COMMAND_HANDLER_MAP, target)) {
     const buildCommandHandlerMap = (target: object) => {
       let _target: object | null = target;
 
@@ -62,14 +57,14 @@ export const getCommandHandlerMap = (target: object): CommandHandlerMap => {
     };
 
     Reflect.defineMetadata(
-      CommandHandlerMapMetaKey,
+      COMMAND_HANDLER_MAP,
       buildCommandHandlerMap(target),
       target
     );
   }
 
   return Reflect.getOwnMetadata<CommandHandlerMap>(
-    CommandHandlerMapMetaKey,
+    COMMAND_HANDLER_MAP,
     target
   )!;
 };

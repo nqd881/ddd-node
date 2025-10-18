@@ -1,3 +1,4 @@
 export * from "./es-aggregate";
-export * from "./event.metadata";
-export * from "./command.metadata";
+export * from "./event";
+export * from "./command";
+export * from "./enum";

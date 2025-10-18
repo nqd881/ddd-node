@@ -1,22 +1,20 @@
 import "reflect-metadata";
 import { AnyEvent, EventApplier } from "../../model";
 
+const OWN_EVENT_APPLIER_MAP = Symbol.for("OWN_EVENT_APPLIER_MAP");
+const EVENT_APPLIER_MAP = Symbol.for("EVENT_HANDLER_MAP");
+
 export class EventApplierMap extends Map<string, EventApplier> {}
 
-export const OwnEventApplierMapMetaKey = Symbol.for("OWN_EVENT_APPLIER_MAP");
-
 export const getOwnEventApplierMap = (target: object): EventApplierMap => {
-  if (!Reflect.hasOwnMetadata(OwnEventApplierMapMetaKey, target))
+  if (!Reflect.hasOwnMetadata(OWN_EVENT_APPLIER_MAP, target))
     Reflect.defineMetadata(
-      OwnEventApplierMapMetaKey,
+      OWN_EVENT_APPLIER_MAP,
       new EventApplierMap(),
       target
     );
 
-  return Reflect.getMetadata<EventApplierMap>(
-    OwnEventApplierMapMetaKey,
-    target
-  )!;
+  return Reflect.getMetadata<EventApplierMap>(OWN_EVENT_APPLIER_MAP, target)!;
 };
 
 export const defineEventApplier = <T extends AnyEvent>(
@@ -29,10 +27,8 @@ export const defineEventApplier = <T extends AnyEvent>(
   eventAppliersMap.set(eventType, applier as EventApplier);
 };
 
-export const EventApplierMapMetaKey = Symbol.for("EVENT_HANDLER_MAP");
-
 export const getEventApplierMap = (target: object): EventApplierMap => {
-  if (!Reflect.hasOwnMetadata(EventApplierMapMetaKey, target)) {
+  if (!Reflect.hasOwnMetadata(EVENT_APPLIER_MAP, target)) {
     const buildEventApplierMap = (target: object) => {
       let _target: object | null = target;
 
@@ -58,14 +54,11 @@ export const getEventApplierMap = (target: object): EventApplierMap => {
     };
 
     Reflect.defineMetadata(
-      EventApplierMapMetaKey,
+      EVENT_APPLIER_MAP,
       buildEventApplierMap(target),
       target
     );
   }
 
-  return Reflect.getOwnMetadata<EventApplierMap>(
-    EventApplierMapMetaKey,
-    target
-  )!;
+  return Reflect.getOwnMetadata<EventApplierMap>(EVENT_APPLIER_MAP, target)!;
 };

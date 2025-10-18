@@ -1,2 +1,2 @@
-export * from "./event-applier-map";
-export * from "./command-handler-map";
+export * from "./event-applier";
+export * from "./command-handler";

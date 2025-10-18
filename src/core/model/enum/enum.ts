@@ -1,6 +1,7 @@
 import { Class } from "type-fest";
 import { DomainModel, Mutable, Prop } from "../../../base";
 import { ClassStatic } from "../../../types";
+import { getEnumPropertySet } from "../../meta";
 
 export type EnumValue = string | number;
 
@@ -10,6 +11,10 @@ export interface EnumProps {
 
 @Mutable(false)
 export class Enum extends DomainModel<EnumProps> {
+  static enumPropertySet<T extends AnyEnum>(this: EnumClass<T>) {
+    return getEnumPropertySet(this);
+  }
+
   static values() {
     return Array.from(
       this.modelDescriptor().ownModelStaticValues().values()
@@ -21,17 +26,15 @@ export class Enum extends DomainModel<EnumProps> {
 
     let result: T | undefined;
 
-    this.modelDescriptor()
-      .ownModelStaticValues()
-      .forEach((staticValue) => {
-        if (staticValue.value instanceof this) {
-          const staticEnum = staticValue.value as T;
+    this.enumPropertySet().forEach((enumProperty) => {
+      const enumValue = <T | undefined>this?.[enumProperty];
 
-          if (staticEnum.value === value && !result) {
-            result = staticEnum;
-          }
-        }
-      });
+      if (!enumValue) return;
+
+      if (enumValue.value === value && !result) {
+        result = enumValue;
+      }
+    });
 
     if (!result)
       throw new Error(
