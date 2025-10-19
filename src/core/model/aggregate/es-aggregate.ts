@@ -23,7 +23,9 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
     pastEvents: AnyEvent[],
     id?: Id
   ) {
-    const instance = new this(this.createMetadata({ id }));
+    const metadata = this.createMetadata({ id });
+
+    const instance = new this(metadata);
 
     instance.applyPastEvents(pastEvents);
 
@@ -42,16 +44,9 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
     snapshot: Snapshot<T>,
     pastEvents: AnyEvent[] = []
   ) {
-    const { id, version } = snapshot.metadata;
-    const { props } = snapshot;
+    const { metadata, props } = snapshot;
 
-    const instance = new this(
-      {
-        id,
-        version,
-      },
-      props
-    );
+    const instance = new this(metadata, props);
 
     instance.applyPastEvents(pastEvents);
 

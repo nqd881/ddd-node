@@ -174,13 +174,11 @@ class Student extends Person<StudentProps> {
 describe("Model", function () {
   describe("Model name", function () {
     it("using default model name", () => {
-      expect(Person.modelDescriptor().modelName()).to.equals(Person.name);
+      expect(Person.modelDescriptor().modelName).to.equals(Person.name);
     });
 
     it("using decorated model name", () => {
-      expect(Student.modelDescriptor().modelName()).to.equal(
-        STUDENT_MODEL_NAME
-      );
+      expect(Student.modelDescriptor().modelName).to.equal(STUDENT_MODEL_NAME);
     });
   });
 
@@ -189,7 +187,7 @@ describe("Model", function () {
       const expectPropertyAccessors = { school: { targetKey: "school" } };
 
       const declaredPropertyAccessors = Object.fromEntries(
-        Student.modelDescriptor().declaredPropertyAccessors()
+        Student.modelDescriptor().declaredPropertyAccessors
       );
 
       expect(declaredPropertyAccessors).to.deep.match(expectPropertyAccessors);
@@ -203,7 +201,7 @@ describe("Model", function () {
       };
 
       const resolvedPropertyAccessors = Object.fromEntries(
-        Student.modelDescriptor().resolvedPropertyAccessors()
+        Student.modelDescriptor().resolvedPropertyAccessors
       );
 
       expect(resolvedPropertyAccessors).to.deep.match(expectPropertyAccessors);
@@ -342,12 +340,8 @@ describe("Model", function () {
       const student = () =>
         new Student({ name: new Name("Dai"), age: 201, school: "NEU" });
 
-      expect(Person.modelDescriptor().modelPropsValidators().length).to.equal(
-        1
-      );
-      expect(Student.modelDescriptor().modelPropsValidators().length).to.equal(
-        2
-      );
+      expect(Person.modelDescriptor().modelPropsValidators.length).to.equal(1);
+      expect(Student.modelDescriptor().modelPropsValidators.length).to.equal(2);
 
       expect(student).to.throw(InvalidPersonAgeError);
     });

@@ -1,9 +1,9 @@
 import _ from "lodash";
 import { AbstractClass, Class } from "type-fest";
+import { PropertyConverter } from "..";
 import { ClassStatic } from "../../types";
 import { PropsInitializedError } from "./errors";
 import { ModelDescriptor } from "./model-descriptor";
-import { PropertyConverter } from "..";
 
 export interface Props {
   [key: PropertyKey]: any;
@@ -33,11 +33,11 @@ export class DomainModel<P extends Props> {
   }
 
   definePropertyAccessors() {
-    this.modelDescriptor()
-      .resolvedPropertyAccessors()
-      .forEach(({ targetKey, converter }, key) => {
+    this.modelDescriptor.resolvedPropertyAccessors.forEach(
+      ({ targetKey, converter }, key) => {
         this.definePropAccessor(key as keyof this, targetKey, converter);
-      });
+      }
+    );
   }
 
   protected definePropAccessor<K extends keyof P>(
@@ -58,16 +58,15 @@ export class DomainModel<P extends Props> {
     });
   }
 
-  modelDescriptor() {
+  get modelDescriptor() {
     return new ModelDescriptor(this.constructor as any);
   }
 
   validateProps(props: P): void {
-    const modelPropsValidators = this.modelDescriptor().modelPropsValidators();
+    const modelPropsValidators = this.modelDescriptor.modelPropsValidators;
 
-    modelPropsValidators.forEach(
-      (propsValidator) => propsValidator.validate(props)
-      // propsValidator.call(this.constructor, props)
+    modelPropsValidators.forEach((propsValidator) =>
+      propsValidator.validate(props)
     );
   }
 
@@ -97,7 +96,7 @@ export class DomainModel<P extends Props> {
     if (typeof propsOrBuilder === "function") props = propsOrBuilder.call(this);
     else props = propsOrBuilder;
 
-    if (!this.modelDescriptor().modelMutable) {
+    if (!this.modelDescriptor.modelMutable) {
       this._props = props;
 
       Object.freeze(this._props);

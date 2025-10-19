@@ -14,15 +14,15 @@ export interface AggregateMetadata extends ModelWithIdMetadata {
 
 @Mutable(true)
 export abstract class Aggregate<P extends Props> extends ModelWithId<P> {
-  static createMetadata = (
+  static createMetadata(
     metadata?: Partial<AggregateMetadata>
-  ): AggregateMetadata => {
+  ): AggregateMetadata {
     return {
       id: v4(),
       version: 0,
       ...metadata,
     };
-  };
+  }
 
   protected readonly _version: number;
 

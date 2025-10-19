@@ -16,9 +16,9 @@ export class Enum extends DomainModel<EnumProps> {
   }
 
   static values() {
-    return Array.from(
-      this.modelDescriptor().ownModelStaticValues().values()
-    ).map((staticValue) => staticValue.value);
+    return Array.from(this.modelDescriptor().ownModelStaticValues.values()).map(
+      (staticValue) => staticValue.value
+    );
   }
 
   static from<T extends AnyEnum>(this: EnumClass<T>, value: EnumValue): T {
@@ -38,7 +38,7 @@ export class Enum extends DomainModel<EnumProps> {
 
     if (!result)
       throw new Error(
-        `Invalid provided value for enum ${this.modelDescriptor().modelName()}`
+        `Invalid provided value for enum ${this.modelDescriptor().modelName}`
       );
 
     return result;

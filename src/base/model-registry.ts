@@ -1,5 +1,5 @@
-import { AnyDomainModel, DomainModelClass } from "./model";
 import { $ModelId, ModelId, ModelName, ModelVersion } from "./meta";
+import { AnyDomainModel, DomainModelClass } from "./model";
 
 export class ModelVersions<
   T extends AnyDomainModel = AnyDomainModel
@@ -36,7 +36,7 @@ export class ModelRegistry {
       return new $ModelId(p1, p2 as ModelVersion);
     }
 
-    return $ModelId.fromValue(p1.modelDescriptor().modelId());
+    return $ModelId.fromValue(p1.modelDescriptor().modelId);
   }
 
   getModel<T extends AnyDomainModel = AnyDomainModel>(
@@ -72,8 +72,8 @@ export class ModelRegistry {
   }
 
   registerModel(modelClass: DomainModelClass) {
-    const modelName = modelClass.modelDescriptor().modelName();
-    const modelVersion = modelClass.modelDescriptor().modelVersion();
+    const modelName = modelClass.modelDescriptor().modelName;
+    const modelVersion = modelClass.modelDescriptor().modelVersion;
 
     if (this.hasRegisteredModel(modelName, modelVersion))
       throw new Error(

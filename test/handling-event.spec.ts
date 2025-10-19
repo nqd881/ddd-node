@@ -81,7 +81,7 @@ eventSubscriberRegistry.registerSubscriber(new CompositeTestEventSubscriber());
 
 const eventDispatcher = new EventDispatcher(eventSubscriberRegistry);
 
-describe("IsEvent Pubsub", function () {
+describe("Handling Event", function () {
   const aggregate = new TestAggregate({ id: v4(), version: 0 }, {});
 
   afterEach(() => {

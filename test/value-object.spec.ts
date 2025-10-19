@@ -1,15 +1,13 @@
 import { expect } from "chai";
+import { IsNotEmpty } from "class-validator";
 import { describe, it } from "mocha";
 import {
   ClassValidatorError,
-  Model,
   Prop,
   Props,
-  PropsBuilder,
   UseClassValidator,
   ValueObject,
 } from "../src";
-import { IsNotEmpty } from "class-validator";
 
 interface NicknameProps {
   value: string;
@@ -80,7 +78,7 @@ class MessageContentText extends MessageContent<
   declare text: string;
 }
 
-describe("Value Object", function () {
+describe("ValueObject", function () {
   const firstName = "Dai";
   const lastName = "Nguyen Quoc";
 

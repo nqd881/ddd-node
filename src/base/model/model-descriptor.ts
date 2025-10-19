@@ -7,63 +7,63 @@ import {
   ModelPropsValidator,
   ModelStaticValuesMap,
   ModelVersion,
+  getDeclaredPropertyAccessors,
   getModelDomain,
   getModelId,
   getModelMutable,
   getModelName,
-  getDeclaredPropertyAccessors,
+  getModelPropsType,
   getModelPropsValidators,
   getModelVersion,
-  getResolvedPropertyAccessors,
   getOwnModelPropsValidator,
   getOwnModelStaticValues,
-  getModelPropsType,
+  getResolvedPropertyAccessors,
 } from "../meta";
 
 export class ModelDescriptor<T extends AnyDomainModel = AnyDomainModel> {
   constructor(public readonly modelClass: DomainModelClass<T>) {}
 
-  modelDomain() {
+  get modelDomain() {
     return getModelDomain(this.modelClass);
   }
 
-  modelMutable() {
+  get modelMutable() {
     return getModelMutable(this.modelClass) ?? false;
   }
 
-  modelName(): ModelName {
+  get modelName(): ModelName {
     return getModelName(this.modelClass);
   }
 
-  modelVersion(): ModelVersion {
+  get modelVersion(): ModelVersion {
     return getModelVersion(this.modelClass);
   }
 
-  modelId(): ModelId {
+  get modelId(): ModelId {
     return getModelId(this.modelClass);
   }
 
-  ownModelPropsValidator(): ModelPropsValidator<T> | undefined {
+  get ownModelPropsValidator(): ModelPropsValidator<T> | undefined {
     return getOwnModelPropsValidator<T>(this.modelClass);
   }
 
-  modelPropsValidators(): ModelPropsValidator[] {
+  get modelPropsValidators(): ModelPropsValidator[] {
     return getModelPropsValidators(this.modelClass);
   }
 
-  ownModelStaticValues(): ModelStaticValuesMap<T> {
+  get ownModelStaticValues(): ModelStaticValuesMap<T> {
     return getOwnModelStaticValues<T>(this.modelClass);
   }
 
-  declaredPropertyAccessors(): ModelPropertyAccessorMap<T> {
+  get declaredPropertyAccessors(): ModelPropertyAccessorMap<T> {
     return getDeclaredPropertyAccessors<T>(this.modelClass.prototype);
   }
 
-  resolvedPropertyAccessors(): ModelPropertyAccessorMap<T> {
+  get resolvedPropertyAccessors(): ModelPropertyAccessorMap<T> {
     return getResolvedPropertyAccessors<T>(this.modelClass.prototype);
   }
 
-  propsType(): Class<InferredProps<T>> | undefined {
+  get propsType(): Class<InferredProps<T>> | undefined {
     return getModelPropsType(this.modelClass);
   }
 }

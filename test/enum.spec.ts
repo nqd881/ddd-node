@@ -9,7 +9,7 @@ class Status extends Enum {
   static Inactive: Status;
 }
 
-describe("IsEnum", function () {
+describe("Enum", function () {
   it("correct value", () => {
     expect(Status.Inactive.value).to.equal("inactive");
   });

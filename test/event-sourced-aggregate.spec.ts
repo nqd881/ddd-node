@@ -174,7 +174,7 @@ class Student extends ExtendablePerson<StudentProps> {
   }
 }
 
-describe("IsEvent sourced aggregate", function () {
+describe("EventSourcedAggregate", function () {
   describe("Building", function () {
     it("create instance with new stream", () => {
       const person = Person.newStream();
