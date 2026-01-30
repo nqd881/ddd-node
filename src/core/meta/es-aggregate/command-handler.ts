@@ -20,7 +20,7 @@ export const getOwnCommandHandlerMap = (target: object): CommandHandlerMap => {
   return ownCommandHandlerMap()!;
 };
 
-export const defineCommandHandler = <T extends AnyCommand>(
+export const defineOwnCommandHandler = <T extends AnyCommand>(
   target: object,
   commandType: string,
   handler: CommandHandler<T>

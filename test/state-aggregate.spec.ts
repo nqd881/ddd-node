@@ -29,8 +29,8 @@ class Person extends StateAggregate<PersonProps> {
 
 describe("StateAggregate", function () {
   describe("Static methods", function () {
-    it("create new instance using newAggregate", () => {
-      const person = Person.build({ name: "Dai" });
+    it("create new instance using new()", () => {
+      const person = Person.new({ name: "Dai" });
 
       expect(person.name).to.equal("Dai");
     });
@@ -38,7 +38,7 @@ describe("StateAggregate", function () {
 
   describe("Instance method", function () {
     it("record an event and then clear all", () => {
-      const person = Person.build({ name: "Dai" });
+      const person = Person.new({ name: "Dai" });
 
       person.changeName("Nam");
 

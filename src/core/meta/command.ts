@@ -27,7 +27,7 @@ export const getCommandType = (target: object): CommandType => {
     target
   );
 
-  if (!commandType) throw new Error("IsCommand's type is not defined");
+  if (!commandType) throw new Error("Command's type is not defined");
 
   return commandType.valueOf();
 };

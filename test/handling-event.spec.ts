@@ -82,7 +82,7 @@ eventSubscriberRegistry.registerSubscriber(new CompositeTestEventSubscriber());
 const eventDispatcher = new EventDispatcher(eventSubscriberRegistry);
 
 describe("Handling Event", function () {
-  const aggregate = new TestAggregate({ id: v4(), version: 0 }, {});
+  const aggregate = new TestAggregate(v4(), 0, {});
 
   afterEach(() => {
     count.value = 0;

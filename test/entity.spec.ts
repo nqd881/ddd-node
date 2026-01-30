@@ -14,7 +14,7 @@ class User extends Entity<UserProps> {
 describe("Entity", function () {
   describe("Static methods", function () {
     it("newEntity", () => {
-      const user = User.build({ name: "Dai" });
+      const user = User.new({ name: "Dai" });
 
       expect(user.name).to.equal("Dai");
     });

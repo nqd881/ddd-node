@@ -1,25 +1,30 @@
 import { Class } from "type-fest";
+import { v4 } from "uuid";
 import { InferredProps, Props } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { CommandType, getCommandType } from "../../meta";
-import {
-  Message,
-  MessageClass,
-  MessageMetadata,
-  MessageMetadataInput,
-} from "./message";
+import { Id } from "../identified-model";
+import { CausationId, CorrelationIds, Message, MessageClass } from "./message";
 
-export interface CommandMetadata extends MessageMetadata {
-  commandType: CommandType;
+export interface NewCommandOptions {
+  id?: Id;
+  causationId?: CausationId;
+  correlationIds?: CorrelationIds;
 }
 
 export class Command<P extends Props> extends Message<P> {
-  static build<T extends AnyCommand>(
+  static new<T extends AnyCommand>(
     this: CommandClassWithTypedConstructor<T>,
     props: InferredProps<T>,
-    metadata?: MessageMetadataInput
+    options?: NewCommandOptions
   ) {
-    return new this(this.createMetadata(metadata), props);
+    return new this(
+      options?.id ?? v4(),
+      Date.now(),
+      props,
+      options?.causationId,
+      options?.correlationIds
+    );
   }
 
   static commandType<T extends AnyCommand>(this: CommandClass<T>) {
@@ -28,21 +33,20 @@ export class Command<P extends Props> extends Message<P> {
 
   protected readonly _commandType: CommandType;
 
-  constructor(metadata: Omit<CommandMetadata, "commandType">, props: P) {
-    super(metadata, props);
+  constructor(
+    id: Id,
+    timestamp: number,
+    props: P,
+    causationId?: Id,
+    correlationIds?: CorrelationIds
+  ) {
+    super(id, timestamp, props, causationId, correlationIds);
 
     this._commandType = this._constructor().commandType();
   }
 
   _constructor() {
     return this.constructor as CommandClass<typeof this>;
-  }
-
-  override metadata(): CommandMetadata {
-    return {
-      ...super.metadata(),
-      commandType: this._commandType,
-    };
   }
 
   commandType() {

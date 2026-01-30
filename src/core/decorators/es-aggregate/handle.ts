@@ -4,7 +4,7 @@ import {
   CommandClass,
   CommandHandler,
 } from "../..";
-import { defineCommandHandler } from "../../meta";
+import { defineOwnCommandHandler } from "../../meta";
 
 export const Handle = <T extends AnyCommand>(commandClass: CommandClass<T>) => {
   return <U extends CommandHandler<T>>(
@@ -15,7 +15,7 @@ export const Handle = <T extends AnyCommand>(commandClass: CommandClass<T>) => {
     if (typeof descriptor.value === "function") {
       const commandType = commandClass.commandType();
 
-      defineCommandHandler(target, commandType, descriptor.value);
+      defineOwnCommandHandler(target, commandType, descriptor.value);
     }
   };
 };

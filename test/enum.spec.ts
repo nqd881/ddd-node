@@ -23,7 +23,7 @@ describe("Enum", function () {
     expect(Status.Active).to.equal(Status.Active);
   });
 
-  it("build", () => {
+  it("building", () => {
     const activeStatus = () => Status.from("Active");
 
     const invalidActiveStatus = () => Status.from("ACTIVE");

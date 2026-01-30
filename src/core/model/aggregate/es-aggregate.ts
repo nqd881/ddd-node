@@ -1,5 +1,6 @@
 import { Id } from "src";
 import { Class } from "type-fest";
+import { v4 } from "uuid";
 import { InferredProps, Props } from "../../../base";
 import { ClassStatic } from "../../../types";
 import { toArray } from "../../../utils";
@@ -13,40 +14,41 @@ import {
   AnyCommand,
   AnyEvent,
   EventClassWithTypedConstructor,
+  NewEventOptions,
 } from "../message";
-import { Aggregate, AggregateMetadata } from "./aggregate";
-import { IAggregateEventPublisher } from "./types";
+import { Aggregate } from "./aggregate";
 
 export class ESAggregate<P extends Props> extends Aggregate<P> {
   static fromStream<T extends AnyESAggregate>(
     this: ESAggregateClassWithTypedConstructor<T>,
-    pastEvents: AnyEvent[],
-    id?: Id
+    id: Id,
+    allPastEvents: AnyEvent[],
   ) {
-    const metadata = this.createMetadata({ id });
+    const instance = new this(id, 0);
 
-    const instance = new this(metadata);
-
-    instance.applyPastEvents(pastEvents);
+    instance.applyPastEvents(allPastEvents);
 
     return instance;
   }
 
   static newStream<T extends AnyESAggregate>(
     this: ESAggregateClassWithTypedConstructor<T>,
-    id?: Id
+    id?: Id,
   ) {
-    return this.fromStream([], id);
+    return this.fromStream(id ?? v4(), []);
   }
 
   static fromSnapshot<T extends AnyESAggregate>(
     this: ESAggregateClassWithTypedConstructor<T>,
     snapshot: Snapshot<T>,
-    pastEvents: AnyEvent[] = []
+    pastEvents: AnyEvent[] = [],
   ) {
-    const { metadata, props } = snapshot;
+    const {
+      metadata: { id, version },
+      props,
+    } = snapshot;
 
-    const instance = new this(metadata, props);
+    const instance = new this(id, version, props);
 
     instance.applyPastEvents(pastEvents);
 
@@ -54,7 +56,7 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
   }
 
   static ownEventApplierMap<T extends AnyESAggregate>(
-    this: ESAggregateClass<T>
+    this: ESAggregateClass<T>,
   ) {
     return getOwnEventApplierMap(this.prototype);
   }
@@ -64,13 +66,13 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
   }
 
   static ownCommandHandlerMap<T extends AnyESAggregate>(
-    this: ESAggregateClass<T>
+    this: ESAggregateClass<T>,
   ) {
     return getOwnCommandHandlerMap(this.prototype);
   }
 
   static commandHandlerMap<T extends AnyESAggregate>(
-    this: ESAggregateClass<T>
+    this: ESAggregateClass<T>,
   ) {
     return getCommandHandlerMap(this.prototype);
   }
@@ -79,8 +81,8 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
   private _pastEvents: AnyEvent[];
   private _events: AnyEvent[];
 
-  constructor(metadata: AggregateMetadata, props?: P) {
-    super(metadata, props);
+  constructor(id: Id, version: number, props?: P) {
+    super(id, version, props);
 
     this._handledCommands = [];
     this._events = [];
@@ -91,7 +93,7 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
     return this.constructor as ESAggregateClass<typeof this>;
   }
 
-  version() {
+  get version() {
     return this._version + this._pastEvents.length + this._events.length;
   }
 
@@ -117,7 +119,7 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
 
     const applier = eventApplierMap.get(eventType);
 
-    if (!applier) throw new Error("IsEvent applier not found");
+    if (!applier) throw new Error("Event applier not found");
 
     return applier as EventApplier<E>;
   }
@@ -125,9 +127,9 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
   private validateEventBeforeApply(event: AnyEvent) {
     const { aggregateId, aggregateVersion } = event.source();
 
-    if (aggregateId !== this._id) throw new Error("Invalid aggregate id");
+    if (aggregateId !== this.id) throw new Error("Invalid aggregate id");
 
-    if (aggregateVersion !== this.version())
+    if (aggregateVersion !== this.version)
       throw new Error("Invalid aggregate version");
   }
 
@@ -168,9 +170,14 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
 
   applyNewEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
-    props: InferredProps<E>
+    props: InferredProps<E>,
+    options?: NewEventOptions,
   ) {
-    this.applyEvent(this.newEvent(eventClass, props));
+    const event = this.newEvent(eventClass, props, options);
+
+    this.applyEvent(event);
+
+    return event;
   }
 
   getCommandHandler<C extends AnyCommand>(command: C) {
@@ -179,7 +186,7 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
 
     const handler = commandHandlerMap.get(commandType);
 
-    if (!handler) throw new Error("IsCommand handler not found");
+    if (!handler) throw new Error("Command handler not found");
 
     return handler as CommandHandler<C>;
   }
@@ -189,9 +196,9 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
 
     const events = toArray(handler.call(this, command));
 
-    events.forEach((event) => {
-      event.setCausationId(command.id());
-      event.setCorrelationIds(command.correlationIds());
+    events.forEach((event, index) => {
+      event.setCausationId(command.id);
+      event.setCorrelationIds(command.correlationIds);
     });
 
     this.applyEvents(events);
@@ -202,13 +209,16 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
   }
 
   takeSnapshot() {
-    if (this.isPropsEmpty())
+    if (!this.isPropsInitialized())
       throw new Error(
-        "Cannot create snapshot when the props is not initialized"
+        "Cannot create snapshot when the props is not initialized",
       );
 
     return {
-      metadata: this.metadata(),
+      metadata: {
+        id: this.id,
+        version: this.version,
+      },
       props: this.props(),
     } as Snapshot<typeof this>;
   }
@@ -218,12 +228,12 @@ export class ESAggregate<P extends Props> extends Aggregate<P> {
     this._events = [];
   }
 
-  publishEvents<R = any>(publisher: IAggregateEventPublisher<R>) {
+  releaseEvents() {
     const events = this.events();
 
     this.commitEvents();
 
-    return publisher.publish(events);
+    return events;
   }
 }
 
@@ -231,25 +241,32 @@ export type AnyESAggregate = ESAggregate<Props>;
 
 export interface ESAggregateClass<
   T extends AnyESAggregate = AnyESAggregate,
-  Arguments extends unknown[] = any[]
-> extends Class<T, Arguments>,
+  Arguments extends unknown[] = any[],
+>
+  extends
+    Class<T, Arguments>,
     ClassStatic<typeof ESAggregate<InferredProps<T>>> {}
 
 export interface ESAggregateClassWithTypedConstructor<
-  T extends AnyESAggregate = AnyESAggregate
+  T extends AnyESAggregate = AnyESAggregate,
 > extends ESAggregateClass<
-    T,
-    ConstructorParameters<typeof ESAggregate<InferredProps<T>>>
-  > {}
+  T,
+  ConstructorParameters<typeof ESAggregate<InferredProps<T>>>
+> {}
 
 export type EventApplier<T extends AnyEvent = AnyEvent> = (event: T) => void;
 
 export type CommandHandler<
   T extends AnyCommand = AnyCommand,
-  U extends AnyEvent | AnyEvent[] = AnyEvent | AnyEvent[]
+  U extends AnyEvent | AnyEvent[] = AnyEvent | AnyEvent[],
 > = (command: T) => U;
 
+export interface SnapshotMetadata {
+  id: Id;
+  version: number;
+}
+
 export interface Snapshot<T extends AnyESAggregate> {
-  metadata: AggregateMetadata;
+  metadata: SnapshotMetadata;
   props: InferredProps<T>;
 }

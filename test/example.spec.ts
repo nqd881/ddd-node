@@ -92,17 +92,17 @@ describe("Example", function () {
   let applePhone: Phone, samsungPhone: Phone;
 
   beforeEach(() => {
-    applePhone = Phone.build({
+    applePhone = Phone.new({
       brand: "Apple",
       batteryLevel: new BatteryLevel(50),
     });
 
-    samsungPhone = Phone.build({
+    samsungPhone = Phone.new({
       brand: "Samsung",
       batteryLevel: new BatteryLevel(75),
     });
 
-    person = Person.build({
+    person = Person.new({
       name: new Name("Dai", "Nguyen Quoc"),
       phones: [applePhone, samsungPhone],
     });
@@ -121,7 +121,7 @@ describe("Example", function () {
   });
 
   it("expect update working", () => {
-    person.chargePhoneTo(applePhone.id(), new BatteryLevel(63));
+    person.chargePhoneTo(applePhone.id, new BatteryLevel(63));
 
     expect(person.phones[0].batteryLevel.percentage).to.equal(63);
     expect(applePhone.batteryLevel.percentage).to.equal(63);

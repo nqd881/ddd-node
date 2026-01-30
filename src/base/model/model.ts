@@ -74,8 +74,14 @@ export class DomainModel<P extends Props> {
     this.validateProps(this._props);
   }
 
-  isPropsEmpty(): this is InitializedDomainModel<P> {
+  isPropsEmpty() {
     return this._props === (DomainModel.EMPTY_PROPS as any);
+  }
+
+  isPropsInitialized<T extends AnyDomainModel>(
+    this: T
+  ): this is InitializedDomainModel<typeof this> {
+    return !this.isPropsEmpty();
   }
 
   props(): P | null {
@@ -84,12 +90,8 @@ export class DomainModel<P extends Props> {
     return _.cloneDeep(this._props);
   }
 
-  metadata(): any {
-    return {};
-  }
-
   protected initializeProps(propsOrBuilder: P | PropsBuilder<typeof this>) {
-    if (!this.isPropsEmpty()) throw new PropsInitializedError();
+    if (this.isPropsInitialized()) throw new PropsInitializedError();
 
     let props: P;
 
@@ -120,11 +122,11 @@ export class DomainModel<P extends Props> {
   }
 }
 
-export type InitializedDomainModel<P extends Props> = DomainModel<P> & {
-  props(): P;
-};
-
 export type AnyDomainModel = DomainModel<Props>;
+
+export type InitializedDomainModel<T extends AnyDomainModel> = T & {
+  props(): InferredProps<T>;
+};
 
 export type InferredProps<T extends AnyDomainModel> = T extends DomainModel<
   infer P

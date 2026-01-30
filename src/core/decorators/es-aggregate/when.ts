@@ -1,5 +1,5 @@
 import { AnyEvent, AnyESAggregate, EventApplier, EventClass } from "../..";
-import { defineEventApplier } from "../../meta";
+import { defineOwnEventApplier } from "../../meta";
 
 export const When = <T extends AnyEvent>(eventClass: EventClass<T>) => {
   return <U extends EventApplier<T>>(
@@ -10,7 +10,7 @@ export const When = <T extends AnyEvent>(eventClass: EventClass<T>) => {
     if (typeof descriptor.value === "function") {
       const eventType = eventClass.eventType();
 
-      defineEventApplier(target, eventType, descriptor.value);
+      defineOwnEventApplier(target, eventType, descriptor.value);
     }
   };
 };

@@ -17,7 +17,7 @@ export const getOwnEventApplierMap = (target: object): EventApplierMap => {
   return Reflect.getMetadata<EventApplierMap>(OWN_EVENT_APPLIER_MAP, target)!;
 };
 
-export const defineEventApplier = <T extends AnyEvent>(
+export const defineOwnEventApplier = <T extends AnyEvent>(
   target: object,
   eventType: string,
   applier: EventApplier<T>

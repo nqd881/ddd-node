@@ -176,7 +176,7 @@ class Student extends ExtendablePerson<StudentProps> {
 
 describe("EventSourcedAggregate", function () {
   describe("Building", function () {
-    it("create instance with new stream", () => {
+    it("create instance with newStream()", () => {
       const person = Person.newStream();
 
       expect(person.props()).to.be.null;
@@ -187,7 +187,7 @@ describe("EventSourcedAggregate", function () {
 
       const requestId = v4();
 
-      const command1 = ChangePersonNameCommand.build(
+      const command1 = ChangePersonNameCommand.new(
         { name: "Duong" },
         {
           correlationIds: {
@@ -198,41 +198,41 @@ describe("EventSourcedAggregate", function () {
 
       const [event1] = personA.handleCommand(command1);
 
-      expect(event1.correlationIds().requestId).to.equals(requestId);
-      expect(event1.causationId()).to.equals(command1.id());
+      expect(event1.correlationIds.requestId).to.equals(requestId);
+      expect(event1.causationId).to.equals(command1.id);
 
       const pastEvents = personA.events();
 
-      personA.handleCommand(ChangePersonNameCommand.build({ name: "Vu" }));
+      personA.handleCommand(ChangePersonNameCommand.new({ name: "Vu" }));
 
-      const personB = Person.fromStream(pastEvents, personA.id());
+      const personB = Person.fromStream(personA.id, pastEvents);
 
       expect(personB.name).to.equal("Duong");
-      expect(personB.version()).to.equal(2);
+      expect(personB.version).to.equal(2);
     });
 
-    it("create instance with snapshot", () => {
+    it("create instance with fromSnapshot()", () => {
       const personA = Person.createPerson({ name: "Dai" });
 
-      personA.handleCommand(ChangePersonNameCommand.build({ name: "Duong" }));
+      personA.handleCommand(ChangePersonNameCommand.new({ name: "Duong" }));
 
       const snapshot = personA.takeSnapshot();
 
       const eventsAfterSnapshot = personA.handleCommand(
-        ChangePersonNameCommand.build({ name: "Vu" })
+        ChangePersonNameCommand.new({ name: "Vu" })
       );
 
       const personB = Person.fromSnapshot(snapshot);
 
       expect(personB.name).to.equal("Duong");
       expect(personB.pastEvents().length).to.equal(0);
-      expect(personB.version()).to.equal(2);
+      expect(personB.version).to.equal(2);
 
       const personC = Person.fromSnapshot(snapshot, eventsAfterSnapshot);
 
       expect(personC.name).to.equal("Vu");
       expect(personC.pastEvents().length).to.equal(1);
-      expect(personC.version()).to.equal(3);
+      expect(personC.version).to.equal(3);
     });
   });
 
@@ -246,7 +246,7 @@ describe("EventSourcedAggregate", function () {
     it("change person name", () => {
       const person = Person.createPerson({ name: "Dai" });
 
-      person.handleCommand(ChangePersonNameCommand.build({ name: "Duong" }));
+      person.handleCommand(ChangePersonNameCommand.new({ name: "Duong" }));
 
       expect(person.name).to.equal("Duong");
     });
@@ -267,7 +267,7 @@ describe("EventSourcedAggregate", function () {
       const student = Student.createStudent({ name: "Dai", school: "NEU" });
 
       const changeStudentName = () =>
-        student.handleCommand(ChangePersonNameCommand.build({ name: "Duong" }));
+        student.handleCommand(ChangePersonNameCommand.new({ name: "Duong" }));
 
       expect(changeStudentName).not.throw();
 

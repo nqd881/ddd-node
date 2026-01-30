@@ -1,63 +1,42 @@
-import { v4 } from "uuid";
+import { Id, IdentifiedModel } from "../identified-model";
 import {
   AnyEvent,
   EventClassWithTypedConstructor,
   EventSource,
+  NewEventOptions,
 } from "../message";
-import { ModelWithId, ModelWithIdMetadata } from "../model-with-id";
 import { InferredProps, Mutable, Props } from "./../../../base";
-import { IAggregateEventPublisher } from "./types";
-
-export interface AggregateMetadata extends ModelWithIdMetadata {
-  version: number;
-}
 
 @Mutable(true)
-export abstract class Aggregate<P extends Props> extends ModelWithId<P> {
-  static createMetadata(
-    metadata?: Partial<AggregateMetadata>
-  ): AggregateMetadata {
-    return {
-      id: v4(),
-      version: 0,
-      ...metadata,
-    };
-  }
-
+export abstract class Aggregate<P extends Props> extends IdentifiedModel<P> {
   protected readonly _version: number;
 
-  constructor(metadata: AggregateMetadata, props?: P) {
-    super(metadata);
+  constructor(id: Id, version: number, props?: P) {
+    super(id);
+
+    this._version = version;
 
     if (props) this.initializeProps(props);
-
-    this._version = metadata.version;
   }
 
-  abstract version(): number;
+  abstract get version(): number;
 
-  override metadata(): AggregateMetadata {
+  protected asEventSource(): EventSource {
     return {
-      ...super.metadata(),
-      version: this.version(),
-    };
-  }
-
-  protected createEventSource(): EventSource {
-    return {
-      aggregateId: this.id(),
-      aggregateVersion: this.version(),
+      aggregateId: this.id,
+      aggregateVersion: this.version,
     };
   }
 
   protected newEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
-    props: InferredProps<E>
+    props: InferredProps<E>,
+    options?: NewEventOptions
   ) {
-    return eventClass.build(props, { source: this.createEventSource() });
+    return eventClass.new(this.asEventSource(), props, options);
   }
 
-  abstract publishEvents<R = any>(publisher: IAggregateEventPublisher<R>): R;
+  abstract releaseEvents(): AnyEvent[];
 }
 
 export type AnyAggregate = Aggregate<Props>;

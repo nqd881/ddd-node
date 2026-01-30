@@ -1,25 +1,28 @@
 import { Class } from "type-fest";
+import { v4 } from "uuid";
 import { InferredProps, Props } from "../../../base";
 import { ClassStatic } from "../../../types";
-import { AnyEvent, EventClassWithTypedConstructor } from "../message";
-import { Aggregate, AggregateMetadata } from "./aggregate";
-import { IAggregateEventPublisher } from "./types";
-
-export interface StateAggregateMetadata extends AggregateMetadata {}
+import { Id } from "../identified-model";
+import {
+  AnyEvent,
+  EventClassWithTypedConstructor,
+  NewEventOptions,
+} from "../message";
+import { Aggregate } from "./aggregate";
 
 export class StateAggregate<P extends Props> extends Aggregate<P> {
-  static build<T extends AnyStateAggregate>(
+  static new<T extends AnyStateAggregate>(
     this: StateAggregateClassWithTypedConstructor<T>,
     props: InferredProps<T>,
-    metadata?: Partial<StateAggregateMetadata>
+    id?: Id
   ) {
-    return new this(this.createMetadata(metadata), props);
+    return new this(id ?? v4(), 0, props);
   }
 
   private _events: AnyEvent[];
 
-  constructor(metadata: StateAggregateMetadata, props: P) {
-    super(metadata, props);
+  constructor(id: Id, version: number, props: P) {
+    super(id, version, props);
 
     this._events = [];
   }
@@ -32,7 +35,7 @@ export class StateAggregate<P extends Props> extends Aggregate<P> {
     return super.props()!;
   }
 
-  version() {
+  get version() {
     return this._version;
   }
 
@@ -43,18 +46,20 @@ export class StateAggregate<P extends Props> extends Aggregate<P> {
   protected recordEvent<E extends AnyEvent>(event: E): void;
   protected recordEvent<E extends AnyEvent>(
     eventClass: EventClassWithTypedConstructor<E>,
-    props: InferredProps<E>
+    props: InferredProps<E>,
+    options?: NewEventOptions
   ): void;
   protected recordEvent<E extends AnyEvent>(
-    param1: E | EventClassWithTypedConstructor<E>,
-    param2?: InferredProps<E>
+    p1: E | EventClassWithTypedConstructor<E>,
+    p2?: InferredProps<E>,
+    p3?: NewEventOptions
   ): void {
     let event: E;
 
-    if (typeof param1 === "function" && param2) {
-      event = this.newEvent(param1, param2);
+    if (typeof p1 === "function" && p2) {
+      event = this.newEvent(p1, p2, p3);
     } else {
-      event = param1 as E;
+      event = p1 as E;
     }
 
     this._events.push(event);
@@ -64,12 +69,12 @@ export class StateAggregate<P extends Props> extends Aggregate<P> {
     this._events = [];
   }
 
-  publishEvents<R = any>(publisher: IAggregateEventPublisher<R>) {
+  releaseEvents() {
     const events = this.events();
 
     this.clearEvents();
 
-    return publisher.publish(events);
+    return events;
   }
 }
 
